@@ -9,38 +9,50 @@ class TokenPassing(object):
         self.dimensions = dimensions
         self.obstacles = set(obstacles)
         self.non_task_endpoints = non_task_endpoints
+        self.number_of_areas = number_of_areas
         if len(agents) > len(non_task_endpoints):
             print('There are more agents than non task endpoints, instance is not well-formed.')
             exit(1)
-        #self.token = {}
+        #slef. = {}
+        self.tokens = []
         self.simulation = simulation
         self.a_star_max_iter = a_star_max_iter
-        self.init_token()
+        #self.init_token()
+        self.init_tokens()
         #vedi sotto
 
-    def init_token(self):
-        self.token['agents'] = {}
-        self.token['tasks'] = {}
-        self.token['start_tasks_times'] = {}
-        self.token['completed_tasks_times'] = {}
+    #initialize a single token
+    def init_token(self, index=0):
+        self.tokens[index]['agents'] = {}
+        self.tokens[index]['tasks'] = {}
+        self.tokens[index]['start_tasks_times'] = {}
+        self.tokens[index]['completed_tasks_times'] = {}
+        self.tokens[index]['agents_to_tasks'] = {}
+        self.tokens[index]['completed_tasks'] = 0
+        self.tokens[index]['path_ends'] = set()
+        self.tokens[index]['occupied_non_task_endpoints'] = set()
+        self.tokens[index]['agent_at_end_path'] = []
+        self.tokens[index]['agent_at_end_path_pos'] = []
+
         for t in self.simulation.get_new_tasks():
-            self.token['tasks'][t['task_name']] = [t['start'], t['goal']]
-            self.token['start_tasks_times'][t['task_name']] = self.simulation.get_time()
-        self.token['agents_to_tasks'] = {}
-        self.token['completed_tasks'] = 0
-        self.token['path_ends'] = set()
-        self.token['occupied_non_task_endpoints'] = set()
-        self.token['agent_at_end_path'] = []
-        self.token['agent_at_end_path_pos'] = []
+            self.tokens[index]['tasks'][t['task_name']] = [t['start'], t['goal']]
+            self.tokens[index]['start_tasks_times'][t['task_name']] = self.simulation.get_time()
+
         for a in self.agents:
             #dovrebbe essere prendi gli agenti del token e poi nello specifico quello col nome specifico
-            self.token['agents'][a['name']] = [a['start']]
-            self.token['path_ends'].add(tuple(a['start']))
+            self.tokens[index]['agents'][a['name']] = [a['start']]
+            self.tokens[index]['path_ends'].add(tuple(a['start']))
+
+    #initialize all tokens
+    def init_tokens(self):
+        for t in range(self.number_of_areas):
+            self.tokens.append({})
+            self.init_token(t)
 
     #in teoria agenti in idle hanno il path verso la loro posizione attuale
     def get_idle_agents(self):
         agents = {}
-        for name, path in self.token['agents'].items():
+        for name, path in self.tokens[0]['agents'].items():
             if len(path) == 1:
                 agents[name] = path
         return agents
@@ -78,7 +90,7 @@ class TokenPassing(object):
         return obstacles
 
     def check_safe_idle(self, agent_pos):
-        for task_name, task in self.token['tasks'].items():
+        for task_name, task in self.tokens[0]['tasks'].items():
             if tuple(task[0]) == tuple(agent_pos) or tuple(task[1]) == tuple(agent_pos):
                 return False
         for start_goal in self.get_agents_to_tasks_starts_goals():
@@ -90,7 +102,7 @@ class TokenPassing(object):
         dist = -1
         res = -1
         for endpoint in self.non_task_endpoints:
-            if endpoint not in self.token['occupied_non_task_endpoints']:
+            if endpoint not in self.tokens[0]['occupied_non_task_endpoints']:
                 if dist == -1:
                     dist = self.admissible_heuristic(endpoint, agent_pos)
                     res = endpoint
@@ -105,33 +117,33 @@ class TokenPassing(object):
         return res
 
     def update_ends(self, agent_pos):
-        if tuple(agent_pos) in self.token['path_ends']:
-            self.token['path_ends'].remove(tuple(agent_pos))
-        elif tuple(agent_pos) in self.token['occupied_non_task_endpoints']:
-            self.token['occupied_non_task_endpoints'].remove(tuple(agent_pos))
+        if tuple(agent_pos) in self.tokens[0]['path_ends']:
+            self.tokens[0]['path_ends'].remove(tuple(agent_pos))
+        elif tuple(agent_pos) in self.tokens[0]['occupied_non_task_endpoints']:
+            self.tokens[0]['occupied_non_task_endpoints'].remove(tuple(agent_pos))
 
     def get_agents_to_tasks_goals(self):
         goals = set()
-        for el in self.token['agents_to_tasks'].values():
+        for el in self.tokens[0]['agents_to_tasks'].values():
             goals.add(tuple(el['goal']))
         return goals
 
     def get_agents_to_tasks_starts_goals(self):
         starts_goals = set()
-        for el in self.token['agents_to_tasks'].values():
+        for el in self.tokens[0]['agents_to_tasks'].values():
             starts_goals.add(tuple(el['goal']))
             starts_goals.add(tuple(el['start']))
         return starts_goals
 
     def get_completed_tasks(self):
-        return self.token['completed_tasks']
+        return self.tokens[0]['completed_tasks']
 
     def get_completed_tasks_times(self):
-        return self.token['completed_tasks_times']
+        return self.tokens[0]['completed_tasks_times']
 
 
     def get_token(self):
-        return self.token
+        return self.tokens[0]
 
     def search(self, cbs, agent_name, moving_obstacles_agents):
 
@@ -140,7 +152,7 @@ class TokenPassing(object):
 
     def go_to_closest_non_task_endpoint(self, agent_name, agent_pos, all_idle_agents):
         closest_non_task_endpoint = self.get_closest_non_task_endpoint(agent_pos)
-        moving_obstacles_agents = self.get_moving_obstacles_agents(self.token['agents'], 0)
+        moving_obstacles_agents = self.get_moving_obstacles_agents(self.tokens[0]['agents'], 0)
         idle_obstacles_agents = self.get_idle_obstacles_agents(all_idle_agents.values(), 0)
         agent = {'name': agent_name, 'start': agent_pos, 'goal': closest_non_task_endpoint}
         env = Environment(self.dimensions, [agent], self.obstacles | idle_obstacles_agents, moving_obstacles_agents,
@@ -153,35 +165,35 @@ class TokenPassing(object):
         else:
             print('No available task for agent', agent_name, ' moving to safe idling position...')
             self.update_ends(agent_pos)
-            self.token['occupied_non_task_endpoints'].add(tuple(closest_non_task_endpoint))
-            self.token['agents_to_tasks'][agent_name] = {'task_name': 'safe_idle', 'start': agent_pos,
+            self.tokens[0]['occupied_non_task_endpoints'].add(tuple(closest_non_task_endpoint))
+            self.tokens[0]['agents_to_tasks'][agent_name] = {'task_name': 'safe_idle', 'start': agent_pos,
                                                          'goal': closest_non_task_endpoint, 'predicted_cost': 0}
-            self.token['agents'][agent_name] = []
+            self.tokens[0]['agents'][agent_name] = []
             for el in path_to_non_task_endpoint[agent_name]:
-                self.token['agents'][agent_name].append([el['x'], el['y']])
+                self.tokens[0]['agents'][agent_name].append([el['x'], el['y']])
 
     def update_copleted_tasks(self):
         # Update completed tasks
-        for agent_name in self.token['agents']:
+        for agent_name in self.tokens[0]['agents']:
             # pos = posizione attuale agente
             pos = self.simulation.actual_paths[agent_name][-1]
 
             # ---------------------CASO AGENTE ARRIVATO------------------
             # se agente assegnato ad un task E le sue coordinate attuali sono = al suo goal
             # E il suo path attuale lungo 1 ed il suo taks non è safe idle
-            if agent_name in self.token['agents_to_tasks'] and (pos['x'], pos['y']) == tuple(
-                    self.token['agents_to_tasks'][agent_name]['goal']) \
-                    and len(self.token['agents'][agent_name]) == 1 and self.token['agents_to_tasks'][agent_name][
+            if agent_name in self.tokens[0]['agents_to_tasks'] and (pos['x'], pos['y']) == tuple(
+                    self.tokens[0]['agents_to_tasks'][agent_name]['goal']) \
+                    and len(self.tokens[0]['agents'][agent_name]) == 1 and self.tokens[0]['agents_to_tasks'][agent_name][
                 'task_name'] != 'safe_idle':
-                self.token['completed_tasks'] = self.token['completed_tasks'] + 1
-                self.token['completed_tasks_times'][
-                    self.token['agents_to_tasks'][agent_name]['task_name']] = self.simulation.get_time()
-                self.token['agents_to_tasks'].pop(agent_name)
-            if agent_name in self.token['agents_to_tasks'] and (pos['x'], pos['y']) == tuple(
-                    self.token['agents_to_tasks'][agent_name]['goal']) \
-                    and len(self.token['agents'][agent_name]) == 1 and self.token['agents_to_tasks'][agent_name][
+                self.tokens[0]['completed_tasks'] = self.tokens[0]['completed_tasks'] + 1
+                self.tokens[0]['completed_tasks_times'][
+                    self.tokens[0]['agents_to_tasks'][agent_name]['task_name']] = self.simulation.get_time()
+                self.tokens[0]['agents_to_tasks'].pop(agent_name)
+            if agent_name in self.tokens[0]['agents_to_tasks'] and (pos['x'], pos['y']) == tuple(
+                    self.tokens[0]['agents_to_tasks'][agent_name]['goal']) \
+                    and len(self.tokens[0]['agents'][agent_name]) == 1 and self.tokens[0]['agents_to_tasks'][agent_name][
                 'task_name'] == 'safe_idle':
-                self.token['agents_to_tasks'].pop(agent_name)
+                self.tokens[0]['agents_to_tasks'].pop(agent_name)
 
 
     def time_forward(self):
@@ -190,31 +202,31 @@ class TokenPassing(object):
 
         # Collect new tasks and assign them, if possible
         for t in self.simulation.get_new_tasks():
-            self.token['tasks'][t['task_name']] = [t['start'], t['goal']]
-            self.token['start_tasks_times'][t['task_name']] = self.simulation.get_time()
+            self.tokens[0]['tasks'][t['task_name']] = [t['start'], t['goal']]
+            self.tokens[0]['start_tasks_times'][t['task_name']] = self.simulation.get_time()
         idle_agents = self.get_idle_agents()
 
         while len(idle_agents) > 0:
             agent_name = random.choice(list(idle_agents.keys()))
-            all_idle_agents = self.token['agents'].copy()
+            all_idle_agents = self.tokens[0]['agents'].copy()
             all_idle_agents.pop(agent_name)
 
             agent_pos = idle_agents.pop(agent_name)[0]
             available_tasks = {}
-            for task_name, task in self.token['tasks'].items():
+            for task_name, task in self.tokens[0]['tasks'].items():
                 #se inizio e fine task non in path ends degli agenti (meno me) AND nemmeno in
-                if tuple(task[0]) not in self.token['path_ends'].difference({tuple(agent_pos)}) and tuple(
-                        task[1]) not in self.token['path_ends'].difference({tuple(agent_pos)}) \
+                if tuple(task[0]) not in self.tokens[0]['path_ends'].difference({tuple(agent_pos)}) and tuple(
+                        task[1]) not in self.tokens[0]['path_ends'].difference({tuple(agent_pos)}) \
                         and tuple(task[0]) not in self.get_agents_to_tasks_goals() and tuple(task[1]) not in self.get_agents_to_tasks_goals():
                     available_tasks[task_name] = task
-            if len(available_tasks) > 0 or agent_name in self.token['agents_to_tasks']:
-                if agent_name in self.token['agents_to_tasks']:
-                    closest_task_name = self.token['agents_to_tasks'][agent_name]['task_name']
-                    closest_task = [self.token['agents_to_tasks'][agent_name]['start'], self.token['agents_to_tasks'][agent_name]['goal']]
+            if len(available_tasks) > 0 or agent_name in self.tokens[0]['agents_to_tasks']:
+                if agent_name in self.tokens[0]['agents_to_tasks']:
+                    closest_task_name = self.tokens[0]['agents_to_tasks'][agent_name]['task_name']
+                    closest_task = [self.tokens[0]['agents_to_tasks'][agent_name]['start'], self.tokens[0]['agents_to_tasks'][agent_name]['goal']]
                 else:
                     closest_task_name = self.get_closest_task_name(available_tasks, agent_pos)
                     closest_task = available_tasks[closest_task_name]
-                moving_obstacles_agents = self.get_moving_obstacles_agents(self.token['agents'], 0)
+                moving_obstacles_agents = self.get_moving_obstacles_agents(self.tokens[0]['agents'], 0)
                 idle_obstacles_agents = self.get_idle_obstacles_agents(all_idle_agents.values(), 0)
                 agent = {'name': agent_name, 'start': agent_pos, 'goal': closest_task[0]}
 
@@ -229,7 +241,7 @@ class TokenPassing(object):
                     print("Solution found to task start for agent", agent_name, " searching solution to task goal...")
                     cost1 = env.compute_solution_cost(path_to_task_start)
                     # Use cost - 1 because idle cost is 1
-                    moving_obstacles_agents = self.get_moving_obstacles_agents(self.token['agents'], cost1 - 1)
+                    moving_obstacles_agents = self.get_moving_obstacles_agents(self.tokens[0]['agents'], cost1 - 1)
                     idle_obstacles_agents = self.get_idle_obstacles_agents(all_idle_agents.values(), cost1 - 1)
                     agent = {'name': agent_name, 'start': closest_task[0], 'goal': closest_task[1]}
                     env = Environment(self.dimensions, [agent], self.obstacles | idle_obstacles_agents,
@@ -242,24 +254,24 @@ class TokenPassing(object):
                     else:
                         print("Solution found to task goal for agent", agent_name, " doing task...")
                         cost2 = env.compute_solution_cost(path_to_task_goal)
-                        if agent_name not in self.token['agents_to_tasks']:
-                            self.token['tasks'].pop(closest_task_name)
+                        if agent_name not in self.tokens[0]['agents_to_tasks']:
+                            self.tokens[0]['tasks'].pop(closest_task_name)
                             task = available_tasks.pop(closest_task_name)
                         else:
                             task = closest_task
 
                         last_step = path_to_task_goal[agent_name][-1]
                         self.update_ends(agent_pos)
-                        self.token['path_ends'].add(tuple([last_step['x'], last_step['y']]))
-                        self.token['agents_to_tasks'][agent_name] = {'task_name': closest_task_name, 'start': task[0],
+                        self.tokens[0]['path_ends'].add(tuple([last_step['x'], last_step['y']]))
+                        self.tokens[0]['agents_to_tasks'][agent_name] = {'task_name': closest_task_name, 'start': task[0],
                                                                      'goal': task[1], 'predicted_cost': cost1 + cost2}
-                        self.token['agents'][agent_name] = []
+                        self.tokens[0]['agents'][agent_name] = []
                         for el in path_to_task_start[agent_name]:
-                            self.token['agents'][agent_name].append([el['x'], el['y']])
+                            self.tokens[0]['agents'][agent_name].append([el['x'], el['y']])
                         # Don't repeat twice same step, elimino ultimo elemento
-                        self.token['agents'][agent_name] = self.token['agents'][agent_name][:-1]
+                        self.tokens[0]['agents'][agent_name] = self.tokens[0]['agents'][agent_name][:-1]
                         for el in path_to_task_goal[agent_name]:
-                            self.token['agents'][agent_name].append([el['x'], el['y']])
+                            self.tokens[0]['agents'][agent_name].append([el['x'], el['y']])
             #righe 13-14 alg
             elif self.check_safe_idle(agent_pos):
                 print('No available tasks for agent', agent_name, ' idling at current position...')
