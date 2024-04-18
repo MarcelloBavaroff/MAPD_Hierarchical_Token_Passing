@@ -4,16 +4,15 @@ from Simulation.CBS.cbs import CBS, Environment
 
 
 class TokenPassing(object):
-    def __init__(self, agents, dimesions, obstacles, non_task_endpoints, simulation, a_star_max_iter=4000, new_recovery=False):
+    def __init__(self, agents, dimensions, obstacles, non_task_endpoints, simulation, a_star_max_iter=4000, number_of_areas=2):
         self.agents = agents
-        self.dimensions = dimesions
+        self.dimensions = dimensions
         self.obstacles = set(obstacles)
         self.non_task_endpoints = non_task_endpoints
         if len(agents) > len(non_task_endpoints):
             print('There are more agents than non task endpoints, instance is not well-formed.')
             exit(1)
-        # TODO: Check all properties for well-formedness
-        self.token = {}
+        #self.token = {}
         self.simulation = simulation
         self.a_star_max_iter = a_star_max_iter
         self.init_token()

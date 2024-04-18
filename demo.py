@@ -57,12 +57,10 @@ if __name__ == '__main__':
 
     if args.not_rand:
         tasks = read_tasks()
-
     else:
         # Genera i task
         tasks = gen_tasks(param['map']['start_locations'], param['map']['goal_locations'],
                                              param['n_tasks'], param['task_freq'])
-
     param['tasks'] = tasks
 
     with open(args.param + config['visual_postfix'], 'w') as param_file:
@@ -71,7 +69,7 @@ if __name__ == '__main__':
     # Simulate
     simulation = Simulation(tasks, agents)
     tp = TokenPassing(agents, dimensions, obstacles, non_task_endpoints, simulation,
-                      a_star_max_iter=args.a_star_max_iter, new_recovery=True)
+                      a_star_max_iter=args.a_star_max_iter)
     while tp.get_completed_tasks() != len(tasks):
         simulation.time_forward(tp)
 
