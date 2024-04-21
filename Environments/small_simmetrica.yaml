@@ -81,10 +81,16 @@ map:
     - [13, 6]
     - [13, 3]
     - [13, 2]
-number_of_areas: 2
-divisions:
+    number_of_areas: 2
+    partitions:
     # coordinate sulla mappa globale
     - [0, 0, 6, 8]  #angolo in basso a sinistra e dopo angolo in alto a destra prima area
     - [7, 0, 13, 8] #angolo in basso a destra
+    frontiers:
+    - [6, 8, 0, 7, 8, 1] #in (6,8) c'è un frontiera da area 0 ad area 1 che porta in (7,8)
+    - [6, 4, 0, 7, 4, 1] #in (6,4) c'è un frontiera da area 0 ad area 1 che porta in (7,4)
+    - [6, 0, 0, 7, 0, 1] #in (6,0) c'è un frontiera da area 0 ad area 1 che porta in (7,0)
+    - [7, 6, 1, 6, 6, 0] #in (7,6) c'è un frontiera da area 1 ad area 0 che porta in (6,6)
+    - [7, 2, 1, 6, 2, 0] #in (7,2) c'è un frontiera da area 1 ad area 0 che porta in (6,2)
 n_tasks: 50
 task_freq: 1

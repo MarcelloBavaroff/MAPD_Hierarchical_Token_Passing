@@ -4,7 +4,7 @@ from Simulation.CBS.cbs import CBS, Environment
 
 
 class TokenPassing(object):
-    def __init__(self, agents, dimensions, obstacles, non_task_endpoints, simulation, a_star_max_iter=4000, number_of_areas=2):
+    def __init__(self, agents, dimensions, obstacles, non_task_endpoints, number_of_areas, partitions, simulation, a_star_max_iter=4000):
         self.agents = agents
         self.dimensions = dimensions
         self.obstacles = set(obstacles)
@@ -13,12 +13,11 @@ class TokenPassing(object):
         if len(agents) > len(non_task_endpoints):
             print('There are more agents than non task endpoints, instance is not well-formed.')
             exit(1)
-        #slef. = {}
+
         self.tokens = []
         self.simulation = simulation
         self.a_star_max_iter = a_star_max_iter
-        #self.init_token()
-        self.init_tokens()
+        self.init_tokens(partitions)
         #vedi sotto
 
     #initialize a single token
@@ -44,10 +43,10 @@ class TokenPassing(object):
             self.tokens[index]['path_ends'].add(tuple(a['start']))
 
     #initialize all tokens
-    def init_tokens(self):
+    def init_tokens(self, partitions):
         for t in range(self.number_of_areas):
             self.tokens.append({})
-            self.init_token(t)
+            self.init_token(t, partitions[t])
 
     #in teoria agenti in idle hanno il path verso la loro posizione attuale
     def get_idle_agents(self):
