@@ -27,7 +27,7 @@ class TokenPassing(object):
         #vedi sotto
 
     #initialize a single token
-    def init_token(self, index=0, partitions=None):
+    def init_token(self, index=0, partition=None):
         self.tokens[index]['agents'] = {}
         self.tokens[index]['tasks'] = {}
         self.tokens[index]['start_tasks_times'] = {}
@@ -36,6 +36,7 @@ class TokenPassing(object):
         self.tokens[index]['completed_tasks'] = 0
         self.tokens[index]['path_ends'] = set()
         self.tokens[index]['occupied_non_task_endpoints'] = set()
+        self.tokens[index]['partition'] = partition #x_min, y_min, x_max, y_max
         for t in self.simulation.get_new_tasks():
             self.tokens[index]['tasks'][t['task_name']] = [t['start'], t['goal']]
             self.tokens[index]['start_tasks_times'][t['task_name']] = self.simulation.get_time()

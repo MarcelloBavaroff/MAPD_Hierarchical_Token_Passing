@@ -91,10 +91,14 @@ class Constraints(object):
             "EC: " + str([str(ec) for ec in self.edge_constraints])
 
 class Environment(object):
-    def __init__(self, dimension, agents, obstacles, moving_obstacles=None, a_star_max_iter=-1):
+    def __init__(self, partition, agents, obstacles, moving_obstacles=None, a_star_max_iter=-1):
         if moving_obstacles is None:
             moving_obstacles = []
-        self.dimension = dimension
+        #self.dimension = dimension
+        self.x_min = partition[0]
+        self.x_max = partition[2]
+        self.y_min = partition[1]
+        self.y_max = partition[3]
         self.obstacles = obstacles
         self.moving_obstacles = moving_obstacles
         self.a_star_max_iter = a_star_max_iter
@@ -205,8 +209,8 @@ class Environment(object):
         return self.obstacles | all_obs
 
     def state_valid(self, state):
-        return state.location.x >= 0 and state.location.x < self.dimension[0] \
-            and state.location.y >= 0 and state.location.y < self.dimension[1] \
+        return state.location.x >= self.x_min and state.location.x < self.x_max \
+            and state.location.y >= self.y_min and state.location.y < self.y_max \
             and VertexConstraint(state.time, state.location) not in self.constraints.vertex_constraints \
             and (state.location.x, state.location.y) not in self.get_all_obstacles(state.time) \
             and (state.location.x, state.location.y, state.time) not in self.moving_obstacles
