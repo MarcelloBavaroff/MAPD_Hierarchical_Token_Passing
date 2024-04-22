@@ -56,6 +56,7 @@ if __name__ == '__main__':
     agents = param['agents']
     number_of_areas = param['map']['number_of_areas']
     partitions = param['map']['partitions']
+    goal_endpoints = param['map']['goal_locations']
 
     if args.not_rand:
         tasks = read_tasks()
@@ -71,7 +72,7 @@ if __name__ == '__main__':
     # Simulate
     simulation = Simulation(tasks, agents)
     tp = TokenPassing(agents, dimensions, obstacles, non_task_endpoints, number_of_areas, partitions, simulation,
-                      a_star_max_iter=args.a_star_max_iter)
+                      goal_endpoints, a_star_max_iter=args.a_star_max_iter)
     while tp.get_completed_tasks() != len(tasks):
         simulation.time_forward(tp)
 
