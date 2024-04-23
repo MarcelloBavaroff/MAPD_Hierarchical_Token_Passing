@@ -218,28 +218,29 @@ class TokenPassing(object):
 
     def update_completed_tasks(self):
         # Update completed tasks
-        for agent_name in self.tokens[0]['agents']:
+        for agent_name in self.agents:
             # pos = posizione attuale agente
             pos = self.simulation.actual_paths[agent_name][-1]
+            partition = self.find_partition([pos['x'], pos['y']])
 
             # ---------------------CASO AGENTE ARRIVATO------------------
             # se agente assegnato ad un task E le sue coordinate attuali sono = al suo goal
             # E il suo path attuale lungo 1 ed il suo taks non è safe idle
-            if agent_name in self.tokens[0]['agents_to_tasks'] and (pos['x'], pos['y']) == tuple(
-                    self.tokens[0]['agents_to_tasks'][agent_name]['goal']) \
-                    and len(self.tokens[0]['agents'][agent_name]) == 1 and \
-                    self.tokens[0]['agents_to_tasks'][agent_name][
+            if agent_name in self.global_view['agents_to_tasks'] and (pos['x'], pos['y']) == tuple(
+                    self.global_view['agents_to_tasks'][agent_name]['goal']) \
+                    and len(self.tokens[partition]['agents'][agent_name]) == 1 and \
+                    self.global_view['agents_to_tasks'][agent_name][
                         'task_name'] != 'safe_idle':
-                self.tokens[0]['completed_tasks'] = self.tokens[0]['completed_tasks'] + 1
-                self.tokens[0]['completed_tasks_times'][
-                    self.tokens[0]['agents_to_tasks'][agent_name]['task_name']] = self.simulation.get_time()
-                self.tokens[0]['agents_to_tasks'].pop(agent_name)
-            if agent_name in self.tokens[0]['agents_to_tasks'] and (pos['x'], pos['y']) == tuple(
-                    self.tokens[0]['agents_to_tasks'][agent_name]['goal']) \
-                    and len(self.tokens[0]['agents'][agent_name]) == 1 and \
-                    self.tokens[0]['agents_to_tasks'][agent_name][
+                self.global_view['completed_tasks'] = self.global_view['completed_tasks'] + 1
+                self.global_view['completed_tasks_times'][
+                    self.global_view['agents_to_tasks'][agent_name]['task_name']] = self.simulation.get_time()
+                self.global_view['agents_to_tasks'].pop(agent_name)
+            if agent_name in self.global_view['agents_to_tasks'] and (pos['x'], pos['y']) == tuple(
+                    self.global_view['agents_to_tasks'][agent_name]['goal']) \
+                    and len(self.tokens[partition]['agents'][agent_name]) == 1 and \
+                    self.global_view['agents_to_tasks'][agent_name][
                         'task_name'] == 'safe_idle':
-                self.tokens[0]['agents_to_tasks'].pop(agent_name)
+                self.global_view['agents_to_tasks'].pop(agent_name)
 
     def find_available_tasks(self, agent_pos):
         available_tasks = {}
@@ -325,10 +326,11 @@ class TokenPassing(object):
             self.tokens[0]['agents'][agent_name].append([el['x'], el['y']])
 
     def time_forward(self):
+        self.update_completed_tasks()
         #token è l'indice del token nel vettore di token
         for token in range(self.number_of_areas):
 
-            self.update_completed_tasks()
+
             self.collect_new_tasks()
             idle_agents = self.get_idle_agents()
 
