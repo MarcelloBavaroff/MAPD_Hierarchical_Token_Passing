@@ -25,7 +25,15 @@ class TokenPassing(object):
         self.goal_endpoints = goal_endpoints
         self.init_tokens(partitions)
         self.global_view = {}
+        self.init_global_view()
         #vedi sotto
+
+    #restituisce l'indice della partizione in cui si trova la posizione pos (thanks co-pilot)
+    def find_partition(self, pos):
+        for i, partition in enumerate(self.tokens):
+            if partition['partition'][0] <= pos[0] <= partition['partition'][2] and partition['partition'][1] <= pos[1] <= partition['partition'][3]:
+                return i
+        return -1
 
     def init_global_view(self):
         self.global_view['tasks'] = {}
@@ -38,6 +46,10 @@ class TokenPassing(object):
         for t in self.simulation.get_new_tasks():
             self.global_view['tasks'][t['task_name']] = [t['start'], t['goal']]
             self.global_view['start_tasks_times'][t['task_name']] = self.simulation.get_time()
+
+        for a in self.agents:
+            pos = [a['start']]
+            self.global_view['agents_to_areas'][a['name']] = self.find_partition(pos)
 
     #initialize a single token
     def init_token(self, index=0, partition=None):
