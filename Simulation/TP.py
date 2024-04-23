@@ -308,23 +308,31 @@ class TokenPassing(object):
             self.tokens[0]['agents'][agent_name].append([el['x'], el['y']])
 
     def time_forward(self):
-        self.update_completed_tasks()
-        self.collect_new_tasks()
-        idle_agents = self.get_idle_agents()
+        #token è l'indice del token nel vettore di token
+        for token in range(self.number_of_areas):
 
-        while len(idle_agents) > 0:
-            agent_name = random.choice(list(idle_agents.keys()))
-            all_idle_agents = self.tokens[0]['agents'].copy()
-            all_idle_agents.pop(agent_name)
-            agent_pos = idle_agents.pop(agent_name)[0]
-            available_tasks = self.find_available_tasks(agent_pos)
+            self.update_completed_tasks()
+            self.collect_new_tasks()
+            idle_agents = self.get_idle_agents()
 
-            if len(available_tasks) > 0:
-                assigned = self.choose_task(agent_name, agent_pos, available_tasks, all_idle_agents)
+            while len(idle_agents) > 0:
+                agent_name = random.choice(list(idle_agents.keys()))
+                all_idle_agents = self.tokens[0]['agents'].copy()
+                all_idle_agents.pop(agent_name)
+                agent_pos = idle_agents.pop(agent_name)[0]
+                available_tasks = self.find_available_tasks(agent_pos)
 
-            # righe 13-14 alg
-            elif self.check_safe_idle(agent_pos):
-                print('No available tasks for agent', agent_name, ' idling at current position...')
-            # righe 15-16 alg
-            else:
-                self.go_to_closest_non_task_endpoint(agent_name, agent_pos, all_idle_agents)
+                if len(available_tasks) > 0:
+                    assigned = self.choose_task(agent_name, agent_pos, available_tasks, all_idle_agents)
+
+                # righe 13-14 alg
+                elif self.check_safe_idle(agent_pos):
+                    print('No available tasks for agent', agent_name, ' idling at current position...')
+                # righe 15-16 alg
+                else:
+                    self.go_to_closest_non_task_endpoint(agent_name, agent_pos, all_idle_agents)
+
+
+
+
+
