@@ -24,22 +24,27 @@ class TokenPassing(object):
         self.sommaEspansioniA = 0
         self.goal_endpoints = goal_endpoints
         self.init_tokens(partitions)
+        self.global_view = {}
         #vedi sotto
+
+    def init_global_view(self):
+        self.global_view['tasks'] = {}
+        self.global_view['start_tasks_times'] = {}
+        self.global_view['completed_tasks_times'] = {}
+        self.global_view['agents_to_tasks'] = {}
+        self.global_view['completed_tasks'] = 0
+        self.global_view['agents_to_areas'] = {}
+
+        for t in self.simulation.get_new_tasks():
+            self.global_view['tasks'][t['task_name']] = [t['start'], t['goal']]
+            self.global_view['start_tasks_times'][t['task_name']] = self.simulation.get_time()
 
     #initialize a single token
     def init_token(self, index=0, partition=None):
         self.tokens[index]['agents'] = {}
-        self.tokens[index]['tasks'] = {}
-        self.tokens[index]['start_tasks_times'] = {}
-        self.tokens[index]['completed_tasks_times'] = {}
-        self.tokens[index]['agents_to_tasks'] = {}
-        self.tokens[index]['completed_tasks'] = 0
         self.tokens[index]['path_ends'] = set()
         self.tokens[index]['occupied_non_task_endpoints'] = set()
         self.tokens[index]['partition'] = partition #x_min, y_min, x_max, y_max
-        for t in self.simulation.get_new_tasks():
-            self.tokens[index]['tasks'][t['task_name']] = [t['start'], t['goal']]
-            self.tokens[index]['start_tasks_times'][t['task_name']] = self.simulation.get_time()
 
         for a in self.agents:
             self.tokens[index]['agents'][a['name']] = [a['start']]
