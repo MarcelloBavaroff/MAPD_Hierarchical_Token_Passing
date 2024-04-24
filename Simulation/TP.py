@@ -82,6 +82,13 @@ class TokenPassing(object):
                 agents[name] = path
         return agents
 
+    def get_idle_agents_without_preass(self):
+        agents = {}
+        for name, path in self.tokens[0]['agents'].items():
+            if len(path) == 1 and name not in self.global_view['pre_assignment_agents_tasks']:
+                agents[name] = path
+        return agents
+
     #distanza in celle verticali ed orizzontali
     def admissible_heuristic(self, task_pos, agent_pos):
         return fabs(task_pos[0] - agent_pos[0]) + fabs(task_pos[1] - agent_pos[1])
@@ -357,7 +364,7 @@ class TokenPassing(object):
                 print('No available tasks for agent', agent_name, ' idling at current position...')
 
             else:
-                self.choose_non_task_endpoint(agent_name, agent_pos, all_idle_agents)
+                self.choose_non_task_endpoint(agent_name, agent_pos)
                 #self.go_to_closest_non_task_endpoint(agent_name, agent_pos, all_idle_agents)
 
 
@@ -373,29 +380,4 @@ class TokenPassing(object):
         # token è l'indice del token nel vettore di token
         for token in range(self.number_of_areas):
 
-            #ogni area vede se i robot al suo interno hanno un task preassegnato
-
-
-            idle_agents = self.get_idle_agents()
-
-            while len(idle_agents) > 0:
-                agent_name = random.choice(list(idle_agents.keys()))
-                all_idle_agents = self.tokens[0]['agents'].copy()
-                all_idle_agents.pop(agent_name)
-                agent_pos = idle_agents.pop(agent_name)[0]
-                available_tasks = self.find_available_tasks(agent_pos)
-
-                if len(available_tasks) > 0:
-                    assigned = self.choose_task(agent_name, agent_pos, available_tasks, all_idle_agents)
-
-                # righe 13-14 alg
-                elif self.check_safe_idle(agent_pos):
-                    print('No available tasks for agent', agent_name, ' idling at current position...')
-                # righe 15-16 alg
-                else:
-                    self.go_to_closest_non_task_endpoint(agent_name, agent_pos, all_idle_agents)
-
-
-
-
-
+            print("tapia e coello")
