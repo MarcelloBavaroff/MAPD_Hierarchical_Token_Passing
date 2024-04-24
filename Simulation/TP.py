@@ -40,6 +40,7 @@ class TokenPassing(object):
         self.global_view['start_tasks_times'] = {}
         self.global_view['completed_tasks_times'] = {}
         self.global_view['agents_to_tasks'] = {}
+        self.global_view['pre_assignment_agents_tasks'] = {}
         self.global_view['completed_tasks'] = 0
         self.global_view['agents_to_areas'] = {}
 
@@ -253,12 +254,18 @@ class TokenPassing(object):
                 available_tasks[task_name] = task
         return available_tasks
 
-    def choose_task(self, agent_name, agent_pos, available_tasks, all_idle_agents):
+    # qui metto nel token global l'assegnamento agente task
+    def choose_task(self, agent_name, agent_pos, available_tasks): #, all_idle_agents):
         closest_task_name = self.get_closest_task_name(available_tasks, agent_pos)
-        closest_task = available_tasks[closest_task_name]
+        closest_task = available_tasks.pop(closest_task_name)
+        self.global_view['tasks'].pop(closest_task_name)
+        start = closest_task[0]
+        goal = closest_task[1]
+        self.global_view['agents_to_tasks'][agent_name] = {'task_name': closest_task_name'start': start,
+                                                         'goal': goal}
 
-        return self.compute_real_path(agent_name, agent_pos, closest_task, closest_task_name, all_idle_agents,
-                                      available_tasks)
+        # return self.compute_real_path(agent_name, agent_pos, closest_task, closest_task_name, all_idle_agents,
+        #                               available_tasks)
 
     def compute_real_path(self, agent_name, agent_pos, closest_task, closest_task_name, all_idle_agents,
                           available_tasks):
@@ -325,11 +332,31 @@ class TokenPassing(object):
         for el in path2:
             self.tokens[0]['agents'][agent_name].append([el['x'], el['y']])
 
+
+    # assegnamento dei task agli agenti, senza tener conto del percorso
+    def assign_tasks(self):
+        idle_agents = self.get_idle_agents()
+
+        while len(idle_agents) > 0:
+            agent_name = random.choice(list(idle_agents.keys()))
+            all_idle_agents = self.tokens[0]['agents'].copy()
+            all_idle_agents.pop(agent_name)
+            agent_pos = idle_agents.pop(agent_name)[0]
+            available_tasks = self.find_available_tasks(agent_pos)
+
+            self.choose_task(agent_name, agent_pos, available_tasks)
+
+            #self.choose_task(agent_name, agent_pos, available_tasks, all_idle_agents)
+
     def time_forward(self):
         self.update_completed_tasks()
         self.collect_new_tasks()
 
-        #token è l'indice del token nel vettore di token
+        # assegnamento agenti-task in global view
+
+
+
+        # token è l'indice del token nel vettore di token
         for token in range(self.number_of_areas):
             idle_agents = self.get_idle_agents()
 
