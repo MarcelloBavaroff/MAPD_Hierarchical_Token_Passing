@@ -23,9 +23,10 @@ class TokenPassing(object):
         self.chiamateCBS_recharge = 0
         self.sommaEspansioniA = 0
         self.goal_endpoints = goal_endpoints
-        self.init_tokens(partitions)
         self.global_view = {}
         self.init_global_view()
+        self.init_tokens(partitions)
+
         #vedi sotto
 
     #restituisce l'indice della partizione in cui si trova la posizione pos (thanks co-pilot)
@@ -43,6 +44,7 @@ class TokenPassing(object):
         self.global_view['pre_assignment_agents_tasks'] = {}
         self.global_view['completed_tasks'] = 0
         self.global_view['agents_to_areas'] = {}
+        self.global_view['occupied_non_task_endpoints'] = set()
 
         for t in self.simulation.get_new_tasks():
             self.global_view['tasks'][t['task_name']] = [t['start'], t['goal']]
@@ -51,20 +53,19 @@ class TokenPassing(object):
         for a in self.agents:
             pos = [a['start']]
             self.global_view['agents_to_areas'][a['name']] = self.find_partition(pos)
+            if pos in self.non_task_endpoints:
+                self.global_view['occupied_non_task_endpoints'].add(tuple(a['start']))
 
     #initialize a single token
     def init_token(self, index=0, partition=None):
         self.tokens[index]['agents'] = {}
         self.tokens[index]['path_ends'] = set()
-        self.tokens[index]['occupied_non_task_endpoints'] = set()
         self.tokens[index]['partition'] = partition #x_min, y_min, x_max, y_max
 
         for a in self.agents:
             self.tokens[index]['agents'][a['name']] = [a['start']]
 
-            if tuple(a['start']) in self.non_task_endpoints:
-                self.tokens[index]['occupied_non_task_endpoints'].add(tuple(a['start']))
-            else:
+            if not tuple(a['start']) in self.non_task_endpoints:
                 self.tokens[index]['path_ends'].add(tuple(a['start']))
 
     #initialize all tokens
@@ -143,7 +144,7 @@ class TokenPassing(object):
         dist = -1
         res = -1
         for endpoint in self.non_task_endpoints:
-            if endpoint not in self.tokens[0]['occupied_non_task_endpoints']:
+            if endpoint not in self.global_view['occupied_non_task_endpoints']:
                 if dist == -1:
                     dist = self.admissible_heuristic(endpoint, agent_pos)
                     res = endpoint
@@ -261,11 +262,17 @@ class TokenPassing(object):
         self.global_view['tasks'].pop(closest_task_name)
         start = closest_task[0]
         goal = closest_task[1]
-        self.global_view['agents_to_tasks'][agent_name] = {'task_name': closest_task_name'start': start,
-                                                         'goal': goal}
+        self.global_view['pre'][agent_name] = {'task_name': closest_task_name, 'start': start, 'goal': goal}
 
         # return self.compute_real_path(agent_name, agent_pos, closest_task, closest_task_name, all_idle_agents,
         #                               available_tasks)
+
+    def choose_non_task_endpoint(self, agent_name, agent_pos): #, all_idle_agents):
+        closest_non_task_endpoint = self.get_closest_non_task_endpoint(agent_pos)
+        self.global_view['pre_assignment_agents_tasks'][agent_name] = {'task_name': "safe_idle", 'start': agent_pos,
+                                                         'goal': closest_non_task_endpoint}
+        self.global_view['occupied_non_task_endpoints'].add(tuple(closest_non_task_endpoint))
+
 
     def compute_real_path(self, agent_name, agent_pos, closest_task, closest_task_name, all_idle_agents,
                           available_tasks):
@@ -332,7 +339,6 @@ class TokenPassing(object):
         for el in path2:
             self.tokens[0]['agents'][agent_name].append([el['x'], el['y']])
 
-
     # assegnamento dei task agli agenti, senza tener conto del percorso
     def assign_tasks(self):
         idle_agents = self.get_idle_agents()
@@ -344,20 +350,32 @@ class TokenPassing(object):
             agent_pos = idle_agents.pop(agent_name)[0]
             available_tasks = self.find_available_tasks(agent_pos)
 
-            self.choose_task(agent_name, agent_pos, available_tasks)
+            if len(available_tasks) > 0:
+                self.choose_task(agent_name, agent_pos, available_tasks)
 
-            #self.choose_task(agent_name, agent_pos, available_tasks, all_idle_agents)
+            elif self.check_safe_idle(agent_pos):
+                print('No available tasks for agent', agent_name, ' idling at current position...')
+
+            else:
+                self.choose_non_task_endpoint(agent_name, agent_pos, all_idle_agents)
+                #self.go_to_closest_non_task_endpoint(agent_name, agent_pos, all_idle_agents)
+
+
 
     def time_forward(self):
         self.update_completed_tasks()
         self.collect_new_tasks()
-
+        self.assign_tasks()
         # assegnamento agenti-task in global view
 
 
 
         # token è l'indice del token nel vettore di token
         for token in range(self.number_of_areas):
+
+            #ogni area vede se i robot al suo interno hanno un task preassegnato
+
+
             idle_agents = self.get_idle_agents()
 
             while len(idle_agents) > 0:
