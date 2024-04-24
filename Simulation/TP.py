@@ -213,8 +213,8 @@ class TokenPassing(object):
 
     def collect_new_tasks(self):
         for t in self.simulation.get_new_tasks():
-            self.tokens[0]['tasks'][t['task_name']] = [t['start'], t['goal']]
-            self.tokens[0]['start_tasks_times'][t['task_name']] = self.simulation.get_time()
+            self.global_view['tasks'][t['task_name']] = [t['start'], t['goal']]
+            self.global_view['start_tasks_times'][t['task_name']] = self.simulation.get_time()
 
     def update_completed_tasks(self):
         # Update completed tasks
@@ -327,11 +327,10 @@ class TokenPassing(object):
 
     def time_forward(self):
         self.update_completed_tasks()
+        self.collect_new_tasks()
+
         #token è l'indice del token nel vettore di token
         for token in range(self.number_of_areas):
-
-
-            self.collect_new_tasks()
             idle_agents = self.get_idle_agents()
 
             while len(idle_agents) > 0:
