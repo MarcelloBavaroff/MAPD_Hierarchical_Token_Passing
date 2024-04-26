@@ -12,7 +12,6 @@ class frontier:
         self.destination_pos = tuple((front[3], front[4]))
 
 
-
 class TokenPassing(object):
     def __init__(self, agents, dimensions, obstacles, non_task_endpoints, number_of_areas, partitions, simulation,
                  goal_endpoints, frontiers, a_star_max_iter=4000):
@@ -22,7 +21,7 @@ class TokenPassing(object):
         self.obstacles = set(obstacles)
         self.non_task_endpoints = non_task_endpoints
         self.number_of_areas = number_of_areas
-        self.frontiers = frontiers
+        self.frontiers = self.convert_frontiers(frontiers)
         if len(agents) > len(non_task_endpoints):
             print('There are more agents than non task endpoints, instance is not well-formed.')
             exit(1)
@@ -36,15 +35,21 @@ class TokenPassing(object):
         self.goal_endpoints = goal_endpoints
         self.global_view = {}
         self.init_global_view()
-        self.init_tokens(partitions, frontiers)
+        self.init_tokens(partitions)
         self.graph = Graph()
         self.create_graph()
 
         #vedi sotto
 
+    def convert_frontiers(self, front):
+        frontiers = []
+        for f in front:
+            frontiers.append(frontier(f))
+        return frontiers
+
     def create_graph(self):
         for f in self.frontiers:
-            self.graph.add_edge(f[2], f[5], 1)
+            self.graph.add_edge(f.start_partition, f.destination_partition, 1)
         #print(self.graph)
 
     #restituisce l'indice della partizione in cui si trova la posizione pos (thanks co-pilot)
@@ -78,14 +83,17 @@ class TokenPassing(object):
                 self.global_view['occupied_non_task_endpoints'].add(tuple(a['start']))
 
     #initialize a single token
-    def init_token(self, index=0, partition=None, frontiers=None):
+    def init_token(self, index=0, partition=None):
         self.tokens[index]['agents'] = {}
         self.tokens[index]['path_ends'] = set()
         self.tokens[index]['partition'] = partition #x_min, y_min, x_max, y_max
-        self.tokens[index]['frontiers'] = {}
+        self.tokens[index]['own_frontiers'] = {}
 
-        for f in frontiers:
-            if
+        # qui salvo solo le frontiere che partono dalla partizione corrente
+        # per ogni destinazione ho una lista frontiere che mi ci portano
+        for f in self.frontiers:
+            if f.start_partition == index:
+                self.tokens[index]['own_frontiers'][f.destination_partition].append(f)
 
         for a in self.agents:
             self.tokens[index]['agents'][a['name']] = [a['start']]
@@ -94,10 +102,10 @@ class TokenPassing(object):
                 self.tokens[index]['path_ends'].add(tuple(a['start']))
 
     #initialize all tokens
-    def init_tokens(self, partitions, frontiers):
+    def init_tokens(self, partitions):
         for t in range(self.number_of_areas):
             self.tokens.append({})
-            self.init_token(t, partitions[t], frontiers)
+            self.init_token(t, partitions[t])
 
     #in teoria agenti in idle hanno il path verso la loro posizione attuale
     def get_idle_agents(self):
