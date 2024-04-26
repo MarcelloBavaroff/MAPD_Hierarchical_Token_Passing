@@ -1,7 +1,7 @@
 import random
 import math
 
-def gen_tasks(starts, goals, n_tasks, task_freq):
+def gen_tasks(pickups, deliveries, n_tasks, task_freq):
     arrival_time = 0
     tasks = []
 
@@ -13,7 +13,7 @@ def gen_tasks(starts, goals, n_tasks, task_freq):
         # Add the inter-arrival time to the running sum
         arrival_time = arrival_time + inter_arrival_time
         # Generate task
-        single_task = {'start_time': int(arrival_time), 'start': random.choice(starts), 'goal': random.choice(goals),
+        single_task = {'start_time': int(arrival_time), 'pickup': random.choice(pickups), 'delivery': random.choice(deliveries),
                       'task_name': 'task' + str(i)}
         tasks.append(single_task)
         print(single_task)

@@ -47,7 +47,7 @@ map:
     - !!python/tuple [2, 1]
     - !!python/tuple [11, 1]
     - !!python/tuple [11, 7]
-    start_locations:
+    pickup_locations:
     - [3, 2]
     - [4, 2]
     - [5, 2]
@@ -72,7 +72,7 @@ map:
     - [8, 6]
     - [9, 6]
     - [10, 6]
-    goal_locations:
+    delivery_locations:
     - [0, 7]
     - [0, 6]
     - [0, 3]

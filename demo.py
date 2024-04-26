@@ -19,7 +19,7 @@ def read_tasks():
                 line_data = ast.literal_eval(line.strip())
 
                 # Verifica che il dizionario abbia i campi richiesti
-                if all(key in line_data for key in ['start_time', 'start', 'goal', 'task_name']):
+                if all(key in line_data for key in ['start_time', 'pickup', 'delivery', 'task_name']):
                     data_list.append(line_data)
                 else:
                     print(f"Errore: La riga '{line.strip()}' non ha tutti i campi richiesti.")
@@ -56,13 +56,14 @@ if __name__ == '__main__':
     agents = param['agents']
     number_of_areas = param['map']['number_of_areas']
     partitions = param['map']['partitions']
-    goal_endpoints = param['map']['goal_locations']
+    goal_endpoints = param['map']['delivery_locations']
+    frontiers = param['map']['frontiers']
 
     if args.not_rand:
         tasks = read_tasks()
     else:
         # Genera i task
-        tasks = gen_tasks(param['map']['start_locations'], param['map']['goal_locations'],
+        tasks = gen_tasks(param['map']['pickup_locations'], param['map']['delivery_locations'],
                                              param['n_tasks'], param['task_freq'])
     param['tasks'] = tasks
 
@@ -72,7 +73,7 @@ if __name__ == '__main__':
     # Simulate
     simulation = Simulation(tasks, agents)
     tp = TokenPassing(agents, dimensions, obstacles, non_task_endpoints, number_of_areas, partitions, simulation,
-                      goal_endpoints, a_star_max_iter=args.a_star_max_iter)
+                      goal_endpoints, frontiers, a_star_max_iter=args.a_star_max_iter)
     while tp.get_completed_tasks() != len(tasks):
         simulation.time_forward(tp)
 

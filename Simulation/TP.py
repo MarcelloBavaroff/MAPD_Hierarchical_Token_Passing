@@ -1,17 +1,19 @@
 from math import fabs
 import random
 from Simulation.CBS.cbs import CBS, Environment
+from dijkstar import Graph, find_path
 
 
 class TokenPassing(object):
     def __init__(self, agents, dimensions, obstacles, non_task_endpoints, number_of_areas, partitions, simulation,
-                 goal_endpoints, a_star_max_iter=4000):
+                 goal_endpoints, frontiers, a_star_max_iter=4000):
         random.seed(1234)
         self.agents = agents
         self.dimensions = dimensions
         self.obstacles = set(obstacles)
         self.non_task_endpoints = non_task_endpoints
         self.number_of_areas = number_of_areas
+        self.frontiers = frontiers
         if len(agents) > len(non_task_endpoints):
             print('There are more agents than non task endpoints, instance is not well-formed.')
             exit(1)
@@ -26,8 +28,14 @@ class TokenPassing(object):
         self.global_view = {}
         self.init_global_view()
         self.init_tokens(partitions)
+        self.graph = Graph()
+        self.create_graph()
 
         #vedi sotto
+
+    def create_graph(self):
+        for f in self.frontiers:
+            self.graph.add_edge(f[2], f[5], 1)
 
     #restituisce l'indice della partizione in cui si trova la posizione pos (thanks co-pilot)
     def find_partition(self, pos):
@@ -45,9 +53,12 @@ class TokenPassing(object):
         self.global_view['completed_tasks'] = 0
         self.global_view['agents_to_areas'] = {}
         self.global_view['occupied_non_task_endpoints'] = set()
+        #dizionario con corrispondenza agent_name -> lista di zone da visitare
+        self.global_view['abstract_to_loc1'] = {}
+        self.global_view['abstract_to_loc2'] = {}
 
         for t in self.simulation.get_new_tasks():
-            self.global_view['tasks'][t['task_name']] = [t['start'], t['goal']]
+            self.global_view['tasks'][t['task_name']] = [t['pickup'], t['delivery']]
             self.global_view['start_tasks_times'][t['task_name']] = self.simulation.get_time()
 
         for a in self.agents:
@@ -180,8 +191,8 @@ class TokenPassing(object):
     def get_agents_to_tasks_starts_goals(self):
         starts_goals = set()
         for el in self.tokens[0]['agents_to_tasks'].values():
-            starts_goals.add(tuple(el['goal']))
-            starts_goals.add(tuple(el['start']))
+            starts_goals.add(tuple(el['delivery']))
+            starts_goals.add(tuple(el['pickup']))
         return starts_goals
 
     def get_completed_tasks(self):
@@ -222,7 +233,7 @@ class TokenPassing(object):
 
     def collect_new_tasks(self):
         for t in self.simulation.get_new_tasks():
-            self.global_view['tasks'][t['task_name']] = [t['start'], t['goal']]
+            self.global_view['tasks'][t['task_name']] = [t['pickup'], t['delivery']]
             self.global_view['start_tasks_times'][t['task_name']] = self.simulation.get_time()
 
     def update_completed_tasks(self):
@@ -267,9 +278,9 @@ class TokenPassing(object):
         closest_task_name = self.get_closest_task_name(available_tasks, agent_pos)
         closest_task = available_tasks.pop(closest_task_name)
         self.global_view['tasks'].pop(closest_task_name)
-        start = closest_task[0]
-        goal = closest_task[1]
-        self.global_view['pre'][agent_name] = {'task_name': closest_task_name, 'start': start, 'goal': goal}
+        pickup = closest_task[0]
+        delivery = closest_task[1]
+        self.global_view['pre_assignment_agents_tasks'][agent_name] = {'task_name': closest_task_name, 'start': pickup, 'goal': delivery}
 
         # return self.compute_real_path(agent_name, agent_pos, closest_task, closest_task_name, all_idle_agents,
         #                               available_tasks)
@@ -348,7 +359,7 @@ class TokenPassing(object):
 
     # assegnamento dei task agli agenti, senza tener conto del percorso
     def assign_tasks(self):
-        idle_agents = self.get_idle_agents()
+        idle_agents = self.get_idle_agents_without_preass()
 
         while len(idle_agents) > 0:
             agent_name = random.choice(list(idle_agents.keys()))
@@ -368,6 +379,8 @@ class TokenPassing(object):
                 #self.go_to_closest_non_task_endpoint(agent_name, agent_pos, all_idle_agents)
 
 
+    def compute_abstract_path(self, start, goal, agent_name):
+        print("todo")
 
     def time_forward(self):
         self.update_completed_tasks()

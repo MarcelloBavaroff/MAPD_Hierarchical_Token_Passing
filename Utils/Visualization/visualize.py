@@ -66,29 +66,29 @@ class Animation:
 
         task_colors = np.random.rand(len(map["tasks"]), 3)
         for t, i in zip(map["tasks"], range(len(map["tasks"]))):
-            x_s, y_s = t['start'][0], t['start'][1]
+            x_s, y_s = t['pickup'][0], t['pickup'][1]
             self.tasks[t['task_name']] = [Rectangle((x_s - 0.25, y_s - 0.25), 0.5, 0.5, facecolor=task_colors[i], edgecolor='black', alpha=0)]
             self.patches.append(self.tasks[t['task_name']][0])
         for t, i in zip(map["tasks"], range(len(map["tasks"]))):
-            x_g, y_g = t['goal'][0], t['goal'][1]
+            x_g, y_g = t['delivery'][0], t['delivery'][1]
             self.tasks[t['task_name']].append(RegularPolygon((x_g, y_g - 0.05), 3, radius=0.2, facecolor=task_colors[i], edgecolor='black', alpha=0))
             self.patches.append(self.tasks[t['task_name']][1])
 
         # Create agents:
         self.T = 0
-        # Draw goals first
+        # Draw deliveries first
         for d, i in zip(map["agents"], range(0, len(map["agents"]))):
-            if 'goal' in d:
+            if 'delivery' in d:
                 self.patches.append(
-                    Rectangle((d["goal"][0] - 0.25, d["goal"][1] - 0.25), 0.5, 0.5, facecolor=Colors[0], edgecolor='black',
+                    Rectangle((d["delivery"][0] - 0.25, d["delivery"][1] - 0.25), 0.5, 0.5, facecolor=Colors[0], edgecolor='black',
                               alpha=0.5))
         for d, i in zip(map["agents"], range(0, len(map["agents"]))):
             name = d["name"]
-            self.agents[name] = Circle((d["start"][0], d["start"][1]), 0.3, facecolor=Colors[0], edgecolor='black')
+            self.agents[name] = Circle((d["pickup"][0], d["pickup"][1]), 0.3, facecolor=Colors[0], edgecolor='black')
             self.agents[name].original_face_color = Colors[0]
             self.patches.append(self.agents[name])
             self.T = max(self.T, schedule["schedule"][name][-1]["t"])
-            self.agent_names[name] = self.ax.text(d["start"][0], d["start"][1], name.replace('agent', ''))
+            self.agent_names[name] = self.ax.text(d["pickup"][0], d["pickup"][1], name.replace('agent', ''))
             self.agent_names[name].set_horizontalalignment('center')
             self.agent_names[name].set_verticalalignment('center')
             self.artists.append(self.agent_names[name])
