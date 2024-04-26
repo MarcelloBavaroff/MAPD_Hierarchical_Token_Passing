@@ -37,6 +37,8 @@ class TokenPassing(object):
         for f in self.frontiers:
             self.graph.add_edge(f[2], f[5], 1)
 
+        print(self.graph)
+
     #restituisce l'indice della partizione in cui si trova la posizione pos (thanks co-pilot)
     def find_partition(self, pos):
         for i, partition in enumerate(self.tokens):
