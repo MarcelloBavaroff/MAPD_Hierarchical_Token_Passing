@@ -4,6 +4,15 @@ from Simulation.CBS.cbs import CBS, Environment
 from dijkstar import Graph, find_path
 
 
+class frontier:
+    def __init__(self, front):
+        self.start_partition = front[2]
+        self.destination_partition = front[5]
+        self.start_pos = tuple((front[0], front[1]))
+        self.destination_pos = tuple((front[3], front[4]))
+
+
+
 class TokenPassing(object):
     def __init__(self, agents, dimensions, obstacles, non_task_endpoints, number_of_areas, partitions, simulation,
                  goal_endpoints, frontiers, a_star_max_iter=4000):
@@ -27,7 +36,7 @@ class TokenPassing(object):
         self.goal_endpoints = goal_endpoints
         self.global_view = {}
         self.init_global_view()
-        self.init_tokens(partitions)
+        self.init_tokens(partitions, frontiers)
         self.graph = Graph()
         self.create_graph()
 
@@ -36,8 +45,7 @@ class TokenPassing(object):
     def create_graph(self):
         for f in self.frontiers:
             self.graph.add_edge(f[2], f[5], 1)
-
-        print(self.graph)
+        #print(self.graph)
 
     #restituisce l'indice della partizione in cui si trova la posizione pos (thanks co-pilot)
     def find_partition(self, pos):
@@ -70,10 +78,14 @@ class TokenPassing(object):
                 self.global_view['occupied_non_task_endpoints'].add(tuple(a['start']))
 
     #initialize a single token
-    def init_token(self, index=0, partition=None):
+    def init_token(self, index=0, partition=None, frontiers=None):
         self.tokens[index]['agents'] = {}
         self.tokens[index]['path_ends'] = set()
         self.tokens[index]['partition'] = partition #x_min, y_min, x_max, y_max
+        self.tokens[index]['frontiers'] = {}
+
+        for f in frontiers:
+            if
 
         for a in self.agents:
             self.tokens[index]['agents'][a['name']] = [a['start']]
@@ -82,10 +94,10 @@ class TokenPassing(object):
                 self.tokens[index]['path_ends'].add(tuple(a['start']))
 
     #initialize all tokens
-    def init_tokens(self, partitions):
+    def init_tokens(self, partitions, frontiers):
         for t in range(self.number_of_areas):
             self.tokens.append({})
-            self.init_token(t, partitions[t])
+            self.init_token(t, partitions[t], frontiers)
 
     #in teoria agenti in idle hanno il path verso la loro posizione attuale
     def get_idle_agents(self):
