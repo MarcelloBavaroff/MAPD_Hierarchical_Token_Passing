@@ -82,6 +82,9 @@ class TokenPassing(object):
             if pos in self.non_task_endpoints:
                 self.global_view['occupied_non_task_endpoints'].add(tuple(a['start']))
 
+            self.global_view['abstract_to_loc1'][a['name']] = []
+            self.global_view['abstract_to_loc2'][a['name']] = []
+
     #initialize a single token
     def init_token(self, index=0, partition=None):
         self.tokens[index]['agents'] = {}
@@ -136,8 +139,6 @@ class TokenPassing(object):
                     agents[name] = path
 
         return agents
-
-
 
     #distanza in celle verticali ed orizzontali
     def admissible_heuristic(self, task_pos, agent_pos):
@@ -416,9 +417,16 @@ class TokenPassing(object):
                 self.choose_non_task_endpoint(agent_name, agent_pos)
                 #self.go_to_closest_non_task_endpoint(agent_name, agent_pos, all_idle_agents)
 
+    def compute_abstract_path(self, start, goal, agent_name, loc):
+        start_partition = self.find_partition(start)
+        goal_partition = self.find_partition(goal)
 
-    def compute_abstract_path(self, start, goal, agent_name):
-        print("todo")
+        path = find_path(self.graph, start_partition, goal_partition)
+        if loc == 1:
+            self.global_view['abstract_to_loc1'][agent_name] = path.nodes
+        else:
+            self.global_view['abstract_to_loc2'][agent_name] = path.nodes
+
 
     def time_forward(self):
         self.update_completed_tasks()
@@ -426,10 +434,20 @@ class TokenPassing(object):
         self.assign_tasks()
 
         # vedo gli agent con pre assegnamento, ma non hanno ancora un path assegnato
+        #IN FUTURO PIANIFICANO PER PRIMI GLI AGENTI ALLA FRONTIERA
+
+        agents_to_plan = self.get_agents_to_plan()
+
+        while len(agents_to_plan) > 0:
+
+            agent_name = random.choice(list(agents_to_plan.keys()))
+            agent_pos = agents_to_plan.pop(agent_name)[0]
+            agent_partition = self.global_view['agents_to_areas'][agent_name]
+
+            if len(self.global_view['abstract_to_loc1'][agent_name]) == 0 and \
+                len(self.global_view['abstract_to_loc2'][agent_name]) == 0:
+
+                self.compute_abstract_path(agent_pos, self.global_view['pre_assignment_agents_tasks'][agent_name]['start'], agent_name, 1)
+                self.compute_abstract_path(self.global_view['pre_assignment_agents_tasks'][agent_name]['start'], self.global_view['pre_assignment_agents_tasks'][agent_name]['goal'], agent_name, 2)
 
 
-        # assegnamento agenti-task in global view
-
-
-
-        # token è l'indice del token nel vettore di token
