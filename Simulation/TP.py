@@ -265,32 +265,33 @@ class TokenPassing(object):
     def get_token(self):
         return self.tokens[0]
 
-    def search(self, cbs, agent_name, moving_obstacles_agents):
+    def search(self, cbs):
 
         path = cbs.search()
         return path
 
-    def go_to_closest_non_task_endpoint(self, agent_name, agent_pos, all_idle_agents):
-        closest_non_task_endpoint = self.get_closest_non_task_endpoint(agent_pos)
-        moving_obstacles_agents = self.get_moving_obstacles_agents(self.tokens[0]['agents'], 0)
-        idle_obstacles_agents = self.get_idle_obstacles_agents(all_idle_agents.values(), 0, agent_name)
-        agent = {'name': agent_name, 'start': agent_pos, 'goal': closest_non_task_endpoint}
-        env = Environment(self.dimensions, [agent], self.obstacles | idle_obstacles_agents, moving_obstacles_agents,
-                          a_star_max_iter=self.a_star_max_iter)
-        cbs = CBS(env)
-        path_to_non_task_endpoint = self.search(cbs, agent_name, moving_obstacles_agents)
-        if not path_to_non_task_endpoint:
-            print("Solution to non-task endpoint not found for agent", agent_name, " instance is not well-formed.")
-
-        else:
-            print('No available task for agent', agent_name, ' moving to safe idling position...')
-            self.update_ends(agent_pos)
-            self.tokens[0]['occupied_non_task_endpoints'].add(tuple(closest_non_task_endpoint))
-            self.tokens[0]['agents_to_tasks'][agent_name] = {'task_name': 'safe_idle', 'start': agent_pos,
-                                                             'goal': closest_non_task_endpoint, 'predicted_cost': 0}
-            self.tokens[0]['agents'][agent_name] = []
-            for el in path_to_non_task_endpoint[agent_name]:
-                self.tokens[0]['agents'][agent_name].append([el['x'], el['y']])
+    # TODO: qui va tutto aggiornato
+    # def go_to_closest_non_task_endpoint(self, agent_name, agent_pos, all_idle_agents):
+    #     closest_non_task_endpoint = self.get_closest_non_task_endpoint(agent_pos)
+    #     moving_obstacles_agents = self.get_moving_obstacles_agents(self.tokens[0]['agents'], 0)
+    #     idle_obstacles_agents = self.get_idle_obstacles_agents(all_idle_agents.values(), 0, agent_name)
+    #     agent = {'name': agent_name, 'start': agent_pos, 'goal': closest_non_task_endpoint}
+    #     env = Environment(self.dimensions, [agent], self.obstacles | idle_obstacles_agents, moving_obstacles_agents,
+    #                       a_star_max_iter=self.a_star_max_iter)
+    #     cbs = CBS(env)
+    #     path_to_non_task_endpoint = self.search(cbs, agent_name, moving_obstacles_agents)
+    #     if not path_to_non_task_endpoint:
+    #         print("Solution to non-task endpoint not found for agent", agent_name, " instance is not well-formed.")
+    #
+    #     else:
+    #         print('No available task for agent', agent_name, ' moving to safe idling position...')
+    #         self.update_ends(agent_pos,)
+    #         self.tokens[0]['occupied_non_task_endpoints'].add(tuple(closest_non_task_endpoint))
+    #         self.tokens[0]['agents_to_tasks'][agent_name] = {'task_name': 'safe_idle', 'start': agent_pos,
+    #                                                          'goal': closest_non_task_endpoint, 'predicted_cost': 0}
+    #         self.tokens[0]['agents'][agent_name] = []
+    #         for el in path_to_non_task_endpoint[agent_name]:
+    #             self.tokens[0]['agents'][agent_name].append([el['x'], el['y']])
 
     def collect_new_tasks(self):
         for t in self.simulation.get_new_tasks():
@@ -352,73 +353,74 @@ class TokenPassing(object):
                                                          'goal': closest_non_task_endpoint}
         self.global_view['occupied_non_task_endpoints'].add(tuple(closest_non_task_endpoint))
 
-    def compute_real_path_double(self, agent_name, agent_pos, closest_task, closest_task_name, all_idle_agents,
-                          available_tasks):
+    # TODO: qui va tutto aggiornato
+    # def compute_real_path_double(self, agent_name, agent_pos, closest_task, closest_task_name, all_idle_agents,
+    #                       available_tasks):
+    #
+    #     moving_obstacles_agents = self.get_moving_obstacles_agents(self.tokens[0]['agents'], 0)
+    #     idle_obstacles_agents = self.get_idle_obstacles_agents(all_idle_agents, 0, agent_name)
+    #     idle_obstacles_agents |= set(self.non_task_endpoints)
+    #     idle_obstacles_agents = idle_obstacles_agents - {tuple(agent_pos), tuple(closest_task[1])}
+    #
+    #     agent = {'name': agent_name, 'start': agent_pos, 'goal': closest_task[0]}
+    #     env = Environment(self.dimensions, [agent], self.obstacles | idle_obstacles_agents,
+    #                       moving_obstacles_agents, a_star_max_iter=self.a_star_max_iter)
+    #     cbs = CBS(env)
+    #     path_to_task_start = self.search(cbs, agent_name, moving_obstacles_agents)
+    #     if not path_to_task_start:
+    #         print("Solution not found to task goal for agent", agent_name, " idling at current position...")
+    #         return False
+    #     else:
+    #         print("Solution found to task start for agent", agent_name, " searching solution to task goal...")
+    #         cost1 = env.compute_solution_cost(path_to_task_start)
+    #
+    #         moving_obstacles_agents = self.get_moving_obstacles_agents(self.tokens[0]['agents'], cost1 - 1)
+    #         idle_obstacles_agents = self.get_idle_obstacles_agents(all_idle_agents, cost1 - 1, agent_name)
+    #         idle_obstacles_agents |= set(self.non_task_endpoints)
+    #         idle_obstacles_agents = idle_obstacles_agents - {tuple(closest_task[0]), tuple(closest_task[1])}
+    #
+    #         agent = {'name': agent_name, 'start': closest_task[0], 'goal': closest_task[1]}
+    #         env = Environment(self.dimensions, [agent], self.obstacles | idle_obstacles_agents,
+    #                           moving_obstacles_agents, a_star_max_iter=self.a_star_max_iter)
+    #         cbs = CBS(env)
+    #         path_to_task_goal = self.search(cbs, agent_name, moving_obstacles_agents)
+    #         if not path_to_task_goal:
+    #             print("Solution not found to task goal for agent", agent_name, " idling at current position...")
+    #             return False
+    #         else:
+    #             print("Solution found to task start for agent", agent_name, " doing task...")
+    #             cost2 = env.compute_solution_cost(path_to_task_goal)
+    #             if agent_name not in self.tokens[0]['agents_to_tasks']:
+    #                 self.tokens[0]['tasks'].pop(closest_task_name)
+    #                 task = available_tasks.pop(closest_task_name)
+    #             else:
+    #                 task = closest_task
+    #
+    #             self.apply_path(agent_name, agent_pos, path_to_task_start[agent_name],
+    #                             path_to_task_goal[agent_name], closest_task_name,
+    #                             task[0], task[1], cost1 + cost2)
+    #             return True
 
-        moving_obstacles_agents = self.get_moving_obstacles_agents(self.tokens[0]['agents'], 0)
-        idle_obstacles_agents = self.get_idle_obstacles_agents(all_idle_agents, 0, agent_name)
-        idle_obstacles_agents |= set(self.non_task_endpoints)
-        idle_obstacles_agents = idle_obstacles_agents - {tuple(agent_pos), tuple(closest_task[1])}
+    def compute_real_path_single(self, agent_name, agent_pos, goal_position, all_idle_agents, part_index, time_start=0):
 
-        agent = {'name': agent_name, 'start': agent_pos, 'goal': closest_task[0]}
-        env = Environment(self.dimensions, [agent], self.obstacles | idle_obstacles_agents,
-                          moving_obstacles_agents, a_star_max_iter=self.a_star_max_iter)
-        cbs = CBS(env)
-        path_to_task_start = self.search(cbs, agent_name, moving_obstacles_agents)
-        if not path_to_task_start:
-            print("Solution not found to task goal for agent", agent_name, " idling at current position...")
-            return False
-        else:
-            print("Solution found to task start for agent", agent_name, " searching solution to task goal...")
-            cost1 = env.compute_solution_cost(path_to_task_start)
-
-            moving_obstacles_agents = self.get_moving_obstacles_agents(self.tokens[0]['agents'], cost1 - 1)
-            idle_obstacles_agents = self.get_idle_obstacles_agents(all_idle_agents, cost1 - 1, agent_name)
-            idle_obstacles_agents |= set(self.non_task_endpoints)
-            idle_obstacles_agents = idle_obstacles_agents - {tuple(closest_task[0]), tuple(closest_task[1])}
-
-            agent = {'name': agent_name, 'start': closest_task[0], 'goal': closest_task[1]}
-            env = Environment(self.dimensions, [agent], self.obstacles | idle_obstacles_agents,
-                              moving_obstacles_agents, a_star_max_iter=self.a_star_max_iter)
-            cbs = CBS(env)
-            path_to_task_goal = self.search(cbs, agent_name, moving_obstacles_agents)
-            if not path_to_task_goal:
-                print("Solution not found to task goal for agent", agent_name, " idling at current position...")
-                return False
-            else:
-                print("Solution found to task start for agent", agent_name, " doing task...")
-                cost2 = env.compute_solution_cost(path_to_task_goal)
-                if agent_name not in self.tokens[0]['agents_to_tasks']:
-                    self.tokens[0]['tasks'].pop(closest_task_name)
-                    task = available_tasks.pop(closest_task_name)
-                else:
-                    task = closest_task
-
-                self.apply_path(agent_name, agent_pos, path_to_task_start[agent_name],
-                                path_to_task_goal[agent_name], closest_task_name,
-                                task[0], task[1], cost1 + cost2)
-                return True
-
-    def compute_real_path_single(self, agent_name, agent_pos, goal_position, all_idle_agents, part_index):
-
-        moving_obstacles_agents = self.get_moving_obstacles_agents(self.tokens[0]['agents'], 0)
-        idle_obstacles_agents = self.get_idle_obstacles_agents(all_idle_agents, 0, agent_name)
+        moving_obstacles_agents = self.get_moving_obstacles_agents(self.tokens[part_index]['agents'], time_start)
+        idle_obstacles_agents = self.get_idle_obstacles_agents(all_idle_agents, time_start, agent_name)
         idle_obstacles_agents |= set(self.non_task_endpoints)
         idle_obstacles_agents = idle_obstacles_agents - {tuple(agent_pos), tuple(goal_position)}
 
         agent = {'name': agent_name, 'start': agent_pos, 'goal': goal_position}
-        env = Environment(self.dimensions, [agent], self.obstacles | idle_obstacles_agents,
+        env = Environment(self.tokens[part_index]['partition'], [agent], self.obstacles | idle_obstacles_agents,
                           moving_obstacles_agents, a_star_max_iter=self.a_star_max_iter)
         cbs = CBS(env)
-        path = self.search(cbs, agent_name, moving_obstacles_agents)
+        path = self.search(cbs)
         if not path:
             print("Solution not found to task goal for agent", agent_name, " idling at current position...")
-            #return False
+            return False
         else:
             print("Solution found to task start for agent", agent_name, " searching solution to task goal...")
             #cost1 = env.compute_solution_cost(path)
             self.apply_path(agent_name, agent_pos, None, path[agent_name], part_index)
-            #return True
+            return True
 
     # se ho solo un path passo solo il secondo
     def apply_path(self, agent_name, agent_pos, path1, path2, part_index):
@@ -478,6 +480,32 @@ class TokenPassing(object):
         closest_frontier = self.get_closest_frontier(agent_pos, frontiers_to_next_part)
 
         self.compute_real_path_single(agent_name, agent_pos, closest_frontier.start_pos, all_idle_agents, actual_part)
+
+    def find_next_goal(self, agent_name, agent_pos, next_part, num_abs):
+        abstract = "abstract_to_loc" + str(num_abs)
+
+        if len(self.global_view[abstract][agent_name]) > 2:
+            #devo andare alla prossima frontiera
+            frontiers_to_next_part = self.tokens[next_part]['own_frontiers'][self.global_view[abstract][agent_name][2]]
+            closest_frontier = self.get_closest_frontier(agent_pos, frontiers_to_next_part)
+            return closest_frontier.start_pos
+
+        elif len(self.global_view[abstract][agent_name]) == 2:
+            return self.global_view['pre_assignment_agents_tasks'][agent_name]['goal']
+    def migrazione(self, agent_name, agent_pos, actual_part, next_part, num_abs):
+        #TODO: non è la più vicina, ma quella dove sono al momento che dovrei usare (coincidono quindi per ora ok)
+        frontiers_to_next_part = self.tokens[actual_part]['own_frontiers'][next_part]
+        closest_frontier = self.get_closest_frontier(agent_pos, frontiers_to_next_part)
+
+        next_goal = self.find_next_goal(agent_name, closest_frontier.destination_pos, next_part, num_abs)
+        all_idle_agents = self.tokens[next_part]['agents'].copy()
+        valid_path = self.compute_real_path_single(agent_name, closest_frontier.destination_pos, next_goal, all_idle_agents, next_part, time_start=0)
+
+        if valid_path:
+            print('Agent', agent_name, 'migrating to partition', next_part, '...')
+        else:
+            print('No available tasks for agent', agent_name, ' idling at current position...')
+            #TODO: qui meccanismo che ricalcola path altrui e risolve problemi
 
     def time_forward(self):
         self.update_completed_tasks()

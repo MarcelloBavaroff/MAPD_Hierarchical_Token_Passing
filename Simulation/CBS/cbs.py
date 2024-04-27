@@ -10,6 +10,7 @@ import yaml
 from math import fabs
 from itertools import combinations
 from copy import deepcopy
+#from Simulation.TP import frontier
 
 from Simulation.CBS.a_star import AStar
 

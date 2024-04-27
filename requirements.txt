@@ -1,5 +1,4 @@
-numpy
-matplotlib
-scipy
-ffmpeg-python
-PyYAML
+numpy~=1.26.4
+matplotlib~=3.8.0
+PyYAML~=6.0.1
+dijkstar~=2.6.0
