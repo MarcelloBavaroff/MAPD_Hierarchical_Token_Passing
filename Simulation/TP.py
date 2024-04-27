@@ -115,12 +115,18 @@ class TokenPassing(object):
                 agents[name] = path
         return agents
 
+    # devo restituire in dizionario di agenti in idle con nome come chiave e posizione come valore (lista)
     def get_idle_agents_without_preass(self):
+
+        #itero per ogni partizione/token così da avere la posizione attuale dell'agente
         agents = {}
-        for name, path in self.tokens[0]['agents'].items():
-            if len(path) == 1 and name not in self.global_view['pre_assignment_agents_tasks']:
-                agents[name] = path
+        for t in range(self.number_of_areas):
+            for name, path in self.tokens[t]['agents'].items():
+                if name not in self.global_view['pre_assignment_agents_tasks']:
+                    agents[name] = path
+
         return agents
+
 
     #distanza in celle verticali ed orizzontali
     def admissible_heuristic(self, task_pos, agent_pos):
@@ -313,7 +319,6 @@ class TokenPassing(object):
                                                          'goal': closest_non_task_endpoint}
         self.global_view['occupied_non_task_endpoints'].add(tuple(closest_non_task_endpoint))
 
-
     def compute_real_path(self, agent_name, agent_pos, closest_task, closest_task_name, all_idle_agents,
                           available_tasks):
 
@@ -413,6 +418,3 @@ class TokenPassing(object):
 
 
         # token è l'indice del token nel vettore di token
-        for token in range(self.number_of_areas):
-
-            print("tapia e coello")
