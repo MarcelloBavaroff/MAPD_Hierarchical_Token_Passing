@@ -216,11 +216,11 @@ class TokenPassing(object):
             exit(1)
         return res
 
-    def update_ends(self, agent_pos):
-        if tuple(agent_pos) in self.tokens[0]['path_ends']:
-            self.tokens[0]['path_ends'].remove(tuple(agent_pos))
-        elif tuple(agent_pos) in self.tokens[0]['occupied_non_task_endpoints']:
-            self.tokens[0]['occupied_non_task_endpoints'].remove(tuple(agent_pos))
+    def update_ends(self, agent_pos, part_index):
+        if tuple(agent_pos) in self.tokens[part_index]['path_ends']:
+            self.tokens[part_index]['path_ends'].remove(tuple(agent_pos))
+        elif tuple(agent_pos) in self.tokens[part_index]['occupied_non_task_endpoints']:
+            self.tokens[part_index]['occupied_non_task_endpoints'].remove(tuple(agent_pos))
 
     def get_agents_to_tasks_goals(self):
         goals = set()
@@ -331,7 +331,7 @@ class TokenPassing(object):
                                                          'goal': closest_non_task_endpoint}
         self.global_view['occupied_non_task_endpoints'].add(tuple(closest_non_task_endpoint))
 
-    def compute_real_path(self, agent_name, agent_pos, closest_task, closest_task_name, all_idle_agents,
+    def compute_real_path_double(self, agent_name, agent_pos, closest_task, closest_task_name, all_idle_agents,
                           available_tasks):
 
         moving_obstacles_agents = self.get_moving_obstacles_agents(self.tokens[0]['agents'], 0)
@@ -378,23 +378,44 @@ class TokenPassing(object):
                                 task[0], task[1], cost1 + cost2)
                 return True
 
-    def apply_path(self, agent_name, agent_pos, path1, path2, task_name, start, goal, predicted_cost):
-        last_step = path2[-1]
-        self.update_ends(agent_pos)
+    def compute_real_path_single(self, agent_name, agent_pos, closest_task, all_idle_agents, part_index):
 
-        self.tokens[0]['agents_to_tasks'][agent_name] = {'task_name': task_name, 'start': start,
-                                                         'goal': goal, 'predicted_cost': predicted_cost}
-        self.tokens[0]['agents'][agent_name] = []
+        moving_obstacles_agents = self.get_moving_obstacles_agents(self.tokens[0]['agents'], 0)
+        idle_obstacles_agents = self.get_idle_obstacles_agents(all_idle_agents, 0, agent_name)
+        idle_obstacles_agents |= set(self.non_task_endpoints)
+        idle_obstacles_agents = idle_obstacles_agents - {tuple(agent_pos), tuple(closest_task[1])}
+
+        agent = {'name': agent_name, 'start': agent_pos, 'goal': closest_task[0]}
+        env = Environment(self.dimensions, [agent], self.obstacles | idle_obstacles_agents,
+                          moving_obstacles_agents, a_star_max_iter=self.a_star_max_iter)
+        cbs = CBS(env)
+        path = self.search(cbs, agent_name, moving_obstacles_agents)
+        if not path:
+            print("Solution not found to task goal for agent", agent_name, " idling at current position...")
+            #return False
+        else:
+            print("Solution found to task start for agent", agent_name, " searching solution to task goal...")
+            #cost1 = env.compute_solution_cost(path)
+            self.apply_path(agent_name, agent_pos, None, path[agent_name], part_index)
+            #return True
+
+
+    # se ho solo un path passo solo il secondo
+    def apply_path(self, agent_name, agent_pos, path1, path2, part_index):
+        last_step = path2[-1]
+        self.update_ends(agent_pos, part_index)
+
+        self.tokens[part_index]['agents'][agent_name] = []
 
         if path1 is not None:
-            self.tokens[0]['path_ends'].add(tuple([last_step['x'], last_step['y']]))
+            self.tokens[part_index]['path_ends'].add(tuple([last_step['x'], last_step['y']]))
             for el in path1:
-                self.tokens[0]['agents'][agent_name].append([el['x'], el['y']])
+                self.tokens[part_index]['agents'][agent_name].append([el['x'], el['y']])
             # Don't repeat twice same step, elimino ultimo elemento
-            self.tokens[0]['agents'][agent_name] = self.tokens[0]['agents'][agent_name][:-1]
+            self.tokens[part_index]['agents'][agent_name] = self.tokens[0]['agents'][agent_name][:-1]
 
         for el in path2:
-            self.tokens[0]['agents'][agent_name].append([el['x'], el['y']])
+            self.tokens[part_index]['agents'][agent_name].append([el['x'], el['y']])
 
     # assegnamento dei task agli agenti, senza tener conto del percorso
     def assign_tasks(self):
@@ -431,7 +452,6 @@ class TokenPassing(object):
         else:
             self.global_view['abstract_to_loc2'][agent_name] = path.nodes
 
-
     def time_forward(self):
         self.update_completed_tasks()
         self.collect_new_tasks()
@@ -439,7 +459,6 @@ class TokenPassing(object):
 
         # vedo gli agent con pre assegnamento, ma non hanno ancora un path assegnato
         #IN FUTURO PIANIFICANO PER PRIMI GLI AGENTI ALLA FRONTIERA
-
         agents_to_plan = self.get_agents_to_plan()
 
         while len(agents_to_plan) > 0:
@@ -455,5 +474,9 @@ class TokenPassing(object):
                 self.compute_abstract_path(agent_pos, self.global_view['pre_assignment_agents_tasks'][agent_name]['start'], agent_name, 1)
                 self.compute_abstract_path(self.global_view['pre_assignment_agents_tasks'][agent_name]['start'], self.global_view['pre_assignment_agents_tasks'][agent_name]['goal'], agent_name, 2)
 
+            if len(self.global_view['abstract_to_loc1'][agent_name]) > 1:
+                print("cambio partizione")
+            elif len(self.global_view['abstract_to_loc1'][agent_name]) == 1:
+                print("arrivo in partizione")
 
 
