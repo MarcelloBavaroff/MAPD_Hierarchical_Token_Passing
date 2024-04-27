@@ -41,23 +41,7 @@ class TokenPassing(object):
 
         #vedi sotto
 
-    def convert_frontiers(self, front):
-        frontiers = []
-        for f in front:
-            frontiers.append(frontier(f))
-        return frontiers
 
-    def create_graph(self):
-        for f in self.frontiers:
-            self.graph.add_edge(f.start_partition, f.destination_partition, 1)
-        #print(self.graph)
-
-    #restituisce l'indice della partizione in cui si trova la posizione pos (thanks co-pilot)
-    def find_partition(self, pos):
-        for i, partition in enumerate(self.tokens):
-            if partition['partition'][0] <= pos[0] <= partition['partition'][2] and partition['partition'][1] <= pos[1] <= partition['partition'][3]:
-                return i
-        return -1
 
     def init_global_view(self):
         self.global_view['tasks'] = {}
@@ -109,6 +93,24 @@ class TokenPassing(object):
         for t in range(self.number_of_areas):
             self.tokens.append({})
             self.init_token(t, partitions[t])
+
+    def convert_frontiers(self, front):
+        frontiers = []
+        for f in front:
+            frontiers.append(frontier(f))
+        return frontiers
+
+    def create_graph(self):
+        for f in self.frontiers:
+            self.graph.add_edge(f.start_partition, f.destination_partition, 1)
+        #print(self.graph)
+
+    #restituisce l'indice della partizione in cui si trova la posizione pos (thanks co-pilot)
+    def find_partition(self, pos):
+        for i, partition in enumerate(self.tokens):
+            if partition['partition'][0] <= pos[0] <= partition['partition'][2] and partition['partition'][1] <= pos[1] <= partition['partition'][3]:
+                return i
+        return -1
 
     #in teoria agenti in idle hanno il path verso la loro posizione attuale
     def get_idle_agents(self):
@@ -211,6 +213,25 @@ class TokenPassing(object):
                     if tmp < dist:
                         dist = tmp
                         res = endpoint
+        if res == -1:
+            print('Error in finding non-task endpoint, is instance well-formed?')
+            exit(1)
+        return res
+
+    #restituisce una frontiera non una coordinata
+    def get_closest_frontier(self, agent_pos, frontiers_to_next_part):
+        dist = -1
+        res = -1
+        for f in frontiers_to_next_part:
+            if dist == -1:
+                dist = self.admissible_heuristic(f.start_pos, agent_pos)
+                res = f
+            else:
+                tmp = self.admissible_heuristic(f.start_pos, agent_pos)
+                if tmp < dist:
+                    dist = tmp
+                    res = f
+
         if res == -1:
             print('Error in finding non-task endpoint, is instance well-formed?')
             exit(1)
@@ -452,7 +473,11 @@ class TokenPassing(object):
         else:
             self.global_view['abstract_to_loc2'][agent_name] = path.nodes
 
-    def go_to_frontier(self, agent_name, agent_pos, all_idle_agents, part_index):
+    def go_to_frontier(self, agent_name, agent_pos, all_idle_agents, actual_part, next_part):
+        #scelgo la frontiera più vicina in base all'area in cui sono e a dove voglio andare
+        frontiers_to_next_part = self.tokens[actual_part]['own_frontiers'][next_part]
+
+
 
     def time_forward(self):
         self.update_completed_tasks()
