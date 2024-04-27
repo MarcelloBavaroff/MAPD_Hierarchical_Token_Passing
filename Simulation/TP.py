@@ -504,11 +504,23 @@ class TokenPassing(object):
                 self.compute_abstract_path(agent_pos, self.global_view['pre_assignment_agents_tasks'][agent_name]['start'], agent_name, 1)
                 self.compute_abstract_path(self.global_view['pre_assignment_agents_tasks'][agent_name]['start'], self.global_view['pre_assignment_agents_tasks'][agent_name]['goal'], agent_name, 2)
 
+            #-----------------------------PATH REALI--------------------------------
             if len(self.global_view['abstract_to_loc1'][agent_name]) > 1:
-                self.go_to_frontier(agent_name, agent_pos, all_idle_agents, agent_partition)
-                print("cambio partizione")
+                self.go_to_frontier(agent_name, agent_pos, all_idle_agents, agent_partition, self.global_view['abstract_to_loc1'][agent_name][1])
+
+                # TODO: caso in cui sono sulla frontiera e devo cambiare partizione
             #il pickup è nell'area in cui mi trovo
             elif len(self.global_view['abstract_to_loc1'][agent_name]) == 1:
                 self.compute_real_path_single(agent_name, agent_pos, self.global_view['pre_assignment_agents_tasks'][agent_name]['start'], all_idle_agents, agent_partition)
 
+            #da qui in giù abstract path 1 è vuoto quindi devo andare al delivery o al non task endpoint
+            elif len(self.global_view['abstract_to_loc2'][agent_name]) > 1:
+                self.go_to_frontier(agent_name, agent_pos, all_idle_agents, agent_partition,
+                                    self.global_view['abstract_to_loc2'][agent_name][1])
+                # TODO: caso in cui sono sulla frontiera e devo cambiare partizione
+            elif len(self.global_view['abstract_to_loc2'][agent_name]) == 1:
+                self.compute_real_path_single(agent_name, agent_pos, self.global_view['pre_assignment_agents_tasks'][agent_name]['goal'],
+                                              all_idle_agents, agent_partition)
+            else:
+                print("Entrambi gli abstact path sono vuoti, errore? " + agent_name)
 
