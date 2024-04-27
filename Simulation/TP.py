@@ -378,14 +378,14 @@ class TokenPassing(object):
                                 task[0], task[1], cost1 + cost2)
                 return True
 
-    def compute_real_path_single(self, agent_name, agent_pos, closest_task, all_idle_agents, part_index):
+    def compute_real_path_single(self, agent_name, agent_pos, goal_position, all_idle_agents, part_index):
 
         moving_obstacles_agents = self.get_moving_obstacles_agents(self.tokens[0]['agents'], 0)
         idle_obstacles_agents = self.get_idle_obstacles_agents(all_idle_agents, 0, agent_name)
         idle_obstacles_agents |= set(self.non_task_endpoints)
-        idle_obstacles_agents = idle_obstacles_agents - {tuple(agent_pos), tuple(closest_task[1])}
+        idle_obstacles_agents = idle_obstacles_agents - {tuple(agent_pos), tuple(goal_position)}
 
-        agent = {'name': agent_name, 'start': agent_pos, 'goal': closest_task[0]}
+        agent = {'name': agent_name, 'start': agent_pos, 'goal': goal_position}
         env = Environment(self.dimensions, [agent], self.obstacles | idle_obstacles_agents,
                           moving_obstacles_agents, a_star_max_iter=self.a_star_max_iter)
         cbs = CBS(env)
@@ -452,6 +452,8 @@ class TokenPassing(object):
         else:
             self.global_view['abstract_to_loc2'][agent_name] = path.nodes
 
+    def go_to_frontier(self, agent_name, agent_pos, all_idle_agents, part_index):
+
     def time_forward(self):
         self.update_completed_tasks()
         self.collect_new_tasks()
@@ -467,6 +469,9 @@ class TokenPassing(object):
             agent_pos = agents_to_plan.pop(agent_name)[0]
             agent_partition = self.global_view['agents_to_areas'][agent_name]
 
+            all_idle_agents = self.tokens[agent_partition]['agents'].copy()
+            all_idle_agents.pop(agent_name)
+
             #se non ha abstract path(s) calcolo
             if len(self.global_view['abstract_to_loc1'][agent_name]) == 0 and \
                 len(self.global_view['abstract_to_loc2'][agent_name]) == 0:
@@ -475,8 +480,10 @@ class TokenPassing(object):
                 self.compute_abstract_path(self.global_view['pre_assignment_agents_tasks'][agent_name]['start'], self.global_view['pre_assignment_agents_tasks'][agent_name]['goal'], agent_name, 2)
 
             if len(self.global_view['abstract_to_loc1'][agent_name]) > 1:
+                self.go_to_frontier(agent_name, agent_pos, all_idle_agents, agent_partition)
                 print("cambio partizione")
+            #il pickup è nell'area in cui mi trovo
             elif len(self.global_view['abstract_to_loc1'][agent_name]) == 1:
-                print("arrivo in partizione")
+                self.compute_real_path_single(agent_name, agent_pos, self.global_view['pre_assignment_agents_tasks'][agent_name]['start'], all_idle_agents, agent_partition)
 
 
