@@ -424,6 +424,10 @@ class TokenPassing(object):
         path = find_path(self.graph, start_partition, goal_partition)
         if loc == 1:
             self.global_view['abstract_to_loc1'][agent_name] = path.nodes
+            # caso per quando vai verso il non task endpoint e quindi hai solo abs2
+            if len(path.nodes) == 1:
+                self.global_view['abstract_to_loc1'][agent_name] = []
+
         else:
             self.global_view['abstract_to_loc2'][agent_name] = path.nodes
 
@@ -444,10 +448,12 @@ class TokenPassing(object):
             agent_pos = agents_to_plan.pop(agent_name)[0]
             agent_partition = self.global_view['agents_to_areas'][agent_name]
 
+            #se non ha abstract path(s) calcolo
             if len(self.global_view['abstract_to_loc1'][agent_name]) == 0 and \
                 len(self.global_view['abstract_to_loc2'][agent_name]) == 0:
 
                 self.compute_abstract_path(agent_pos, self.global_view['pre_assignment_agents_tasks'][agent_name]['start'], agent_name, 1)
                 self.compute_abstract_path(self.global_view['pre_assignment_agents_tasks'][agent_name]['start'], self.global_view['pre_assignment_agents_tasks'][agent_name]['goal'], agent_name, 2)
+
 
 
