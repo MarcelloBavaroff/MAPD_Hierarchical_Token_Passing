@@ -113,12 +113,12 @@ class TokenPassing(object):
         return -1
 
     #in teoria agenti in idle hanno il path verso la loro posizione attuale
-    def get_idle_agents(self):
-        agents = {}
-        for name, path in self.tokens[0]['agents'].items():
-            if len(path) == 1:
-                agents[name] = path
-        return agents
+    # def get_idle_agents(self):
+    #     agents = {}
+    #     for name, path in self.tokens[0]['agents'].items():
+    #         if len(path) == 1:
+    #             agents[name] = path
+    #     return agents
 
     # devo restituire in dizionario di agenti in idle con nome come chiave e posizione come valore (lista)
     def get_idle_agents_without_preass(self):
@@ -192,7 +192,7 @@ class TokenPassing(object):
         return obstacles
 
     def check_safe_idle(self, agent_pos):
-        for task_name, task in self.tokens[0]['tasks'].items():
+        for task_name, task in self.global_view['tasks'].items():
             if tuple(task[0]) == tuple(agent_pos) or tuple(task[1]) == tuple(agent_pos):
                 return False
         for start_goal in self.get_agents_to_tasks_starts_goals():
@@ -245,25 +245,27 @@ class TokenPassing(object):
 
     def get_agents_to_tasks_goals(self):
         goals = set()
-        for el in self.tokens[0]['agents_to_tasks'].values():
+        for el in self.global_view['agents_to_tasks'].values():
             goals.add(tuple(el['goal']))
         return goals
 
     def get_agents_to_tasks_starts_goals(self):
         starts_goals = set()
-        for el in self.tokens[0]['agents_to_tasks'].values():
+        for el in self.global_view['agents_to_tasks'].values():
             starts_goals.add(tuple(el['delivery']))
             starts_goals.add(tuple(el['pickup']))
         return starts_goals
 
     def get_completed_tasks(self):
-        return self.tokens[0]['completed_tasks']
+        return self.global_view['completed_tasks']
 
     def get_completed_tasks_times(self):
-        return self.tokens[0]['completed_tasks_times']
+        return self.global_view['completed_tasks_times']
 
-    def get_token(self):
-        return self.tokens[0]
+    def get_token(self, index):
+        return self.tokens[index]
+    def get_global_view(self):
+        return self.global_view
 
     def search(self, cbs):
 
@@ -326,7 +328,7 @@ class TokenPassing(object):
 
     def find_available_tasks(self, agent_pos):
         available_tasks = {}
-        for task_name, task in self.tokens[0]['tasks'].items():
+        for task_name, task in self.global_view['tasks'].items():
             # se inizio e fine task non in path ends degli agenti (meno me) AND nemmeno in goals
             if tuple(task[0]) not in self.tokens[0]['path_ends'].difference({tuple(agent_pos)}) and tuple(
                     task[1]) not in self.tokens[0]['path_ends'].difference({tuple(agent_pos)}) \
@@ -434,7 +436,7 @@ class TokenPassing(object):
             for el in path1:
                 self.tokens[part_index]['agents'][agent_name].append([el['x'], el['y']])
             # Don't repeat twice same step, elimino ultimo elemento
-            self.tokens[part_index]['agents'][agent_name] = self.tokens[0]['agents'][agent_name][:-1]
+            self.tokens[part_index]['agents'][agent_name] = self.tokens[part_index]['agents'][agent_name][:-1]
 
         for el in path2:
             self.tokens[part_index]['agents'][agent_name].append([el['x'], el['y']])
@@ -445,7 +447,7 @@ class TokenPassing(object):
 
         while len(idle_agents) > 0:
             agent_name = random.choice(list(idle_agents.keys()))
-            all_idle_agents = self.tokens[0]['agents'].copy()
+            all_idle_agents = self.global_view['agents'].copy()
             all_idle_agents.pop(agent_name)
             agent_pos = idle_agents.pop(agent_name)[0]
             available_tasks = self.find_available_tasks(agent_pos)
