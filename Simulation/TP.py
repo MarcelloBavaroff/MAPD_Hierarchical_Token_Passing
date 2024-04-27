@@ -127,6 +127,17 @@ class TokenPassing(object):
 
         return agents
 
+    #agenti che hanno un task assegnato e per cui devo pianificare (quelli in idle non ci sono perchè non hanno un pre_ass)
+    def get_agents_to_plan(self):
+        agents = {}
+        for t in range(self.number_of_areas):
+            for name, path in self.tokens[t]['agents'].items():
+                if name in self.global_view['pre_assignment_agents_tasks'] and len(path) == 1:
+                    agents[name] = path
+
+        return agents
+
+
 
     #distanza in celle verticali ed orizzontali
     def admissible_heuristic(self, task_pos, agent_pos):
@@ -413,6 +424,10 @@ class TokenPassing(object):
         self.update_completed_tasks()
         self.collect_new_tasks()
         self.assign_tasks()
+
+        # vedo gli agent con pre assegnamento, ma non hanno ancora un path assegnato
+
+
         # assegnamento agenti-task in global view
 
 
