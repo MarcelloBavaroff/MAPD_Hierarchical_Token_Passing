@@ -420,7 +420,6 @@ class TokenPassing(object):
             self.apply_path(agent_name, agent_pos, None, path[agent_name], part_index)
             #return True
 
-
     # se ho solo un path passo solo il secondo
     def apply_path(self, agent_name, agent_pos, path1, path2, part_index):
         last_step = path2[-1]
@@ -476,8 +475,9 @@ class TokenPassing(object):
     def go_to_frontier(self, agent_name, agent_pos, all_idle_agents, actual_part, next_part):
         #scelgo la frontiera più vicina in base all'area in cui sono e a dove voglio andare
         frontiers_to_next_part = self.tokens[actual_part]['own_frontiers'][next_part]
+        closest_frontier = self.get_closest_frontier(agent_pos, frontiers_to_next_part)
 
-
+        self.compute_real_path_single(agent_name, agent_pos, closest_frontier.start_pos, all_idle_agents, actual_part)
 
     def time_forward(self):
         self.update_completed_tasks()
