@@ -47,10 +47,6 @@ class Simulation(object):
                 if old_part != new_part:
                     gb['abstract_to_loc2'][agent_name] = gb['abstract_to_loc2'][agent_name][1:]
 
-
-
-
-
     #viene chiamata per simulare un singolo timestep in avanti
     def time_forward(self, algorithm):
         self.time = self.time + 1

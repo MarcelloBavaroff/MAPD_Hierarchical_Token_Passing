@@ -47,7 +47,7 @@ class TokenPassing(object):
         self.global_view['tasks'] = {}
         self.global_view['start_tasks_times'] = {}
         self.global_view['completed_tasks_times'] = {}
-        self.global_view['agents_to_tasks'] = {}
+        #self.global_view['agents_to_tasks'] = {}
         self.global_view['pre_assignment_agents_tasks'] = {}
         self.global_view['completed_tasks'] = 0
         self.global_view['agents_to_areas'] = {}
@@ -260,15 +260,15 @@ class TokenPassing(object):
 
     def get_agents_to_tasks_goals(self):
         goals = set()
-        for el in self.global_view['agents_to_tasks'].values():
+        for el in self.global_view['pre_assignment_agents_tasks'].values():
             goals.add(tuple(el['goal']))
         return goals
 
     def get_agents_to_tasks_starts_goals(self):
         starts_goals = set()
-        for el in self.global_view['agents_to_tasks'].values():
-            starts_goals.add(tuple(el['delivery']))
-            starts_goals.add(tuple(el['pickup']))
+        for el in self.global_view['pre_assignment_agents_tasks'].values():
+            starts_goals.add(tuple(el['goal']))
+            starts_goals.add(tuple(el['start']))
         return starts_goals
 
     def get_completed_tasks(self):
@@ -326,21 +326,21 @@ class TokenPassing(object):
             # ---------------------CASO AGENTE ARRIVATO------------------
             # se agente assegnato ad un task E le sue coordinate attuali sono = al suo goal
             # E il suo path attuale lungo 1 ed il suo taks non è safe idle
-            if agent_name in self.global_view['agents_to_tasks'] and (pos['x'], pos['y']) == tuple(
-                    self.global_view['agents_to_tasks'][agent_name]['goal']) \
+            if agent_name in self.global_view['pre_assignment_agents_tasks'] and (pos['x'], pos['y']) == tuple(
+                    self.global_view['pre_assignment_agents_tasks'][agent_name]['goal']) \
                     and len(self.tokens[partition]['agents'][agent_name]) == 1 and \
-                    self.global_view['agents_to_tasks'][agent_name][
+                    self.global_view['pre_assignment_agents_tasks'][agent_name][
                         'task_name'] != 'safe_idle':
                 self.global_view['completed_tasks'] = self.global_view['completed_tasks'] + 1
                 self.global_view['completed_tasks_times'][
-                    self.global_view['agents_to_tasks'][agent_name]['task_name']] = self.simulation.get_time()
-                self.global_view['agents_to_tasks'].pop(agent_name)
-            if agent_name in self.global_view['agents_to_tasks'] and (pos['x'], pos['y']) == tuple(
-                    self.global_view['agents_to_tasks'][agent_name]['goal']) \
+                    self.global_view['pre_assignment_agents_tasks'][agent_name]['task_name']] = self.simulation.get_time()
+                self.global_view['pre_assignment_agents_tasks'].pop(agent_name)
+            if agent_name in self.global_view['pre_assignment_agents_tasks'] and (pos['x'], pos['y']) == tuple(
+                    self.global_view['pre_assignment_agents_tasks'][agent_name]['goal']) \
                     and len(self.tokens[partition]['agents'][agent_name]) == 1 and \
-                    self.global_view['agents_to_tasks'][agent_name][
+                    self.global_view['pre_assignment_agents_tasks'][agent_name][
                         'task_name'] == 'safe_idle':
-                self.global_view['agents_to_tasks'].pop(agent_name)
+                self.global_view['pre_assignment_agents_tasks'].pop(agent_name)
 
     def find_available_tasks(self, agent_pos):
         available_tasks = {}
@@ -391,7 +391,7 @@ class TokenPassing(object):
             cost1 = env.compute_solution_cost(path1)
 
             moving_obstacles_agents = self.get_moving_obstacles_agents(self.tokens[part_index]['agents'], time_start+cost1-1)
-            idle_obstacles_agents = self.get_idle_obstacles_agents(all_idle_agents, time_start, agent_name)
+            idle_obstacles_agents = self.get_idle_obstacles_agents(all_idle_agents, time_start+cost1-1, agent_name)
             idle_obstacles_agents |= set(self.non_task_endpoints)
             idle_obstacles_agents = idle_obstacles_agents - {tuple(agent_pos), tuple(loc1), tuple(loc2)}
 

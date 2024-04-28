@@ -210,8 +210,8 @@ class Environment(object):
         return self.obstacles | all_obs
 
     def state_valid(self, state):
-        return state.location.x >= self.x_min and state.location.x < self.x_max \
-            and state.location.y >= self.y_min and state.location.y < self.y_max \
+        return state.location.x >= self.x_min and state.location.x <= self.x_max \
+            and state.location.y >= self.y_min and state.location.y <= self.y_max \
             and VertexConstraint(state.time, state.location) not in self.constraints.vertex_constraints \
             and (state.location.x, state.location.y) not in self.get_all_obstacles(state.time) \
             and (state.location.x, state.location.y, state.time) not in self.moving_obstacles
