@@ -22,6 +22,7 @@ class TokenPassing(object):
         self.non_task_endpoints = non_task_endpoints
         self.number_of_areas = number_of_areas
         self.frontiers = self.convert_frontiers(frontiers)
+        self.partitions = partitions
         if len(agents) > len(non_task_endpoints):
             print('There are more agents than non task endpoints, instance is not well-formed.')
             exit(1)
@@ -40,8 +41,6 @@ class TokenPassing(object):
         self.create_graph()
 
         #vedi sotto
-
-
 
     def init_global_view(self):
         self.global_view['tasks'] = {}
@@ -62,7 +61,7 @@ class TokenPassing(object):
 
         for a in self.agents:
             pos = [a['start']]
-            self.global_view['agents_to_areas'][a['name']] = self.find_partition(pos)
+            self.global_view['agents_to_areas'][a['name']] = self.find_partition(pos[0])
             if pos in self.non_task_endpoints:
                 self.global_view['occupied_non_task_endpoints'].add(tuple(a['start']))
 
@@ -80,10 +79,14 @@ class TokenPassing(object):
         # per ogni destinazione ho una lista frontiere che mi ci portano
         for f in self.frontiers:
             if f.start_partition == index:
-                self.tokens[index]['own_frontiers'][f.destination_partition].append(f)
+                try:
+                    self.tokens[index]['own_frontiers'][f.destination_partition].append(f)
+                except:
+                    self.tokens[index]['own_frontiers'][f.destination_partition] = [f]
 
         for a in self.agents:
-            self.tokens[index]['agents'][a['name']] = [a['start']]
+            if self.find_partition(a['start']) == index:
+                self.tokens[index]['agents'][a['name']] = [a['start']]
 
             if not tuple(a['start']) in self.non_task_endpoints:
                 self.tokens[index]['path_ends'].add(tuple(a['start']))
@@ -107,8 +110,9 @@ class TokenPassing(object):
 
     #restituisce l'indice della partizione in cui si trova la posizione pos (thanks co-pilot)
     def find_partition(self, pos):
-        for i, partition in enumerate(self.tokens):
-            if partition['partition'][0] <= pos[0] <= partition['partition'][2] and partition['partition'][1] <= pos[1] <= partition['partition'][3]:
+
+        for i in range(self.number_of_areas):
+            if self.partitions[i][0] <= pos[0] <= self.partitions[i][2] and self.partitions[i][1] <= pos[1] <= self.partitions[i][3]:
                 return i
         return -1
 
@@ -131,6 +135,14 @@ class TokenPassing(object):
                     agents[name] = path
 
         return agents
+
+    def get_idle_agents_global(self):
+        all_idle_agents = self.tokens[0]['agents'].copy()
+
+        for t in range(1,self.number_of_areas):
+            all_idle_agents.update(self.tokens[t]['agents'].copy())
+
+        return all_idle_agents
 
     #agenti che hanno un task assegnato e per cui devo pianificare (quelli in idle non ci sono perchè non hanno un pre_ass)
     def get_agents_to_plan(self):
@@ -302,8 +314,9 @@ class TokenPassing(object):
 
     def update_completed_tasks(self):
         # Update completed tasks
-        for agent_name in self.agents:
+        for agent in self.agents:
             # pos = posizione attuale agente
+            agent_name = agent['name']
             pos = self.simulation.actual_paths[agent_name][-1]
             partition = self.find_partition([pos['x'], pos['y']])
 
@@ -447,7 +460,7 @@ class TokenPassing(object):
 
         while len(idle_agents) > 0:
             agent_name = random.choice(list(idle_agents.keys()))
-            all_idle_agents = self.global_view['agents'].copy()
+            all_idle_agents = self.get_idle_agents_global()
             all_idle_agents.pop(agent_name)
             agent_pos = idle_agents.pop(agent_name)[0]
             available_tasks = self.find_available_tasks(agent_pos)
