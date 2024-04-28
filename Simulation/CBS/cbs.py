@@ -300,8 +300,7 @@ class CBS(object):
             self.env.constraint_dict = P.constraint_dict
             conflict_dict = self.env.get_first_conflict(P.solution)
             if not conflict_dict:
-                print("Low level CBS - Solution found")
-
+                #print("Low level CBS - Solution found")
                 return self.generate_plan(P.solution)
 
             constraint_dict = self.env.create_constraints_from_conflict(conflict_dict)
