@@ -12,6 +12,7 @@ class frontier:
         self.destination_pos = tuple((front[3], front[4]))
 
 
+# noinspection PyTypeChecker
 class TokenPassing(object):
     def __init__(self, agents, dimensions, obstacles, non_task_endpoints, number_of_areas, partitions, simulation,
                  goal_endpoints, frontiers, a_star_max_iter=4000):
@@ -404,6 +405,9 @@ class TokenPassing(object):
                 return False
             else:
                 print("Solution found to task start for agent", agent_name, " doing task...")
+                # serve per mettere nel nuovo token l'agente che migra e solo dal timestep dopo iniziare il percorso
+                for i in range(time_start):
+                    path1[agent_name].insert(0, path1[agent_name][0])
                 self.apply_path(agent_name, agent_pos, path1[agent_name], path2[agent_name], part_index)
                 return True
 
@@ -424,7 +428,10 @@ class TokenPassing(object):
             return False
         else:
             print("Solution found to task start for agent", agent_name, " searching solution to task goal...")
-            #cost1 = env.compute_solution_cost(path)
+            #serve per mettere nel nuovo token l'agente che migra e solo dal timestep dopo iniziare il percorso
+            for i in range(time_start):
+                path[agent_name].insert(0, path[agent_name][0])
+
             self.apply_path(agent_name, agent_pos, None, path[agent_name], part_index)
             return True
 
@@ -499,6 +506,7 @@ class TokenPassing(object):
 
         elif len(self.global_view[abstract][agent_name]) == 2:
             return self.global_view['pre_assignment_agents_tasks'][agent_name]['goal']
+
     def migrazione(self, agent_name, agent_pos, actual_part, next_part, num_abs):
         #TODO: non è la più vicina, ma quella dove sono al momento che dovrei usare (coincidono quindi per ora ok)
         frontiers_to_next_part = self.tokens[actual_part]['own_frontiers'][next_part]
@@ -506,13 +514,22 @@ class TokenPassing(object):
 
         next_goal = self.find_next_goal(agent_name, closest_frontier.destination_pos, next_part, num_abs)
         all_idle_agents = self.tokens[next_part]['agents'].copy()
-        valid_path = self.compute_real_path_single(agent_name, closest_frontier.destination_pos, next_goal, all_idle_agents, next_part, time_start=0)
+
+        # se sto migrando, devo ancora fare il pickup e questo è nella partizione successiva
+        if num_abs == 1 and len(self.global_view['abstract_to_loc1'][agent_name]) == 2:
+            valid_path = self.pickup_in_partition(agent_name, agent_pos, closest_frontier.start_pos, all_idle_agents, actual_part, time_start=1)
+        # altrimenti o devo andare da una frontiera all'altra o al delivery
+        else:
+            valid_path = self.compute_real_path_single(agent_name, closest_frontier.destination_pos, next_goal, all_idle_agents, next_part, time_start=0)
 
         if valid_path:
             print('Agent', agent_name, 'migrating to partition', next_part, '...')
             self.global_view['agents_to_areas'][agent_name] = next_part
+
         else:
             print('No available tasks for agent', agent_name, ' idling at current position...')
+            #segnali che l'agente rimarrà fermo in attesa di riprovare
+            self.tokens[actual_part]['agents'][agent_name].append([agent_pos[0], agent_pos[1]])
             #TODO: qui meccanismo che ricalcola path altrui e risolve problemi
 
     def on_a_frontier(self, agent_pos, actual_part):
@@ -531,12 +548,20 @@ class TokenPassing(object):
                 if tuple(agent_pos[0]) in self.non_task_endpoints:
                     self.global_view['occupied_non_task_endpoints'].add(tuple(agent_pos[0]))
 
-    def pickup_in_partition(self, agent_name, agent_pos, goal_position, all_idle_agents, part_index, time_start=0):
+    def pickup_in_partition(self, agent_name, agent_pos, pickup_position, all_idle_agents, part_index, time_start=0):
         #quì io sto facendo il pickup quindi il mio abs1 ha solo una partizione che è quella attuale
         #len abs2 = 1 vuol dire che il delivery è quì
         #len abs2 > 1 vuol dire che la prossima destinazione sarà una frontiera
         #in abs2[0] c'è sempre la partizione corrente, quindi devo vedere abs2[1] per la prossima partizione
 
+        if len(self.global_view['abstract_to_loc2'][agent_name]) == 1:
+            loc2 = self.global_view['pre_assignment_agents_tasks'][agent_name]['goal']
+            return self.compute_real_path_double(agent_name, agent_pos, pickup_position, loc2, all_idle_agents, part_index, time_start)
+        else:
+            next_part = self.global_view['abstract_to_loc2'][agent_name][1]
+            frontiers_to_next_part = self.tokens[part_index]['own_frontiers'][next_part]
+            closest_frontier = self.get_closest_frontier(pickup_position, frontiers_to_next_part)
+            return self.compute_real_path_double(agent_name, agent_pos, pickup_position, closest_frontier.start_pos, all_idle_agents, part_index, time_start)
 
     def time_forward(self):
         self.update_completed_tasks()
@@ -573,8 +598,8 @@ class TokenPassing(object):
 
             #il pickup è nell'area in cui mi trovo
             elif len(self.global_view['abstract_to_loc1'][agent_name]) == 1:
-                self.compute_real_path_single(agent_name, agent_pos, self.global_view['pre_assignment_agents_tasks'][agent_name]['start'], all_idle_agents, agent_partition)
-                self.pickup_in_partition()
+                self.pickup_in_partition(agent_name, agent_pos, self.global_view['pre_assignment_agents_tasks'][agent_name]['start'], all_idle_agents, agent_partition)
+
             #da qui in giù abstract path 1 è vuoto quindi devo andare al delivery o al non task endpoint
             elif len(self.global_view['abstract_to_loc2'][agent_name]) > 1:
                 on_frontier = self.on_a_frontier(agent_pos, agent_partition)

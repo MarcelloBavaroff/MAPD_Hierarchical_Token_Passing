@@ -27,6 +27,29 @@ class Simulation(object):
             #x e y del path sono presi da 'pickup' dell'agente (posizione 0 e 1)
             self.actual_paths[agent['name']] = [{'t': 0, 'x': agent['start'][0], 'y': agent['start'][1]}]
 
+    def update_abstract_paths(self, agent_name, old_pos, new_pos, gb, algorithm):
+        if old_pos == new_pos:
+            return
+        elif len(gb['abstract_to_loc1'][agent_name]) > 0:
+            if new_pos == gb['pre_assignment_agents_tasks'][agent_name]['start']:
+                gb['abstract_to_loc1'][agent_name] = []
+            else:
+                old_part = algorithm.find_partition(old_pos)
+                new_part = algorithm.find_partition(new_pos)
+                if old_part != new_part:
+                    gb['abstract_to_loc1'][agent_name] = gb['abstract_to_loc1'][agent_name][1:]
+        else:
+            if new_pos == gb['preassigned_tasks'][agent_name]['goal']:
+                gb['abstract_to_loc2'][agent_name] = []
+            else:
+                old_part = algorithm.find_partition(old_pos)
+                new_part = algorithm.find_partition(new_pos)
+                if old_part != new_part:
+                    gb['abstract_to_loc2'][agent_name] = gb['abstract_to_loc2'][agent_name][1:]
+
+
+
+
 
     #viene chiamata per simulare un singolo timestep in avanti
     def time_forward(self, algorithm):
@@ -37,6 +60,7 @@ class Simulation(object):
         self.algo_time += time.time() - start_time
         self.agents_pos_now = set()
         self.agents_moved = set()
+
         agents_to_move = self.agents
         random.shuffle(agents_to_move)
 
@@ -79,8 +103,8 @@ class Simulation(object):
                         moved_this_step = moved_this_step + 1
 
                         # cancello il primo
-                        algorithm.get_token(partition)['agents'][agent['name']] = algorithm.get_token(partition)['agents'][agent['name']][
-                                                                         1:]
+                        algorithm.get_token(partition)['agents'][agent['name']] = algorithm.get_token(partition)['agents'][agent['name']][1:]
+                        self.update_abstract_paths(agent['name'], tuple([current_agent_pos['x'], current_agent_pos['y']]) ,tuple([x_new, y_new]), gb, algorithm)
                         # aggiorno il path dell'agente
                         self.actual_paths[agent['name']].append({'t': self.time, 'x': x_new, 'y': y_new})
 
