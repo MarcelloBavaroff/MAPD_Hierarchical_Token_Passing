@@ -74,6 +74,7 @@ class TokenPassing(object):
         self.tokens[index]['path_ends'] = set()
         self.tokens[index]['partition'] = partition #x_min, y_min, x_max, y_max
         self.tokens[index]['own_frontiers'] = {}
+        self.tokens[index]['occupied_non_task_endpoints'] = set()
 
         # qui salvo solo le frontiere che partono dalla partizione corrente
         # per ogni destinazione ho una lista frontiere che mi ci portano
@@ -87,9 +88,11 @@ class TokenPassing(object):
         for a in self.agents:
             if self.find_partition(a['start']) == index:
                 self.tokens[index]['agents'][a['name']] = [a['start']]
+                if not tuple(a['start']) in self.non_task_endpoints:
+                    self.tokens[index]['path_ends'].add(tuple(a['start']))
+                else:
+                    self.tokens[index]['occupied_non_task_endpoints'].add(tuple(a['start']))
 
-            if not tuple(a['start']) in self.non_task_endpoints:
-                self.tokens[index]['path_ends'].add(tuple(a['start']))
 
     #initialize all tokens
     def init_tokens(self, partitions):
@@ -115,7 +118,6 @@ class TokenPassing(object):
             if self.partitions[i][0] <= pos[0] <= self.partitions[i][2] and self.partitions[i][1] <= pos[1] <= self.partitions[i][3]:
                 return i
         return -1
-
     #in teoria agenti in idle hanno il path verso la loro posizione attuale
     # def get_idle_agents(self):
     #     agents = {}
@@ -476,6 +478,7 @@ class TokenPassing(object):
                 #self.go_to_closest_non_task_endpoint(agent_name, agent_pos, all_idle_agents)
 
     def compute_abstract_path(self, start, goal, agent_name, loc):
+        #TODO: caso non task endpoint
         start_partition = self.find_partition(start)
         goal_partition = self.find_partition(goal)
 
@@ -483,8 +486,8 @@ class TokenPassing(object):
         if loc == 1:
             self.global_view['abstract_to_loc1'][agent_name] = path.nodes
             # caso per quando vai verso il non task endpoint e quindi hai solo abs2
-            if len(path.nodes) == 1:
-                self.global_view['abstract_to_loc1'][agent_name] = []
+            #if len(path.nodes) == 1:
+            #    self.global_view['abstract_to_loc1'][agent_name] = []
 
         else:
             self.global_view['abstract_to_loc2'][agent_name] = path.nodes
@@ -523,7 +526,7 @@ class TokenPassing(object):
             print('No available tasks for agent', agent_name, ' idling at current position...')
             #TODO: qui meccanismo che ricalcola path altrui e risolve problemi
 
-    def on_a_frontier(self, agent_name, agent_pos, actual_part):
+    def on_a_frontier(self, agent_pos, actual_part):
         frontiers = self.tokens[actual_part]['own_frontiers']
         for part, front in frontiers.items():
             for f in front:
@@ -531,6 +534,13 @@ class TokenPassing(object):
                     return part
 
         return -1
+
+    def update_non_task_endpoints(self):
+        self.global_view['occupied_non_task_endpoints'] = set()
+        for part in range(self.number_of_areas):
+            for agent_pos in self.tokens[part]['agents'].values():
+                if tuple(agent_pos[0]) in self.non_task_endpoints:
+                    self.global_view['occupied_non_task_endpoints'].add(tuple(agent_pos[0]))
 
     def time_forward(self):
         self.update_completed_tasks()
@@ -559,7 +569,7 @@ class TokenPassing(object):
 
             #-----------------------------PATH REALI--------------------------------
             if len(self.global_view['abstract_to_loc1'][agent_name]) > 1:
-                on_frontier = self.on_a_frontier(agent_name, agent_pos, agent_partition)
+                on_frontier = self.on_a_frontier(agent_pos, agent_partition)
                 if on_frontier != -1:
                     self.migrazione(agent_name, agent_pos, agent_partition, on_frontier, 1)
                 else:
@@ -571,7 +581,7 @@ class TokenPassing(object):
 
             #da qui in giù abstract path 1 è vuoto quindi devo andare al delivery o al non task endpoint
             elif len(self.global_view['abstract_to_loc2'][agent_name]) > 1:
-                on_frontier = self.on_a_frontier(agent_name, agent_pos, agent_partition)
+                on_frontier = self.on_a_frontier(agent_pos, agent_partition)
                 if on_frontier != -1:
                     self.migrazione(agent_name, agent_pos, agent_partition, on_frontier, 2)
                 else:
@@ -583,4 +593,7 @@ class TokenPassing(object):
                                               all_idle_agents, agent_partition)
             else:
                 print("Entrambi gli abstact path sono vuoti, errore? " + agent_name)
+
+
+        self.update_non_task_endpoints()
 
