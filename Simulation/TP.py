@@ -505,9 +505,19 @@ class TokenPassing(object):
 
         if valid_path:
             print('Agent', agent_name, 'migrating to partition', next_part, '...')
+            self.global_view['agents_to_areas'][agent_name] = next_part
         else:
             print('No available tasks for agent', agent_name, ' idling at current position...')
             #TODO: qui meccanismo che ricalcola path altrui e risolve problemi
+
+    def on_a_frontier(self, agent_name, agent_pos, actual_part):
+        frontiers = self.tokens[actual_part]['own_frontiers']
+        for part, front in frontiers.items():
+            for f in front:
+                if tuple(agent_pos) == f.start_pos:
+                    return part
+
+        return -1
 
     def time_forward(self):
         self.update_completed_tasks()
@@ -536,18 +546,25 @@ class TokenPassing(object):
 
             #-----------------------------PATH REALI--------------------------------
             if len(self.global_view['abstract_to_loc1'][agent_name]) > 1:
-                self.go_to_frontier(agent_name, agent_pos, all_idle_agents, agent_partition, self.global_view['abstract_to_loc1'][agent_name][1])
+                on_frontier = self.on_a_frontier(agent_name, agent_pos, agent_partition)
+                if on_frontier != -1:
+                    self.migrazione(agent_name, agent_pos, agent_partition, on_frontier, 1)
+                else:
+                    self.go_to_frontier(agent_name, agent_pos, all_idle_agents, agent_partition, self.global_view['abstract_to_loc1'][agent_name][1])
 
-                # TODO: caso in cui sono sulla frontiera e devo cambiare partizione
             #il pickup è nell'area in cui mi trovo
             elif len(self.global_view['abstract_to_loc1'][agent_name]) == 1:
                 self.compute_real_path_single(agent_name, agent_pos, self.global_view['pre_assignment_agents_tasks'][agent_name]['start'], all_idle_agents, agent_partition)
 
             #da qui in giù abstract path 1 è vuoto quindi devo andare al delivery o al non task endpoint
             elif len(self.global_view['abstract_to_loc2'][agent_name]) > 1:
-                self.go_to_frontier(agent_name, agent_pos, all_idle_agents, agent_partition,
+                on_frontier = self.on_a_frontier(agent_name, agent_pos, agent_partition)
+                if on_frontier != -1:
+                    self.migrazione(agent_name, agent_pos, agent_partition, on_frontier, 2)
+                else:
+                    self.go_to_frontier(agent_name, agent_pos, all_idle_agents, agent_partition,
                                     self.global_view['abstract_to_loc2'][agent_name][1])
-                # TODO: caso in cui sono sulla frontiera e devo cambiare partizione
+
             elif len(self.global_view['abstract_to_loc2'][agent_name]) == 1:
                 self.compute_real_path_single(agent_name, agent_pos, self.global_view['pre_assignment_agents_tasks'][agent_name]['goal'],
                                               all_idle_agents, agent_partition)

@@ -35,11 +35,12 @@ class Simulation(object):
         start_time = time.time()
         algorithm.time_forward()
         self.algo_time += time.time() - start_time
-        self.delayed_agents = set()
         self.agents_pos_now = set()
         self.agents_moved = set()
         agents_to_move = self.agents
         random.shuffle(agents_to_move)
+
+        gb = algorithm.get_global_view()
 
         for agent in agents_to_move:
             #ultimo elemento della lista dei path
@@ -48,7 +49,8 @@ class Simulation(object):
             self.agents_pos_now.add(tuple([current_agent_pos['x'], current_agent_pos['y']]))
             #lunghezza del path dell'agente considerato
 
-            if len(algorithm.get_token()['agents'][agent['name']]) == 1:
+            partition = gb['agents_to_areas'][agent['name']]
+            if len(algorithm.get_token(partition)['agents'][agent['name']]) == 1:
                 self.agents_moved.add(agent['name'])
                 self.actual_paths[agent['name']].append(
                     {'t': self.time, 'x': current_agent_pos['x'], 'y': current_agent_pos['y']})
@@ -61,24 +63,27 @@ class Simulation(object):
             
             for agent in agents_to_move:
                 current_agent_pos = self.actual_paths[agent['name']][-1]
-                if agent['name'] not in self.delayed_agents:
-                    if len(algorithm.get_token()['agents'][agent['name']]) > 1:
-                        #accedo alla tupla della posizione
-                        x_new = algorithm.get_token()['agents'][agent['name']][1][0]
-                        y_new = algorithm.get_token()['agents'][agent['name']][1][1]
-                        #se non corrisponde alla posizione attuale di un altro agente
-                        if tuple([x_new, y_new]) not in self.agents_pos_now or \
-                                tuple([x_new, y_new]) == tuple(tuple([current_agent_pos['x'], current_agent_pos['y']])):
-                            self.agents_moved.add(agent['name'])
-                            #dico che c'è un agente in questa posizione
-                            self.agents_pos_now.remove(tuple([current_agent_pos['x'], current_agent_pos['y']]))
-                            self.agents_pos_now.add(tuple([x_new, y_new]))
-                            moved_this_step = moved_this_step + 1
+                partition = gb['agents_to_areas'][agent['name']]
 
-                            #cancello il primo
-                            algorithm.get_token()['agents'][agent['name']] = algorithm.get_token()['agents'][agent['name']][1:]
-                            #aggiorno il path dell'agente
-                            self.actual_paths[agent['name']].append({'t': self.time, 'x': x_new, 'y': y_new})
+                if len(algorithm.get_token(partition)['agents'][agent['name']]) > 1:
+
+                    x_new = algorithm.get_token(partition)['agents'][agent['name']][1][0]
+                    y_new = algorithm.get_token(partition)['agents'][agent['name']][1][1]
+                    # se non corrisponde alla posizione attuale di un altro agente
+                    if tuple([x_new, y_new]) not in self.agents_pos_now or \
+                            tuple([x_new, y_new]) == tuple(tuple([current_agent_pos['x'], current_agent_pos['y']])):
+                        self.agents_moved.add(agent['name'])
+                        # dico che c'è un agente in questa posizione
+                        self.agents_pos_now.remove(tuple([current_agent_pos['x'], current_agent_pos['y']]))
+                        self.agents_pos_now.add(tuple([x_new, y_new]))
+                        moved_this_step = moved_this_step + 1
+
+                        # cancello il primo
+                        algorithm.get_token(partition)['agents'][agent['name']] = algorithm.get_token(partition)['agents'][agent['name']][
+                                                                         1:]
+                        # aggiorno il path dell'agente
+                        self.actual_paths[agent['name']].append({'t': self.time, 'x': x_new, 'y': y_new})
+
             agents_to_move = [x for x in agents_to_move if x['name'] not in self.agents_moved]
 
     def get_time(self):
