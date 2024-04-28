@@ -517,7 +517,7 @@ class TokenPassing(object):
 
         # se sto migrando, devo ancora fare il pickup e questo è nella partizione successiva
         if num_abs == 1 and len(self.global_view['abstract_to_loc1'][agent_name]) == 2:
-            valid_path = self.pickup_in_partition(agent_name, agent_pos, closest_frontier.start_pos, all_idle_agents, actual_part, time_start=1)
+            valid_path = self.pickup_in_partition(agent_name, agent_pos, closest_frontier.start_pos, all_idle_agents, next_part, time_start=1)
         # altrimenti o devo andare da una frontiera all'altra o al delivery
         else:
             valid_path = self.compute_real_path_single(agent_name, closest_frontier.destination_pos, next_goal, all_idle_agents, next_part, time_start=0)
