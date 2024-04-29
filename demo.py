@@ -12,7 +12,7 @@ import ast
 
 def read_tasks():
     data_list = []
-    with open('LastRun/task_p1', 'r') as file:
+    with open('LastRun/task_con_migrazione_doppia', 'r') as file:
         for line in file:
             try:
                 # Valuta la stringa come un dizionario Python
