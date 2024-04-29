@@ -47,7 +47,7 @@ class TokenPassing(object):
         self.global_view['tasks'] = {}
         self.global_view['start_tasks_times'] = {}
         self.global_view['completed_tasks_times'] = {}
-        #self.global_view['agents_to_tasks'] = {}
+
         self.global_view['pre_assignment_agents_tasks'] = {}
         self.global_view['completed_tasks'] = 0
         self.global_view['agents_to_areas'] = {}
@@ -93,7 +93,6 @@ class TokenPassing(object):
                     self.tokens[index]['path_ends'].add(tuple(a['start']))
                 else:
                     self.tokens[index]['occupied_non_task_endpoints'].add(tuple(a['start']))
-
 
     #initialize all tokens
     def init_tokens(self, partitions):
@@ -517,7 +516,7 @@ class TokenPassing(object):
 
         # se sto migrando, devo ancora fare il pickup e questo è nella partizione successiva
         if num_abs == 1 and len(self.global_view['abstract_to_loc1'][agent_name]) == 2:
-            valid_path = self.pickup_in_partition(agent_name, agent_pos, closest_frontier.start_pos, all_idle_agents, next_part, time_start=1)
+            valid_path = self.pickup_in_partition(agent_name, closest_frontier.destination_pos, self.global_view['pre_assignment_agents_tasks'][agent_name]['start'], all_idle_agents, next_part, time_start=1)
         # altrimenti o devo andare da una frontiera all'altra o al delivery
         else:
             valid_path = self.compute_real_path_single(agent_name, closest_frontier.destination_pos, next_goal, all_idle_agents, next_part, time_start=0)
@@ -525,6 +524,7 @@ class TokenPassing(object):
         if valid_path:
             print('Agent', agent_name, 'migrating to partition', next_part, '...')
             self.global_view['agents_to_areas'][agent_name] = next_part
+            self.tokens[actual_part]['agents'].pop(agent_name)
 
         else:
             print('No available tasks for agent', agent_name, ' idling at current position...')
@@ -571,7 +571,6 @@ class TokenPassing(object):
         # vedo gli agent con pre assegnamento, ma non hanno ancora un path assegnato
         #IN FUTURO PIANIFICANO PER PRIMI GLI AGENTI ALLA FRONTIERA
         agents_to_plan = self.get_agents_to_plan()
-
         while len(agents_to_plan) > 0:
 
             agent_name = random.choice(list(agents_to_plan.keys()))

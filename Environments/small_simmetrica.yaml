@@ -3,10 +3,10 @@ agents:
     name: agent0
 -   start: [2, 1]
     name: agent1
--   start: [11, 1]
-    name: agent2
--   start: [11, 7]
-    name: agent3
+#-   start: [11, 1]
+#    name: agent2
+#-   start: [11, 7]
+#    name: agent3
 map:
     dimensions: [14, 9]
     obstacles:
