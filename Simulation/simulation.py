@@ -31,7 +31,7 @@ class Simulation(object):
         if old_pos == new_pos:
             return
         elif len(gb['abstract_to_loc1'][agent_name]) > 0:
-            if new_pos == gb['pre_assignment_agents_tasks'][agent_name]['start']:
+            if new_pos == tuple(gb['pre_assignment_agents_tasks'][agent_name]['start']):
                 gb['abstract_to_loc1'][agent_name] = []
             else:
                 old_part = algorithm.find_partition(old_pos)
@@ -39,7 +39,7 @@ class Simulation(object):
                 if old_part != new_part:
                     gb['abstract_to_loc1'][agent_name] = gb['abstract_to_loc1'][agent_name][1:]
         else:
-            if new_pos == gb['preassigned_tasks'][agent_name]['goal']:
+            if new_pos == tuple(gb['pre_assignment_agents_tasks'][agent_name]['goal']):
                 gb['abstract_to_loc2'][agent_name] = []
             else:
                 old_part = algorithm.find_partition(old_pos)
