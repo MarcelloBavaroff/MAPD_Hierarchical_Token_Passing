@@ -14,8 +14,7 @@ import json
 import os
 import RoothPath
 
-
-Colors = ['orange', 'blue', 'green']
+Colors = ['orange', 'blue', 'green', 'yellow', 'red', 'purple']
 
 
 class Animation:
@@ -53,10 +52,16 @@ class Animation:
         # self.ax.axis('tight')
         # self.ax.axis('off')
 
+        #middle = map["map"]["dimensions"][0] / 2
+        #height = map["map"]["dimensions"][1]
+        #self.patches.append(Rectangle((middle-0.5, -0.5), 0.1, height , edgecolor='red'))
+        #gestione partizioni
+
         self.patches.append(Rectangle((xmin, ymin), xmax - xmin, ymax - ymin, facecolor='none', edgecolor='red'))
         for x in range(map["map"]["dimensions"][0]):
             for y in range(map["map"]["dimensions"][1]):
-                self.patches.append(Rectangle((x - 0.5, y - 0.5), 1, 1, facecolor='none', edgecolor='black'))
+                color = self.assign_colors(x, y, map["map"]["partitions"])
+                self.patches.append(Rectangle((x - 0.5, y - 0.5), 1, 1, facecolor=color, edgecolor='black', alpha=0.3))
         for o in map["map"]["obstacles"]:
             x, y = o[0], o[1]
             self.patches.append(Rectangle((x - 0.5, y - 0.5), 1, 1, facecolor='black', edgecolor='black'))
@@ -67,11 +72,13 @@ class Animation:
         task_colors = np.random.rand(len(map["tasks"]), 3)
         for t, i in zip(map["tasks"], range(len(map["tasks"]))):
             x_s, y_s = t['pickup'][0], t['pickup'][1]
-            self.tasks[t['task_name']] = [Rectangle((x_s - 0.25, y_s - 0.25), 0.5, 0.5, facecolor=task_colors[i], edgecolor='black', alpha=0)]
+            self.tasks[t['task_name']] = [
+                Rectangle((x_s - 0.25, y_s - 0.25), 0.5, 0.5, facecolor=task_colors[i], edgecolor='black', alpha=0)]
             self.patches.append(self.tasks[t['task_name']][0])
         for t, i in zip(map["tasks"], range(len(map["tasks"]))):
             x_g, y_g = t['delivery'][0], t['delivery'][1]
-            self.tasks[t['task_name']].append(RegularPolygon((x_g, y_g - 0.05), 3, radius=0.2, facecolor=task_colors[i], edgecolor='black', alpha=0))
+            self.tasks[t['task_name']].append(
+                RegularPolygon((x_g, y_g - 0.05), 3, radius=0.2, facecolor=task_colors[i], edgecolor='black', alpha=0))
             self.patches.append(self.tasks[t['task_name']][1])
 
         # Create agents:
@@ -80,7 +87,8 @@ class Animation:
         for d, i in zip(map["agents"], range(0, len(map["agents"]))):
             if 'delivery' in d:
                 self.patches.append(
-                    Rectangle((d["delivery"][0] - 0.25, d["delivery"][1] - 0.25), 0.5, 0.5, facecolor=Colors[0], edgecolor='black',
+                    Rectangle((d["delivery"][0] - 0.25, d["delivery"][1] - 0.25), 0.5, 0.5, facecolor=Colors[0],
+                              edgecolor='black',
                               alpha=0.5))
         for d, i in zip(map["agents"], range(0, len(map["agents"]))):
             name = d["name"]
@@ -105,6 +113,17 @@ class Animation:
                                             interval=10,
                                             blit=True,
                                             repeat=False)
+
+    def assign_colors(self, x, y, partitions):
+
+        partition_index = -1
+        for i in range(len(partitions)):
+            if partitions[i][0] <= x <= partitions[i][2] and partitions[i][1] <= y <= partitions[i][3]:
+                partition_index = i
+                break
+
+        partition_index = partition_index % len(Colors)
+        return Colors[partition_index]
 
     def save(self, file_name, speed):
         self.anim.save(
@@ -189,7 +208,8 @@ if __name__ == "__main__":
     if args.map is None:
         with open(os.path.join(RoothPath.get_root(), 'config.json'), 'r') as json_file:
             config = json.load(json_file)
-        args.map = os.path.join(RoothPath.get_root(), os.path.join(config['input_path'], config['input_name'] + config['visual_postfix'],))
+        args.map = os.path.join(RoothPath.get_root(),
+                                os.path.join(config['input_path'], config['input_name'] + config['visual_postfix'], ))
         args.schedule = os.path.join(RoothPath.get_root(), 'output.yaml')
 
     with open(args.map) as map_file:
@@ -202,10 +222,7 @@ if __name__ == "__main__":
 
     #animation.save('TP_k=1_collision.mp4', 1)
 
-
     if args.video:
         animation.save(args.video, args.speed)
     else:
         animation.show()
-
-

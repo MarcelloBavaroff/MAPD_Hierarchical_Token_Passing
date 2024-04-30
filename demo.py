@@ -12,7 +12,7 @@ import ast
 
 def read_tasks():
     data_list = []
-    with open('LastRun/errore', 'r') as file:
+    with open('LastRun/task_divisi', 'r') as file:
         for line in file:
             try:
                 # Valuta la stringa come un dizionario Python
