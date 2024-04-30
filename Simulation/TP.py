@@ -175,9 +175,15 @@ class TokenPassing(object):
                 for i in range(time_start, len(path)):
                     k = i - time_start
                     obstacles[(path[i][0], path[i][1], k)] = name
-                    if i == len(path) - 1:
+                    if i == len(path) - 1 and not self.is_frontier_start_pos(path[i]):
                         obstacles[(path[i][0], path[i][1], -k)] = name
         return obstacles
+
+    def is_frontier_start_pos(self, pos):
+        for f in self.frontiers:
+            if f.start_pos == tuple(pos):
+                return True
+        return False
 
     # def get_idle_obstacles_agents(self, agents_paths, time_start):
     #     obstacles = set()
