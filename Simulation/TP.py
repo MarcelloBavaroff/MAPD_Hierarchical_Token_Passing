@@ -336,6 +336,9 @@ class TokenPassing(object):
                     and len(self.tokens[partition]['agents'][agent_name]) == 1 and \
                     self.global_view['pre_assignment_agents_tasks'][agent_name][
                         'task_name'] != 'safe_idle' and self.global_view['abstract_to_loc2'][agent_name] == []:
+                # il controllo con abs2 serve per evitare che un agente che ha come goal il suo stesso punto di partenza
+                # e che non è riuscito a pianificare venga segnato come agente che ha completato il task
+
                 self.global_view['completed_tasks'] = self.global_view['completed_tasks'] + 1
                 self.global_view['completed_tasks_times'][
                     self.global_view['pre_assignment_agents_tasks'][agent_name]['task_name']] = self.simulation.get_time()
@@ -541,7 +544,7 @@ class TokenPassing(object):
             print('Agent', agent_name, 'migrating to partition', next_part, '...')
             self.global_view['agents_to_areas'][agent_name] = next_part
             self.tokens[actual_part]['agents'].pop(agent_name)
-            self.update_ends(agent_pos, actual_part)
+            self.update_ends(agent_pos, actual_part) #apply path aggiorna solo dell'area dopo
 
         else:
             print('No available tasks for agent', agent_name, ' idling at current position...')
