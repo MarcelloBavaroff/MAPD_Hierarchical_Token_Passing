@@ -218,6 +218,9 @@ class TokenPassing(object):
         for start_goal in self.get_agents_to_tasks_starts_goals():
             if tuple(start_goal) == tuple(agent_pos):
                 return False
+        for f in self.frontiers:
+            if f.start_pos == tuple(agent_pos) or f.destination_pos == tuple(agent_pos):
+                return False
         return True
 
     def get_closest_non_task_endpoint(self, agent_pos):
@@ -492,7 +495,7 @@ class TokenPassing(object):
                 #self.go_to_closest_non_task_endpoint(agent_name, agent_pos, all_idle_agents)
 
     def compute_abstract_path(self, start, goal, agent_name, loc):
-        #TODO: caso non task endpoint
+
         start_partition = self.find_partition(start)
         goal_partition = self.find_partition(goal)
 
@@ -500,8 +503,8 @@ class TokenPassing(object):
         if loc == 1:
             self.global_view['abstract_to_loc1'][agent_name] = path.nodes
             # caso per quando vai verso il non task endpoint e quindi hai solo abs2
-            #if len(path.nodes) == 1:
-            #    self.global_view['abstract_to_loc1'][agent_name] = []
+            if len(path.nodes) == 1 and start == goal:
+                self.global_view['abstract_to_loc1'][agent_name] = []
 
         else:
             self.global_view['abstract_to_loc2'][agent_name] = path.nodes
@@ -633,7 +636,6 @@ class TokenPassing(object):
                                               local_idle_agents, agent_partition)
             else:
                 print("Entrambi gli abstact path sono vuoti, errore? " + agent_name)
-
 
         self.update_non_task_endpoints()
 
