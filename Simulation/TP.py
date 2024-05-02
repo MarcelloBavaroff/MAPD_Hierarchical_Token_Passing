@@ -335,7 +335,7 @@ class TokenPassing(object):
                     self.global_view['pre_assignment_agents_tasks'][agent_name]['goal']) \
                     and len(self.tokens[partition]['agents'][agent_name]) == 1 and \
                     self.global_view['pre_assignment_agents_tasks'][agent_name][
-                        'task_name'] != 'safe_idle':
+                        'task_name'] != 'safe_idle' and self.global_view['abstract_to_loc2'][agent_name] == []:
                 self.global_view['completed_tasks'] = self.global_view['completed_tasks'] + 1
                 self.global_view['completed_tasks_times'][
                     self.global_view['pre_assignment_agents_tasks'][agent_name]['task_name']] = self.simulation.get_time()
@@ -468,6 +468,16 @@ class TokenPassing(object):
             agent_pos = idle_agents.pop(agent_name)[0]
             available_tasks = self.find_available_tasks(agent_pos)
 
+            #se ho abs1, ma non ho un percorso nel token vuol dire che non sono riuscito a trovarlo
+            #per qualche ragione, quindi reinserisco il vecchio tasks e lo rimuovo da pre_assignment
+            # if len(self.global_view['abstract_to_loc1'][agent_name]) > 0:
+            #     self.global_view['tasks'][self.global_view['pre_assignment_agents_tasks'][agent_name]['task_name']] = \
+            #         [self.global_view['pre_assignment_agents_tasks'][agent_name]['start'], self.global_view['pre_assignment_agents_tasks'][agent_name]['goal']]
+            #     self.global_view['pre_assignment_agents_tasks'].pop(agent_name)
+            #     self.global_view['abstract_to_loc1'][agent_name] = []
+            #     self.global_view['abstract_to_loc2'][agent_name] = []
+
+
             if len(available_tasks) > 0:
                 self.choose_task(agent_name, agent_pos, available_tasks)
 
@@ -531,6 +541,7 @@ class TokenPassing(object):
             print('Agent', agent_name, 'migrating to partition', next_part, '...')
             self.global_view['agents_to_areas'][agent_name] = next_part
             self.tokens[actual_part]['agents'].pop(agent_name)
+            self.update_ends(agent_pos, actual_part)
 
         else:
             print('No available tasks for agent', agent_name, ' idling at current position...')
