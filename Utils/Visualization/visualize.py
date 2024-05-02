@@ -61,7 +61,12 @@ class Animation:
         for x in range(map["map"]["dimensions"][0]):
             for y in range(map["map"]["dimensions"][1]):
                 color = self.assign_colors(x, y, map["map"]["partitions"])
-                self.patches.append(Rectangle((x - 0.5, y - 0.5), 1, 1, facecolor=color, edgecolor='black', alpha=0.3))
+                edge_color = 'black'
+                line_width = 1
+                if self.is_frontier(x, y, map["map"]["frontiers"]):
+                    edge_color = 'red'
+                    line_width = 3
+                self.patches.append(Rectangle((x - 0.5, y - 0.5), 1, 1, facecolor=color, edgecolor=edge_color, alpha=0.3, linewidth=line_width))
         for o in map["map"]["obstacles"]:
             x, y = o[0], o[1]
             self.patches.append(Rectangle((x - 0.5, y - 0.5), 1, 1, facecolor='black', edgecolor='black'))
@@ -113,6 +118,11 @@ class Animation:
                                             interval=10,
                                             blit=True,
                                             repeat=False)
+    def is_frontier(self, x, y, frontiers):
+        for f in frontiers:
+            if f[0] == x and f[1] == y:
+                return True
+        return False
 
     def assign_colors(self, x, y, partitions):
 
