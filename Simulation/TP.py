@@ -1,7 +1,7 @@
 from math import fabs
 import random
 from Simulation.CBS.cbs import CBS, Environment
-from dijkstar import Graph, find_path
+from dijkstar import Graph, find_path #tizi simpatici che hanno implementato dijkstra
 
 
 class frontier:
@@ -62,7 +62,8 @@ class TokenPassing(object):
 
         for a in self.agents:
             pos = [a['start']]
-            self.global_view['agents_to_areas'][a['name']] = self.find_partition(pos[0])
+            self.global_view['agents_to_areas'][a['name']] = []
+            self.global_view['agents_to_areas'][a['name']].append(self.find_partition(pos[0]))
             if pos in self.non_task_endpoints:
                 self.global_view['occupied_non_task_endpoints'].add(tuple(a['start']))
 
@@ -549,9 +550,19 @@ class TokenPassing(object):
 
         if valid_path:
             print('Agent', agent_name, 'migrating to partition', next_part, '...')
-            self.global_view['agents_to_areas'][agent_name] = next_part
-            self.tokens[actual_part]['agents'].pop(agent_name)
-            self.update_ends(agent_pos, actual_part) #apply path aggiorna solo dell'area dopo
+
+            #se serve rimanere il wait nella posizione di frontiera
+            num_wait = self.tokens[next_part]['agents'][agent_name].count(agent_pos)
+            if num_wait > 1:
+                self.tokens[next_part]['agents'][agent_name] = []
+                for i in range(num_wait):
+                    self.tokens[next_part]['agents'][agent_name].append([agent_pos[0], agent_pos[1]])
+                #TODO: check conflitti con altri percorsi
+            else:
+                self.global_view['agents_to_areas'][agent_name] = next_part
+                self.global_view['agents_to_areas'][agent_name].append(next_part)
+                self.tokens[actual_part]['agents'].pop(agent_name)
+                self.update_ends(agent_pos, actual_part)  # apply path aggiorna solo dell'area dopo
 
         else:
             print('No available tasks for agent', agent_name, ' idling at current position...')
@@ -567,7 +578,7 @@ class TokenPassing(object):
                     return part
 
         return -1
-
+    #probailmente si può gestire diversamente
     def update_non_task_endpoints(self):
         self.global_view['occupied_non_task_endpoints'] = set()
         for part in range(self.number_of_areas):
@@ -602,7 +613,7 @@ class TokenPassing(object):
 
             agent_name = random.choice(list(agents_to_plan.keys()))
             agent_pos = agents_to_plan.pop(agent_name)[0]
-            agent_partition = self.global_view['agents_to_areas'][agent_name]
+            agent_partition = self.global_view['agents_to_areas'][agent_name][0]
 
             local_idle_agents = self.tokens[agent_partition]['agents'].copy()
             local_idle_agents.pop(agent_name)

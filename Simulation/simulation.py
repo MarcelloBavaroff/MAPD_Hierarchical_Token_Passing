@@ -46,6 +46,13 @@ class Simulation(object):
                 new_part = algorithm.find_partition(new_pos)
                 if old_part != new_part:
                     gb['abstract_to_loc2'][agent_name] = gb['abstract_to_loc2'][agent_name][1:]
+    def check_partition_change(self, agent_name, agent_pos, algorithm, actual_part):
+        changed = False
+        for i in range(algorithm.get_number_of_areas()):
+            if agent_name in algorithm.get_token(i)['agents'] and i != actual_part:
+                changed = True
+                break
+
 
     #viene chiamata per simulare un singolo timestep in avanti
     def time_forward(self, algorithm):
@@ -70,10 +77,13 @@ class Simulation(object):
             #lunghezza del path dell'agente considerato
 
             partition = gb['agents_to_areas'][agent['name']]
+            #così non cancello l'ultimo elemento e so la posizione attuale dell'agente
             if len(algorithm.get_token(partition)['agents'][agent['name']]) == 1:
                 self.agents_moved.add(agent['name'])
                 self.actual_paths[agent['name']].append(
                     {'t': self.time, 'x': current_agent_pos['x'], 'y': current_agent_pos['y']})
+                #capire come sfruttare la cosa per il cambio di frontiera
+
 
         # Check moving agents doesn't collide with others
         agents_to_move = [x for x in agents_to_move if x['name'] not in self.agents_moved]
