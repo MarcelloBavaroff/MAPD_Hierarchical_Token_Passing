@@ -2,6 +2,7 @@
 Python implementation of Conflict-based search
 author: Ashwin Bose (@atb033)
 author: Giacomo Lodigiani (@Lodz97)
+author: Marcello Bavaro
 """
 import sys
 sys.path.insert(0, '../')
@@ -103,8 +104,9 @@ class Environment(object):
         self.obstacles = obstacles
         self.moving_obstacles = moving_obstacles
         self.a_star_max_iter = a_star_max_iter
-
+        #per quello che facciamo noi è sempre 1
         self.agents = agents
+        self.start = self.agents[0]['start']
         self.agent_dict = {}
 
         self.make_agent_dict()
@@ -114,6 +116,9 @@ class Environment(object):
 
         self.a_star = AStar(self)
 
+    #TODO: per ora metto solo che nella cella di partenza puoi fare wait infinito,
+    #quando poi passerò le celle delle partizioni come lista sarà più facile gestire il
+    #fatto che non deve tornarci indietro
     def get_neighbors(self, state):
         neighbors = []
 
@@ -209,9 +214,10 @@ class Environment(object):
                 all_obs.add((o[0], o[1]))
         return self.obstacles | all_obs
 
+    #momentaneamente l'OR serve per far passare come accettabile la wait sulla frontiera
     def state_valid(self, state):
-        return state.location.x >= self.x_min and state.location.x <= self.x_max \
-            and state.location.y >= self.y_min and state.location.y <= self.y_max \
+        return ((state.location.x >= self.x_min and state.location.x <= self.x_max
+            and state.location.y >= self.y_min and state.location.y <= self.y_max) or (state.location.x == self.start[0] and state.location.y == self.start[1])) \
             and VertexConstraint(state.time, state.location) not in self.constraints.vertex_constraints \
             and (state.location.x, state.location.y) not in self.get_all_obstacles(state.time) \
             and (state.location.x, state.location.y, state.time) not in self.moving_obstacles

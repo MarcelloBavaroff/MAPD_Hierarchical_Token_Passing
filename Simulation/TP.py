@@ -218,6 +218,7 @@ class TokenPassing(object):
         for start_goal in self.get_agents_to_tasks_starts_goals():
             if tuple(start_goal) == tuple(agent_pos):
                 return False
+        #probabilmente superfluo
         for f in self.frontiers:
             if f.start_pos == tuple(agent_pos) or f.destination_pos == tuple(agent_pos):
                 return False
@@ -538,10 +539,13 @@ class TokenPassing(object):
 
         # se sto migrando, devo ancora fare il pickup e questo è nella partizione successiva
         if num_abs == 1 and len(self.global_view['abstract_to_loc1'][agent_name]) == 2:
-            valid_path = self.pickup_in_partition(agent_name, closest_frontier.destination_pos, self.global_view['pre_assignment_agents_tasks'][agent_name]['start'], all_idle_agents, next_part, time_start=1)
+            #valid_path = self.pickup_in_partition(agent_name, closest_frontier.destination_pos, self.global_view['pre_assignment_agents_tasks'][agent_name]['start'], all_idle_agents, next_part, time_start=1)
+            valid_path = self.pickup_in_partition(agent_name, agent_pos, self.global_view['pre_assignment_agents_tasks'][agent_name]['start'], all_idle_agents, next_part, time_start=0)
+
         # altrimenti o devo andare da una frontiera all'altra o al delivery
         else:
-            valid_path = self.compute_real_path_single(agent_name, closest_frontier.destination_pos, next_goal, all_idle_agents, next_part, time_start=0)
+            #valid_path = self.compute_real_path_single(agent_name, closest_frontier.destination_pos, next_goal, all_idle_agents, next_part, time_start=0) #perché time_start = 0?
+            valid_path = self.compute_real_path_single(agent_name, agent_pos, next_goal, all_idle_agents, next_part, time_start=0)
 
         if valid_path:
             print('Agent', agent_name, 'migrating to partition', next_part, '...')
