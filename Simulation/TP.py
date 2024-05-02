@@ -473,12 +473,12 @@ class TokenPassing(object):
 
             #se ho abs1, ma non ho un percorso nel token vuol dire che non sono riuscito a trovarlo
             #per qualche ragione, quindi reinserisco il vecchio tasks e lo rimuovo da pre_assignment
-            # if len(self.global_view['abstract_to_loc1'][agent_name]) > 0:
-            #     self.global_view['tasks'][self.global_view['pre_assignment_agents_tasks'][agent_name]['task_name']] = \
-            #         [self.global_view['pre_assignment_agents_tasks'][agent_name]['start'], self.global_view['pre_assignment_agents_tasks'][agent_name]['goal']]
-            #     self.global_view['pre_assignment_agents_tasks'].pop(agent_name)
-            #     self.global_view['abstract_to_loc1'][agent_name] = []
-            #     self.global_view['abstract_to_loc2'][agent_name] = []
+            if len(self.global_view['abstract_to_loc1'][agent_name]) > 0:
+                self.global_view['tasks'][self.global_view['pre_assignment_agents_tasks'][agent_name]['task_name']] = \
+                    [self.global_view['pre_assignment_agents_tasks'][agent_name]['start'], self.global_view['pre_assignment_agents_tasks'][agent_name]['goal']]
+                self.global_view['pre_assignment_agents_tasks'].pop(agent_name)
+                self.global_view['abstract_to_loc1'][agent_name] = []
+                self.global_view['abstract_to_loc2'][agent_name] = []
 
 
             if len(available_tasks) > 0:
@@ -597,8 +597,8 @@ class TokenPassing(object):
             agent_pos = agents_to_plan.pop(agent_name)[0]
             agent_partition = self.global_view['agents_to_areas'][agent_name]
 
-            all_idle_agents = self.tokens[agent_partition]['agents'].copy()
-            all_idle_agents.pop(agent_name)
+            local_idle_agents = self.tokens[agent_partition]['agents'].copy()
+            local_idle_agents.pop(agent_name)
 
             #se non ha abstract path(s) calcolo
             if len(self.global_view['abstract_to_loc1'][agent_name]) == 0 and \
@@ -613,11 +613,11 @@ class TokenPassing(object):
                 if on_frontier != -1:
                     self.migrazione(agent_name, agent_pos, agent_partition, on_frontier, 1)
                 else:
-                    self.go_to_frontier(agent_name, agent_pos, all_idle_agents, agent_partition, self.global_view['abstract_to_loc1'][agent_name][1])
+                    self.go_to_frontier(agent_name, agent_pos, local_idle_agents, agent_partition, self.global_view['abstract_to_loc1'][agent_name][1])
 
             #il pickup è nell'area in cui mi trovo
             elif len(self.global_view['abstract_to_loc1'][agent_name]) == 1:
-                self.pickup_in_partition(agent_name, agent_pos, self.global_view['pre_assignment_agents_tasks'][agent_name]['start'], all_idle_agents, agent_partition)
+                self.pickup_in_partition(agent_name, agent_pos, self.global_view['pre_assignment_agents_tasks'][agent_name]['start'], local_idle_agents, agent_partition)
 
             #da qui in giù abstract path 1 è vuoto quindi devo andare al delivery o al non task endpoint
             elif len(self.global_view['abstract_to_loc2'][agent_name]) > 1:
@@ -625,12 +625,12 @@ class TokenPassing(object):
                 if on_frontier != -1:
                     self.migrazione(agent_name, agent_pos, agent_partition, on_frontier, 2)
                 else:
-                    self.go_to_frontier(agent_name, agent_pos, all_idle_agents, agent_partition,
+                    self.go_to_frontier(agent_name, agent_pos, local_idle_agents, agent_partition,
                                     self.global_view['abstract_to_loc2'][agent_name][1])
 
             elif len(self.global_view['abstract_to_loc2'][agent_name]) == 1:
                 self.compute_real_path_single(agent_name, agent_pos, self.global_view['pre_assignment_agents_tasks'][agent_name]['goal'],
-                                              all_idle_agents, agent_partition)
+                                              local_idle_agents, agent_partition)
             else:
                 print("Entrambi gli abstact path sono vuoti, errore? " + agent_name)
 
