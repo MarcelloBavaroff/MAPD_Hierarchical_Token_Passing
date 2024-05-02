@@ -76,9 +76,9 @@ class Simulation(object):
             self.agents_pos_now.add(tuple([current_agent_pos['x'], current_agent_pos['y']]))
             #lunghezza del path dell'agente considerato
 
-            partition = gb['agents_to_areas'][agent['name']]
-            #così non cancello l'ultimo elemento e so la posizione attuale dell'agente
-            if len(algorithm.get_token(partition)['agents'][agent['name']]) == 1:
+            partition = gb['agents_to_areas'][agent['name']][0]
+            #così non cancello l'ultimo elemento e conosco la posizione attuale dell'agente (se è in più token allora non è il caso)
+            if len(algorithm.get_token(partition)['agents'][agent['name']]) == 1 and len(gb['agents_to_areas'][agent['name']]) == 1:
                 self.agents_moved.add(agent['name'])
                 self.actual_paths[agent['name']].append(
                     {'t': self.time, 'x': current_agent_pos['x'], 'y': current_agent_pos['y']})
@@ -93,7 +93,7 @@ class Simulation(object):
             
             for agent in agents_to_move:
                 current_agent_pos = self.actual_paths[agent['name']][-1]
-                partition = gb['agents_to_areas'][agent['name']]
+                partition = gb['agents_to_areas'][agent['name']][0]
 
                 if len(algorithm.get_token(partition)['agents'][agent['name']]) > 1:
 
