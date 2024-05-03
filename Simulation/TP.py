@@ -186,14 +186,6 @@ class TokenPassing(object):
                 return True
         return False
 
-    # def get_idle_obstacles_agents(self, agents_paths, time_start):
-    #     obstacles = set()
-    #     for path in agents_paths:
-    #         if len(path) == 1:
-    #             obstacles.add((path[0][0], path[0][1]))
-    #         if 1 < len(path) <= time_start:
-    #             obstacles.add((path[-1][0], path[-1][1]))
-    #     return obstacles
     def get_idle_obstacles_agents(self, agents_paths, time_start, agent_name):
 
         obstacles = set()
@@ -296,29 +288,6 @@ class TokenPassing(object):
 
         path = cbs.search()
         return path
-
-    # TODO: qui va tutto aggiornato
-    # def go_to_closest_non_task_endpoint(self, agent_name, agent_pos, all_idle_agents):
-    #     closest_non_task_endpoint = self.get_closest_non_task_endpoint(agent_pos)
-    #     moving_obstacles_agents = self.get_moving_obstacles_agents(self.tokens[0]['agents'], 0)
-    #     idle_obstacles_agents = self.get_idle_obstacles_agents(all_idle_agents.values(), 0, agent_name)
-    #     agent = {'name': agent_name, 'start': agent_pos, 'goal': closest_non_task_endpoint}
-    #     env = Environment(self.dimensions, [agent], self.obstacles | idle_obstacles_agents, moving_obstacles_agents,
-    #                       a_star_max_iter=self.a_star_max_iter)
-    #     cbs = CBS(env)
-    #     path_to_non_task_endpoint = self.search(cbs, agent_name, moving_obstacles_agents)
-    #     if not path_to_non_task_endpoint:
-    #         print("Solution to non-task endpoint not found for agent", agent_name, " instance is not well-formed.")
-    #
-    #     else:
-    #         print('No available task for agent', agent_name, ' moving to safe idling position...')
-    #         self.update_ends(agent_pos,)
-    #         self.tokens[0]['occupied_non_task_endpoints'].add(tuple(closest_non_task_endpoint))
-    #         self.tokens[0]['agents_to_tasks'][agent_name] = {'task_name': 'safe_idle', 'start': agent_pos,
-    #                                                          'goal': closest_non_task_endpoint, 'predicted_cost': 0}
-    #         self.tokens[0]['agents'][agent_name] = []
-    #         for el in path_to_non_task_endpoint[agent_name]:
-    #             self.tokens[0]['agents'][agent_name].append([el['x'], el['y']])
 
     def collect_new_tasks(self):
         for t in self.simulation.get_new_tasks():
@@ -559,7 +528,7 @@ class TokenPassing(object):
                     self.tokens[next_part]['agents'][agent_name].append([agent_pos[0], agent_pos[1]])
                 #TODO: check conflitti con altri percorsi
             else:
-                self.global_view['agents_to_areas'][agent_name] = next_part
+                self.global_view['agents_to_areas'][agent_name] = []
                 self.global_view['agents_to_areas'][agent_name].append(next_part)
                 self.tokens[actual_part]['agents'].pop(agent_name)
                 self.update_ends(agent_pos, actual_part)  # apply path aggiorna solo dell'area dopo

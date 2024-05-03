@@ -1,10 +1,5 @@
-import argparse
-import yaml
-import json
-import os
 import time
 from Simulation.TP import TokenPassing
-import RoothPath
 from Simulation.tasks_maker import *
 
 
@@ -83,6 +78,12 @@ class Simulation(object):
                 self.actual_paths[agent['name']].append(
                     {'t': self.time, 'x': current_agent_pos['x'], 'y': current_agent_pos['y']})
                 #capire come sfruttare la cosa per il cambio di frontiera
+            elif len(algorithm.get_token(partition)['agents'][agent['name']]) == 1 and len(gb['agents_to_areas'][agent['name']]) > 1:
+                #tolgo dal vecchio token
+                algorithm.get_token(partition)['agents'].pop(agent['name'])
+                #cambio l'area di appartenenza dell'agente
+                algorithm.get_global_view()['agents_to_areas'][agent['name']] = algorithm.get_global_view()['agents_to_areas'][agent['name']][1:]
+
 
 
         # Check moving agents doesn't collide with others
@@ -108,8 +109,12 @@ class Simulation(object):
                         self.agents_pos_now.add(tuple([x_new, y_new]))
                         moved_this_step = moved_this_step + 1
 
-                        # cancello il primo
-                        algorithm.get_token(partition)['agents'][agent['name']] = algorithm.get_token(partition)['agents'][agent['name']][1:]
+                        # cancello da ogni token
+                        for i in range(len(gb['agents_to_areas'][agent['name']])):
+                            partition = gb['agents_to_areas'][agent['name']][i]
+                            algorithm.get_token(partition)['agents'][agent['name']] = \
+                            algorithm.get_token(partition)['agents'][agent['name']][1:]
+
                         self.update_abstract_paths(agent['name'], tuple([current_agent_pos['x'], current_agent_pos['y']]) ,tuple([x_new, y_new]), gb, algorithm)
                         # aggiorno il path dell'agente
                         self.actual_paths[agent['name']].append({'t': self.time, 'x': x_new, 'y': y_new})
