@@ -48,6 +48,11 @@ class Simulation(object):
                 changed = True
                 break
 
+    def update_non_task_endpoints(self, old_pos, new_pos, gb):
+        if old_pos == new_pos:
+            return
+        if old_pos in gb['occupied_non_task_endpoints']:
+            gb['occupied_non_task_endpoints'].remove(old_pos)
 
     #viene chiamata per simulare un singolo timestep in avanti
     def time_forward(self, algorithm):
@@ -116,6 +121,8 @@ class Simulation(object):
                             algorithm.get_token(partition)['agents'][agent['name']][1:]
 
                         self.update_abstract_paths(agent['name'], tuple([current_agent_pos['x'], current_agent_pos['y']]) ,tuple([x_new, y_new]), gb, algorithm)
+                        #aggiorno qui i non te e non in TP
+                        self.update_non_task_endpoints(tuple([current_agent_pos['x'], current_agent_pos['y']]), tuple([x_new, y_new]), gb)
                         # aggiorno il path dell'agente
                         self.actual_paths[agent['name']].append({'t': self.time, 'x': x_new, 'y': y_new})
 

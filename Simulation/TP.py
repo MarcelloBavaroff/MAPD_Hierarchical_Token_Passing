@@ -76,7 +76,7 @@ class TokenPassing(object):
         self.tokens[index]['path_ends'] = set()
         self.tokens[index]['partition'] = partition #x_min, y_min, x_max, y_max
         self.tokens[index]['own_frontiers'] = {}
-        self.tokens[index]['occupied_non_task_endpoints'] = set()
+        #self.tokens[index]['occupied_non_task_endpoints'] = set()
 
         # qui salvo solo le frontiere che partono dalla partizione corrente
         # per ogni destinazione ho una lista frontiere che mi ci portano
@@ -92,8 +92,8 @@ class TokenPassing(object):
                 self.tokens[index]['agents'][a['name']] = [a['start']]
                 if not tuple(a['start']) in self.non_task_endpoints:
                     self.tokens[index]['path_ends'].add(tuple(a['start']))
-                else:
-                    self.tokens[index]['occupied_non_task_endpoints'].add(tuple(a['start']))
+                # else:
+                #     self.tokens[index]['occupied_non_task_endpoints'].add(tuple(a['start']))
 
     #initialize all tokens
     def init_tokens(self, partitions):
@@ -257,8 +257,8 @@ class TokenPassing(object):
     def update_ends(self, agent_pos, part_index):
         if tuple(agent_pos) in self.tokens[part_index]['path_ends']:
             self.tokens[part_index]['path_ends'].remove(tuple(agent_pos))
-        elif tuple(agent_pos) in self.tokens[part_index]['occupied_non_task_endpoints']:
-            self.tokens[part_index]['occupied_non_task_endpoints'].remove(tuple(agent_pos))
+        #elif tuple(agent_pos) in self.tokens[part_index]['occupied_non_task_endpoints']:
+        #    self.tokens[part_index]['occupied_non_task_endpoints'].remove(tuple(agent_pos))
 
     def get_agents_to_tasks_goals(self):
         goals = set()
@@ -621,5 +621,5 @@ class TokenPassing(object):
             else:
                 print("Entrambi gli abstact path sono vuoti, errore? " + agent_name)
 
-        self.update_non_task_endpoints()
+        #self.update_non_task_endpoints()
 
