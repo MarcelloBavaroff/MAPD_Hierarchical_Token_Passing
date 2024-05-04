@@ -104,5 +104,5 @@ map:
     - [6, 0, 0, 7, 0, 1] #in (6,0) c'è un frontiera da area 0 ad area 1 che porta in (7,0)
     - [7, 6, 1, 6, 6, 0] #in (7,6) c'è un frontiera da area 1 ad area 0 che porta in (6,6)
     - [7, 2, 1, 6, 2, 0] #in (7,2) c'è un frontiera da area 1 ad area 0 che porta in (6,2)
-n_tasks: 50
-task_freq: 0.2
+n_tasks: 100
+task_freq: 5
