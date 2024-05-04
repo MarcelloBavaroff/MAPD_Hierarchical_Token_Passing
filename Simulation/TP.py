@@ -205,6 +205,10 @@ class TokenPassing(object):
         return obstacles
 
     def check_safe_idle(self, agent_pos):
+
+        if tuple(agent_pos) in self.non_task_endpoints:
+            return True
+
         for task_name, task in self.global_view['tasks'].items():
             if tuple(task[0]) == tuple(agent_pos) or tuple(task[1]) == tuple(agent_pos):
                 return False
