@@ -155,7 +155,14 @@ class TokenPassing(object):
                 if name in self.global_view['pre_assignment_agents_tasks'] and len(path) == 1:
                     agents[name] = path
 
+        agents_copy = agents.copy()
+
+        for name, path in agents_copy.items():
+            if len(self.global_view['agents_to_areas'][name]) > 1:
+                agents.pop(name)
+
         return agents
+
 
     #distanza in celle verticali ed orizzontali
     def admissible_heuristic(self, task_pos, agent_pos):
@@ -415,8 +422,8 @@ class TokenPassing(object):
         else:
             print("Solution found to task start for agent", agent_name, " searching solution to task goal...")
             #serve per mettere nel nuovo token l'agente che migra e solo dal timestep dopo iniziare il percorso
-            for i in range(time_start):
-                path[agent_name].insert(0, path[agent_name][0])
+            #for i in range(time_start):
+            #    path[agent_name].insert(0, path[agent_name][0])
 
             self.apply_path(agent_name, agent_pos, None, path[agent_name], part_index)
             return True
@@ -527,9 +534,10 @@ class TokenPassing(object):
             #se serve rimanere il wait nella posizione di frontiera
             num_wait = self.tokens[next_part]['agents'][agent_name].count(agent_pos)
             if num_wait > 1:
-                self.tokens[next_part]['agents'][agent_name] = []
+                self.tokens[actual_part]['agents'][agent_name] = []
                 for i in range(num_wait):
-                    self.tokens[next_part]['agents'][agent_name].append([agent_pos[0], agent_pos[1]])
+                    self.tokens[actual_part]['agents'][agent_name].append([agent_pos[0], agent_pos[1]])
+                self.global_view['agents_to_areas'][agent_name].append(next_part)
                 #TODO: check conflitti con altri percorsi
             else:
                 self.global_view['agents_to_areas'][agent_name] = []

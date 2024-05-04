@@ -124,7 +124,7 @@ class Environment(object):
 
         # Wait action
         n = State(state.time + 1, state.location)
-        if self.state_valid(n):
+        if self.state_valid_frontier(n):
             neighbors.append(n)
         # Up action
         n = State(state.time + 1, Location(state.location.x, state.location.y+1))
@@ -215,9 +215,16 @@ class Environment(object):
         return self.obstacles | all_obs
 
     #momentaneamente l'OR serve per far passare come accettabile la wait sulla frontiera
-    def state_valid(self, state):
+    def state_valid_frontier(self, state):
         return ((state.location.x >= self.x_min and state.location.x <= self.x_max
             and state.location.y >= self.y_min and state.location.y <= self.y_max) or (state.location.x == self.start[0] and state.location.y == self.start[1])) \
+            and VertexConstraint(state.time, state.location) not in self.constraints.vertex_constraints \
+            and (state.location.x, state.location.y) not in self.get_all_obstacles(state.time) \
+            and (state.location.x, state.location.y, state.time) not in self.moving_obstacles
+
+    def state_valid(self, state):
+        return (state.location.x >= self.x_min and state.location.x <= self.x_max
+            and state.location.y >= self.y_min and state.location.y <= self.y_max) \
             and VertexConstraint(state.time, state.location) not in self.constraints.vertex_constraints \
             and (state.location.x, state.location.y) not in self.get_all_obstacles(state.time) \
             and (state.location.x, state.location.y, state.time) not in self.moving_obstacles
