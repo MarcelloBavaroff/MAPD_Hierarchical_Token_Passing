@@ -43,6 +43,9 @@ class TokenPassing(object):
 
         #vedi sotto
 
+    def get_number_of_areas(self):
+        return self.number_of_areas
+
     def init_global_view(self):
         self.global_view['tasks'] = {}
         self.global_view['start_tasks_times'] = {}
@@ -157,6 +160,7 @@ class TokenPassing(object):
 
         agents_copy = agents.copy()
 
+        #agenti in migrazione
         for name, path in agents_copy.items():
             if len(self.global_view['agents_to_areas'][name]) > 1:
                 agents.pop(name)
@@ -514,7 +518,7 @@ class TokenPassing(object):
         #TODO: non è la più vicina, ma quella dove sono al momento che dovrei usare (coincidono quindi per ora ok)
         frontiers_to_next_part = self.tokens[actual_part]['own_frontiers'][next_part]
         closest_frontier = self.get_closest_frontier(agent_pos, frontiers_to_next_part)
-
+        #next goal sarebbe da spostare
         next_goal = self.find_next_goal(agent_name, closest_frontier.destination_pos, next_part, num_abs)
         all_idle_agents = self.tokens[next_part]['agents'].copy()
 
@@ -575,7 +579,8 @@ class TokenPassing(object):
 
     # cancella il path di tutti quelli che in un qualche istante di tempo andranno in agent_pos
     def delete_conflicting_paths_strict(self, agent_name, agent_pos, part_index, num_wait):
-        for name, path in self.tokens[part_index]['agents'].items():
+        copy = self.tokens[part_index]['agents'].copy()
+        for name, path in copy.items():
             if name != agent_name and agent_pos in path:
                 if self.global_view['agents_to_areas'][name][0] == part_index:
                     # dovrebbe tenere solo la pozione attuale
@@ -583,11 +588,8 @@ class TokenPassing(object):
                 # se invece l'agente dovrà arrivare in questa partizione, ma attualmente è in frontiera altrove
                 else:
                     self.tokens[part_index]['agents'].pop(name)
+                    self.global_view['agents_to_areas'][name] = self.global_view['agents_to_areas'][name][:1]
                     self.tokens[self.global_view['agents_to_areas'][name][0]]['agents'][name] = path[:1]
-
-
-
-
 
 
     def on_a_frontier(self, agent_pos, actual_part):
