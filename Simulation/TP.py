@@ -561,7 +561,6 @@ class TokenPassing(object):
 
         return agents_to_plan
 
-
     def delete_conflicting_paths(self, agent_name, agent_pos, part_index, num_wait):
         for name, path in self.tokens[part_index]['agents'].items():
             if name != agent_name:
@@ -631,10 +630,16 @@ class TokenPassing(object):
         # vedo gli agent con pre assegnamento, ma non hanno ancora un path assegnato
         #IN FUTURO PIANIFICANO PER PRIMI GLI AGENTI ALLA FRONTIERA
         agents_to_plan = self.get_agents_to_plan()
+        agents_to_REplan = {}
         while len(agents_to_plan) > 0:
 
-            agent_name = random.choice(list(agents_to_plan.keys()))
-            agent_pos = agents_to_plan.pop(agent_name)[0]
+            if len(agents_to_REplan) > 0:
+                agent_name = random.choice(list(agents_to_REplan.keys()))
+                agent_pos = agents_to_REplan.pop(agent_name)[0]
+            else:
+                agent_name = random.choice(list(agents_to_plan.keys()))
+                agent_pos = agents_to_plan.pop(agent_name)[0]
+
             agent_partition = self.global_view['agents_to_areas'][agent_name][0]
 
             local_idle_agents = self.tokens[agent_partition]['agents'].copy()
@@ -651,7 +656,7 @@ class TokenPassing(object):
             if len(self.global_view['abstract_to_loc1'][agent_name]) > 1:
                 on_frontier = self.on_a_frontier(agent_pos, agent_partition)
                 if on_frontier != -1:
-                    agents_to_plan = self.migrazione(agent_name, agent_pos, agent_partition, on_frontier, 1, agents_to_plan)
+                    agents_to_REplan = self.migrazione(agent_name, agent_pos, agent_partition, on_frontier, 1, agents_to_plan)
                 else:
                     self.go_to_frontier(agent_name, agent_pos, local_idle_agents, agent_partition, self.global_view['abstract_to_loc1'][agent_name][1])
 
@@ -663,7 +668,7 @@ class TokenPassing(object):
             elif len(self.global_view['abstract_to_loc2'][agent_name]) > 1:
                 on_frontier = self.on_a_frontier(agent_pos, agent_partition)
                 if on_frontier != -1:
-                    agents_to_plan = self.migrazione(agent_name, agent_pos, agent_partition, on_frontier, 2, agents_to_plan)
+                    agents_to_REplan = self.migrazione(agent_name, agent_pos, agent_partition, on_frontier, 2, agents_to_plan)
                 else:
                     self.go_to_frontier(agent_name, agent_pos, local_idle_agents, agent_partition,
                                     self.global_view['abstract_to_loc2'][agent_name][1])
