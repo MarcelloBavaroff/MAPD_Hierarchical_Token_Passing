@@ -638,6 +638,8 @@ class TokenPassing(object):
             if len(agents_to_REplan) > 0:
                 agent_name = random.choice(list(agents_to_REplan.keys()))
                 agent_pos = agents_to_REplan.pop(agent_name)[0]
+                if agent_name in agents_to_plan.keys():
+                    agents_to_plan.pop(agent_name)
             else:
                 agent_name = random.choice(list(agents_to_plan.keys()))
                 agent_pos = agents_to_plan.pop(agent_name)[0]
