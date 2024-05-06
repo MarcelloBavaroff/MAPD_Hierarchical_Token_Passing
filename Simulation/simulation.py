@@ -160,7 +160,6 @@ class Simulation(object):
                 if agent['name'] in algorithm.get_token(i)['agents']:
                     blocked_agents_per_partition[i].append(agent)
 
-
         for i in range(algorithm.get_number_of_areas()):
             if len(blocked_agents_per_partition[i]) > 3:
                 if self.handle_loops(blocked_agents_per_partition[i], algorithm, i):

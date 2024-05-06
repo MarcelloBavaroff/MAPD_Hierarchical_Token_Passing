@@ -545,9 +545,9 @@ class TokenPassing(object):
                 agents_to_plan = self.get_agents_to_plan()
 
             else:
-                self.global_view['agents_to_areas'][agent_name] = []
+                #self.global_view['agents_to_areas'][agent_name] = []
                 self.global_view['agents_to_areas'][agent_name].append(next_part)
-                self.tokens[actual_part]['agents'].pop(agent_name)
+                #self.tokens[actual_part]['agents'].pop(agent_name)
                 self.update_ends(agent_pos, actual_part)  # apply path aggiorna solo dell'area dopo
 
 
@@ -587,7 +587,9 @@ class TokenPassing(object):
                 # se invece l'agente dovrà arrivare in questa partizione, ma attualmente è in frontiera altrove
                 else:
                     self.tokens[part_index]['agents'].pop(name)
-                    self.global_view['agents_to_areas'][name] = self.global_view['agents_to_areas'][name][:1]
+                    #self.global_view['agents_to_areas'][name] = self.global_view['agents_to_areas'][name][:1]
+                    self.global_view['agents_to_areas'][name] = []
+                    self.global_view['agents_to_areas'][name].append(self.find_partition(path[0]))
                     self.tokens[self.global_view['agents_to_areas'][name][0]]['agents'][name] = path[:1]
 
 
