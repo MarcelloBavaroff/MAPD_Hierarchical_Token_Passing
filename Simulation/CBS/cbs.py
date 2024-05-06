@@ -268,13 +268,14 @@ class Environment(object):
 
     def compute_solution(self):
         solution = {}
+        espansioniA = 0
         for agent in self.agent_dict.keys():
             self.constraints = self.constraint_dict.setdefault(agent, Constraints())
-            local_solution = self.a_star.search(agent)
+            local_solution, espansioniA = self.a_star.search(agent)
             if not local_solution:
-                return False
+                return False, espansioniA
             solution.update({agent:local_solution})
-        return solution
+        return solution, espansioniA
 
     def compute_solution_cost(self, solution):
         return sum([len(path) for path in solution.values()])
@@ -307,9 +308,9 @@ class CBS(object):
         start.constraint_dict = {}
         for agent in self.env.agent_dict.keys():
             start.constraint_dict[agent] = Constraints()
-        start.solution = self.env.compute_solution()
+        start.solution, espansioniA = self.env.compute_solution()
         if not start.solution:
-            return {}
+            return {}, espansioniA
         start.cost = self.env.compute_solution_cost(start.solution)
 
         #aggiungo start ad open set
@@ -324,7 +325,7 @@ class CBS(object):
             conflict_dict = self.env.get_first_conflict(P.solution)
             if not conflict_dict:
                 #print("Low level CBS - Solution found")
-                return self.generate_plan(P.solution)
+                return self.generate_plan(P.solution), espansioniA
 
             constraint_dict = self.env.create_constraints_from_conflict(conflict_dict)
 
@@ -342,7 +343,7 @@ class CBS(object):
                 if new_node not in self.closed_set:
                     self.open_set |= {new_node}
 
-        return {}
+        return {}, espansioniA
 
     def generate_plan(self, solution):
         plan = {}

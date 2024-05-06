@@ -31,8 +31,7 @@ class TokenPassing(object):
         self.tokens = []
         self.simulation = simulation
         self.a_star_max_iter = a_star_max_iter
-        self.chiamateCBS = 0
-        self.chiamateCBS_recharge = 0
+        self.chiamateAstar = 0
         self.sommaEspansioniA = 0
         self.goal_endpoints = goal_endpoints
         self.global_view = {}
@@ -301,10 +300,15 @@ class TokenPassing(object):
     def get_global_view(self):
         return self.global_view
 
+    #cbs single agent quindi Astar
     def search(self, cbs):
 
-        path = cbs.search()
+        path, espansioniA = cbs.search()
+        self.chiamateAstar += 1
         return path
+
+    def get_Astar_calls(self):
+        return self.chiamateAstar
 
     def collect_new_tasks(self):
         for t in self.simulation.get_new_tasks():
