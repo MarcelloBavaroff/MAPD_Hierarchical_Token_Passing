@@ -93,7 +93,7 @@ class Constraints(object):
             "EC: " + str([str(ec) for ec in self.edge_constraints])
 
 class Environment(object):
-    def __init__(self, partition, agents, obstacles, moving_obstacles=None, a_star_max_iter=-1):
+    def __init__(self, partition, agents, obstacles, moving_obstacles, non_task_endpoints, a_star_max_iter=-1):
         if moving_obstacles is None:
             moving_obstacles = []
         #self.dimension = dimension
@@ -113,13 +113,14 @@ class Environment(object):
 
         self.constraints = Constraints()
         self.constraint_dict = {}
+        self.non_task_endpoints = non_task_endpoints
 
         self.a_star = AStar(self)
 
     #TODO: per ora metto solo che nella cella di partenza puoi fare wait infinito,
     #quando poi passerò le celle delle partizioni come lista sarà più facile gestire il
     #fatto che non deve tornarci indietro
-    def get_neighbors(self, state):
+    def get_neighbors(self, state, agent_name):
         neighbors = []
 
         # Wait action
@@ -128,19 +129,19 @@ class Environment(object):
             neighbors.append(n)
         # Up action
         n = State(state.time + 1, Location(state.location.x, state.location.y+1))
-        if self.state_valid(n) and self.transition_valid(state, n):
+        if self.state_valid(n) and self.transition_valid(state, n) and self.NON_te_only_if_goal(n, agent_name):
             neighbors.append(n)
         # Down action
         n = State(state.time + 1, Location(state.location.x, state.location.y-1))
-        if self.state_valid(n) and self.transition_valid(state, n):
+        if self.state_valid(n) and self.transition_valid(state, n) and self.NON_te_only_if_goal(n, agent_name):
             neighbors.append(n)
         # Left action
         n = State(state.time + 1, Location(state.location.x-1, state.location.y))
-        if self.state_valid(n) and self.transition_valid(state, n):
+        if self.state_valid(n) and self.transition_valid(state, n) and self.NON_te_only_if_goal(n, agent_name):
             neighbors.append(n)
         # Right action
         n = State(state.time + 1, Location(state.location.x+1, state.location.y))
-        if self.state_valid(n) and self.transition_valid(state, n):
+        if self.state_valid(n) and self.transition_valid(state, n) and self.NON_te_only_if_goal(n, agent_name):
             neighbors.append(n)
         return neighbors
 
@@ -237,6 +238,15 @@ class Environment(object):
             return False
         return EdgeConstraint(state_1.time, state_1.location, state_2.location) not in self.constraints.edge_constraints
 
+    def NON_te_only_if_goal(self, state_new, agent_name):
+        tup_new = tuple((state_new.location.x, state_new.location.y))
+        for n in self.non_task_endpoints:
+            if tup_new == n:
+                if self.is_at_goal(state_new, agent_name):
+                    return True
+                else:
+                    return False
+        return True
     def is_solution(self, agent_name):
         pass
 
