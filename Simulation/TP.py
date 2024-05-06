@@ -643,7 +643,7 @@ class TokenPassing(object):
         #IN FUTURO PIANIFICANO PER PRIMI GLI AGENTI ALLA FRONTIERA
         agents_to_plan = self.get_agents_to_plan()
         agents_to_REplan = {}
-        while len(agents_to_plan) > 0:# and len(agents_to_REplan) > 0:
+        while len(agents_to_plan) > 0 or len(agents_to_REplan) > 0:
 
             if len(agents_to_REplan) > 0:
                 agent_name = random.choice(list(agents_to_REplan.keys()))
