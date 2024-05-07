@@ -32,13 +32,16 @@ class TokenPassing(object):
         self.simulation = simulation
         self.a_star_max_iter = a_star_max_iter
         self.chiamateAstar = 0
-        self.sommaEspansioniA = 0
+        self.sommaEspansioniAtot = 0
+        self.sommaEspansioniAmaxTimestep = 0
         self.goal_endpoints = goal_endpoints
         self.global_view = {}
         self.init_global_view()
         self.init_tokens(partitions)
         self.graph = Graph()
         self.create_graph()
+
+        self.espansioniAstarXpart = [0] * self.number_of_areas
 
         #vedi sotto
 
@@ -301,10 +304,12 @@ class TokenPassing(object):
         return self.global_view
 
     #cbs single agent quindi Astar
-    def search(self, cbs):
+    def search(self, cbs, part_index):
 
         path, espansioniA = cbs.search()
         self.chiamateAstar += 1
+        self.sommaEspansioniAtot += espansioniA
+        self.espansioniAstarXpart[part_index] += espansioniA
         return path
 
     def get_Astar_calls(self):
@@ -387,7 +392,7 @@ class TokenPassing(object):
         env = Environment(self.tokens[part_index]['partition'], [agent], self.obstacles | idle_obstacles_agents,
                           moving_obstacles_agents, self.non_task_endpoints, a_star_max_iter=self.a_star_max_iter)
         cbs = CBS(env)
-        path1 = self.search(cbs)
+        path1 = self.search(cbs, part_index)
         if not path1:
             print("Solution not found to loc1 for agent", agent_name, " idling at current position...")
             return False
@@ -405,7 +410,7 @@ class TokenPassing(object):
             env = Environment(self.tokens[part_index]['partition'], [agent], self.obstacles | idle_obstacles_agents,
                               moving_obstacles_agents, self.non_task_endpoints, a_star_max_iter=self.a_star_max_iter)
             cbs = CBS(env)
-            path2 = self.search(cbs)
+            path2 = self.search(cbs, part_index)
             if not path2:
                 print("Solution not found to task goal for agent", agent_name, " idling at current position...")
                 return False
@@ -428,7 +433,7 @@ class TokenPassing(object):
         env = Environment(self.tokens[part_index]['partition'], [agent], self.obstacles | idle_obstacles_agents,
                           moving_obstacles_agents, self.non_task_endpoints, a_star_max_iter=self.a_star_max_iter)
         cbs = CBS(env)
-        path = self.search(cbs)
+        path = self.search(cbs, part_index)
         if not path:
             print("Solution not found to task goal for agent", agent_name, " idling at current position...")
             return False
@@ -638,6 +643,10 @@ class TokenPassing(object):
             return self.compute_real_path_double(agent_name, agent_pos, pickup_position, closest_frontier.start_pos,
                                                  all_idle_agents, part_index, time_start)
 
+    def update_A_star_stats(self):
+        self.sommaEspansioniAmaxTimestep += max(self.espansioniAstarXpart)
+        self.espansioniAstarXpart = [0] * self.number_of_areas
+
     def time_forward(self):
         self.update_completed_tasks()
         self.collect_new_tasks()
@@ -707,3 +716,4 @@ class TokenPassing(object):
                 print("Entrambi gli abstact path sono vuoti, errore? " + agent_name)
 
         #self.update_non_task_endpoints()
+        self.update_A_star_stats()
