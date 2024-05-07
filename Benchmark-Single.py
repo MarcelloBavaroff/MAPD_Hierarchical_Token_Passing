@@ -2,6 +2,7 @@ import argparse
 import yaml
 import json
 import os
+import numpy as np
 # import random
 
 import RoothPath
@@ -51,22 +52,21 @@ def parameters(seed):
     return tasks, agents, dimensions, obstacles, non_task_endpoints, number_of_areas, partitions, goal_endpoints, frontiers, args.a_star_max_iter
 
 
-def print_comparison(version, completed_tasks, n_tasks, dead_agents, makespan, average_service_time, std_dev,cbs_calls,
-                     index_run, cbs_calls_recharge, random_seed=1234, file_name='Comparisons/Comp1/test3.txt', avg_espansioniA=0):
+def print_comparison(version, n_agents, completed_tasks, n_tasks, makespan, average_service_time, std_dev_st, Astar_calls,
+                     Astar_total_expansions, Astar_exp_sum_max_per_timestep, index_run, random_seed, file_name):
     with open(file_name, 'a') as file:
         file.write("\n\n" + str(index_run) + " " + version + " " + str(random_seed) + "\n")
+        s_n_agents = "Number of agents: ", n_agents
         s_completed_tasks = "Number of completed tasks: ", completed_tasks, "/", n_tasks
-        s_dead_agents = "Number of dead agents: ", dead_agents
         s_makespan = "Makespan: ", makespan
-
         s_average_service_time = "Average service time: ", average_service_time
-        s_std_dev = "Standard deviation: ", std_dev
-        s_cbs_calls_recharge = "Chiamate a CBS per stazioni di ricarica: ", cbs_calls_recharge
-        s_cbs_calls = "Chiamate a CBS: ", cbs_calls
-        s_avg_espansioniA = "Espansioni medie di A*: ", avg_espansioniA
+        s_std_dev_st = "Standard deviation: ", std_dev_st
+        s_Astar_calls = "Total A* calls: ", Astar_calls
+        s_Astar_total_expansions = "Total A* expansions: ", Astar_total_expansions
+        s_Astar_exp_sum_max_per_timestep = "Espansioni considerando la parallelizzazione: ", Astar_exp_sum_max_per_timestep
 
-        file.write(str(s_completed_tasks) + '\n' + str(s_dead_agents) + '\n' + str(s_makespan) + '\n' + str(
-            s_average_service_time) + '\n' + str(s_std_dev) + '\n' + str(s_cbs_calls_recharge) + '\n' + str(s_cbs_calls) + '\n' + str(s_avg_espansioniA))
+        file.write(str(s_n_agents) + '\n' +str(s_completed_tasks) + '\n' + str(s_makespan) + '\n' + str(
+            s_average_service_time) + '\n' + str(s_std_dev_st) + '\n' + str(s_Astar_calls) + '\n' + str(s_Astar_total_expansions) + '\n' + str(s_Astar_exp_sum_max_per_timestep))
 
 
 def single_run(index_run, random_seed, file_name):
@@ -76,17 +76,17 @@ def single_run(index_run, random_seed, file_name):
     simulation = Simulation(tasks, agents)
     tp = TokenPassing(agents, dimensions, obstacles, non_task_endpoints, number_of_areas, partitions, simulation,
                       goal_endpoints, frontiers, max_iter)
-    while tp.get_completed_tasks() != len(tasks) and simulation.get_time() < 10000:
+    while len(tp.get_completed_tasks()) != len(tasks) and simulation.get_time() < 10000:
         simulation.time_forward(tp)
 
-    completed_tasks = tp.get_completed_tasks()
+    completed_tasks = len(tp.get_completed_tasks())
     n_agents = len(agents)
     n_tasks = len(tasks)
     makespan = simulation.get_time()
 
     delta_times = []
     for a in tp.get_completed_tasks():
-        delta_times.append(tp.get_completed_tasks_times()[a] - tp.get_completed_tasks_times()['start_tasks_times'][a])
+        delta_times.append(tp.get_completed_tasks_times()[a] - tp.get_start_tasks_times()[a])
 
     service_time = sum(delta_times)
     average_service_time = service_time / len(tp.get_completed_tasks_times())
@@ -100,24 +100,24 @@ def single_run(index_run, random_seed, file_name):
 
 
     print_comparison("Partition", n_agents, completed_tasks, n_tasks, makespan, average_service_time, std_dev_st, Astar_calls,
-                     Astar_total_expansions, Astar_exp_sum_max_per_timestep, index_run, cbs_calls_recharge, random_seed, file_name, avg_espansioniA)
+                     Astar_total_expansions, Astar_exp_sum_max_per_timestep, index_run, random_seed, file_name)
 
-    return completed_tasks, n_tasks, dead_agents, makespan, average_service_time, std_dev, cbs_calls, cbs_calls_recharge, avg_espansioniA  # , completed_tasks2, n_tasks2, dead_agents2, makespan2, average_service_time2, cbs_calls2, cbs_calls_recharge2
+    return completed_tasks, n_tasks, makespan, average_service_time, std_dev_st, Astar_calls, Astar_total_expansions, Astar_exp_sum_max_per_timestep  # , completed_tasks2, n_tasks2, dead_agents2, makespan2, average_service_time2, cbs_calls2, cbs_calls_recharge2
 
 
 if __name__ == '__main__':
 
-    run_complete1 = 0
-    sum_completed_tasks1 = 0
-    sum_makespan1 = 0
-    sum_service_time1 = 0
-    sum_std_dev1 = 0
-    sum_cbs_calls1 = 0
-    sum_cbs_calls_recharge1 = 0
-    sum_dead_agents1 = 0
-    sum_avg_espansioniA1 = 0
+    run_complete = 0
+    array_completed_tasks = []
+    array_makespan = []
+    array_avg_service_time = []
+    array_std_dev = []
+    array_Astar_calls = []
+    array_Astar_total_expansions = []
+    array_Astar_exp_sum_max_per_timestep = []
 
-    file_name = 'Comparisons/TP/2.txt'
+
+    file_name = 'Comparisons/partition/1.txt'
 
     with open('Comparisons/seeds1.txt', 'r') as file:
         # inserisci ogni riga in una lista
@@ -128,46 +128,53 @@ if __name__ == '__main__':
         print("Run numero: ", i + 1)
         # random_seed = random.randint(0, 100000)
         random_seed = int(seeds[i])
-        completed_tasks, n_tasks, dead_agents, makespan, average_service_time, std_dev, cbs_calls, cbs_calls_recharge, avg_espansioniA = single_run(
-            i, random_seed, file_name)
+        (completed_tasks, n_tasks, makespan, average_service_time,
+        std_dev_st, Astar_calls, Astar_total_expansions, Astar_exp_sum_max_per_timestep) = \
+        (single_run(i, random_seed, file_name))
 
         if completed_tasks == n_tasks:
-            run_complete1 += 1
-            sum_makespan1 += makespan
-            sum_service_time1 += average_service_time
-            sum_std_dev1 += std_dev
-            sum_cbs_calls1 += cbs_calls
-            sum_cbs_calls_recharge1 += cbs_calls_recharge
-            sum_avg_espansioniA1 += avg_espansioniA
+            run_complete += 1
+            array_completed_tasks.append(completed_tasks)
+            array_makespan.append(makespan)
+            array_avg_service_time.append(average_service_time)
+            array_std_dev.append(std_dev_st)
+            array_Astar_calls.append(Astar_calls)
+            array_Astar_total_expansions.append(Astar_total_expansions)
+            array_Astar_exp_sum_max_per_timestep.append(Astar_exp_sum_max_per_timestep)
 
-        sum_completed_tasks1 += completed_tasks
-        sum_dead_agents1 += dead_agents
+    avg_completed_tasks = np.mean(array_completed_tasks)
+    avg_makespan = np.mean(array_makespan)
+    std_makespan = np.std(array_makespan)
+    avg_avg_service_time = np.mean(array_avg_service_time)
+    avg_std_dev = np.mean(array_std_dev)
+    avg_Astar_calls = np.mean(array_Astar_calls)
+    avg_Astar_total_expansions = np.mean(array_Astar_total_expansions)
+    avg_Astar_exp_sum_max_per_timestep = np.mean(array_Astar_exp_sum_max_per_timestep)
 
     # print("\nVersioneChange")
-    print("Numero di run completate: ", run_complete1)
-    print("Numero medio di task completati: ", sum_completed_tasks1 / 20)
-    print("Numero medio di agenti morti: ", sum_dead_agents1 / 20)
+    print("Numero di run completate: ", run_complete)
+    print("Numero medio di task completati: ", avg_completed_tasks)
     try:
-        print("Makespan medio: ", sum_makespan1 / run_complete1)
-        print("Tempo medio di servizio: ", sum_service_time1 / run_complete1)
-        print("Deviazione standard media: ", sum_std_dev1 / run_complete1)
-        print("Chiamate a CBS per stazioni di ricarica: ", sum_cbs_calls_recharge1 / run_complete1)
-        print("Chiamate a CBS totali: ", sum_cbs_calls1 / run_complete1)
-        print("Espansioni medie di A*: ", sum_avg_espansioniA1 / run_complete1)
+        print("Makespan medio: ", avg_makespan)
+        print("Deviazione standard del makespan: ", std_makespan)
+        print("Tempo medio di servizio: ", avg_avg_service_time)
+        print("Deviazione standard del service time: ", avg_std_dev)
+        print("Chiamate a A* medie: ", avg_Astar_calls)
+        print("Espansioni totali di A* in media: ", avg_Astar_total_expansions)
+        print("Espansioni medie di A* considerando la parallelizzazione: ", avg_Astar_exp_sum_max_per_timestep)
     except:
         print("0 run completate")
 
     with open(file_name, 'a') as file:
-        file.write("\n\n" + "Numero di run completate: " + str(run_complete1) + "\n")
-        file.write("Numero medio di task completati: " + str(sum_completed_tasks1 / 20) + "\n")
-        file.write("Numero medio di agenti morti: " + str(sum_dead_agents1 / 20) + "\n")
-        try:
-            file.write("Makespan medio: " + str(sum_makespan1 / run_complete1) + "\n")
-            file.write("Tempo medio di servizio: " + str(sum_service_time1 / run_complete1) + "\n")
-            file.write("Deviazione standard media: " + str(sum_std_dev1 / run_complete1) + "\n")
-            file.write("Chiamate a CBS per stazioni di ricarica: " + str(sum_cbs_calls_recharge1 / run_complete1) + "\n")
-            file.write("Chiamate a CBS totali: " + str(sum_cbs_calls1 / run_complete1) + "\n")
-            file.write("Espansioni medie di A*: " + str(sum_avg_espansioniA1 / run_complete1) + "\n")
-        except:
-            file.write("0 run completate")
+        file.write("\n\n" + "Numero di run completate: " + str(run_complete) + "\n")
+        file.write("Numero medio di task completati: " + str(avg_completed_tasks) + "\n")
+        file.write("Makespan medio: " + str(avg_makespan) + "\n")
+        file.write("Deviazione standard del makespan: " + str(std_makespan) + "\n")
+        file.write("Tempo medio di servizio: " + str(avg_avg_service_time) + "\n")
+        file.write("Deviazione standard del service time: " + str(avg_std_dev) + "\n")
+        file.write("Chiamate ad A* medie: " + str(avg_Astar_calls) + "\n")
+        file.write("Espansioni totali di A* in media: " + str(avg_Astar_total_expansions) + "\n")
+        file.write("Espansioni medie di A* considerando la parallelizzazione: " + str(avg_Astar_exp_sum_max_per_timestep) + "\n")
+
+
 

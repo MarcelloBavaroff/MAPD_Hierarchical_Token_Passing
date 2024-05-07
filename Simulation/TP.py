@@ -54,7 +54,7 @@ class TokenPassing(object):
         self.global_view['completed_tasks_times'] = {}
 
         self.global_view['pre_assignment_agents_tasks'] = {}
-        self.global_view['completed_tasks'] = 0
+        self.global_view['completed_tasks'] = []
         self.global_view['agents_to_areas'] = {}
         self.global_view['occupied_non_task_endpoints'] = set()
         #dizionario con corrispondenza agent_name -> lista di zone da visitare
@@ -135,6 +135,9 @@ class TokenPassing(object):
     #     return agents
 
     # devo restituire in dizionario di agenti in idle con nome come chiave e posizione come valore (lista)
+
+    def get_start_tasks_times(self):
+        return self.global_view['start_tasks_times']
     def get_idle_agents_without_preass(self):
 
         #itero per ogni partizione/token così da avere la posizione attuale dell'agente
@@ -344,7 +347,8 @@ class TokenPassing(object):
                 # il controllo con abs2 serve per evitare che un agente che ha come goal il suo stesso punto di partenza
                 # e che non è riuscito a pianificare venga segnato come agente che ha completato il task
 
-                self.global_view['completed_tasks'] = self.global_view['completed_tasks'] + 1
+                self.global_view['completed_tasks'].append(
+                    self.global_view['pre_assignment_agents_tasks'][agent_name]['task_name'])
                 self.global_view['completed_tasks_times'][
                     self.global_view['pre_assignment_agents_tasks'][agent_name][
                         'task_name']] = self.simulation.get_time()
