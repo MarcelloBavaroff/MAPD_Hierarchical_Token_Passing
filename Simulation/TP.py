@@ -314,6 +314,11 @@ class TokenPassing(object):
 
     def get_Astar_calls(self):
         return self.chiamateAstar
+    def get_total_expansions(self):
+        return self.sommaEspansioniAtot
+
+    def get_exp_sum_max_per_timestep(self):
+        return self.sommaEspansioniAmaxTimestep
 
     def collect_new_tasks(self):
         for t in self.simulation.get_new_tasks():

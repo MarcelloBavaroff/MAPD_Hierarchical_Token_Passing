@@ -91,7 +91,7 @@ def single_run(index_run, random_seed, file_name):
     service_time = sum(delta_times)
     average_service_time = service_time / len(tp.get_completed_tasks_times())
     variance = sum((x - average_service_time) ** 2 for x in delta_times) / len(tp.get_completed_tasks_times())
-    std_dev = math.sqrt(variance)
+    std_dev_st = math.sqrt(variance)
 
     Astar_calls = tp.get_Astar_calls()
     #avg_espansioniA = tp.get_avg_espansioniA()
@@ -99,8 +99,8 @@ def single_run(index_run, random_seed, file_name):
     Astar_exp_sum_max_per_timestep = tp.get_exp_sum_max_per_timestep()
 
 
-    print_comparison("VersioneQueue", completed_tasks, n_tasks, dead_agents, makespan, average_service_time, std_dev,cbs_calls,
-                     index_run, cbs_calls_recharge, random_seed, file_name, avg_espansioniA)
+    print_comparison("Partition", n_agents, completed_tasks, n_tasks, makespan, average_service_time, std_dev_st, Astar_calls,
+                     Astar_total_expansions, Astar_exp_sum_max_per_timestep, index_run, cbs_calls_recharge, random_seed, file_name, avg_espansioniA)
 
     return completed_tasks, n_tasks, dead_agents, makespan, average_service_time, std_dev, cbs_calls, cbs_calls_recharge, avg_espansioniA  # , completed_tasks2, n_tasks2, dead_agents2, makespan2, average_service_time2, cbs_calls2, cbs_calls_recharge2
 
