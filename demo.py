@@ -2,10 +2,10 @@ import argparse
 import yaml
 import json
 import os
-from Simulation.TP import TokenPassing
+from Simulation.p_TP import TokenPassing
 import RoothPath
 from Simulation.tasks_maker import *
-from Simulation.simulation import Simulation
+from Simulation.p_simulation import Simulation
 import subprocess
 import sys
 import ast
@@ -34,7 +34,7 @@ if __name__ == '__main__':
     parser.add_argument('-a_star_max_iter', help='Maximum number of states explored by the low-level algorithm',
                         default=5000, type=int)
     parser.add_argument('-slow_factor', help='Slow factor of visualization', default=10, type=int) #default=1
-    parser.add_argument('-not_rand', help='Use if input has fixed tasks and delays', action='store_true', default=False)
+    parser.add_argument('-not_rand', help='Use if input has fixed tasks and delays', action='store_true', default=True)
 
     args = parser.parse_args()
 
@@ -74,7 +74,7 @@ if __name__ == '__main__':
     simulation = Simulation(tasks, agents)
     tp = TokenPassing(agents, dimensions, obstacles, non_task_endpoints, number_of_areas, partitions, simulation,
                       goal_endpoints, frontiers, a_star_max_iter=args.a_star_max_iter)
-    while tp.get_completed_tasks() != len(tasks) and simulation.time < 10000:
+    while len(tp.get_completed_tasks()) != len(tasks) and simulation.time < 10000:
         simulation.time_forward(tp)
 
     cost = 0

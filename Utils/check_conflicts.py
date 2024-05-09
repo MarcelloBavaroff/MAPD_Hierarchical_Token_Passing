@@ -3,10 +3,10 @@ from collections import defaultdict
 import yaml
 import json
 import os
-from Simulation.TP import TokenPassing
+from Simulation.p_TP import TokenPassing
 import RoothPath
 from Simulation.simulation_old import Simulation
-from Simulation.simulation import Simulation
+from Simulation.p_simulation import Simulation
 from Simulation.tasks_maker import *
 import time
 

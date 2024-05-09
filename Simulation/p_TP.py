@@ -1,6 +1,6 @@
 from math import fabs
 import random
-from Simulation.CBS.cbs import CBS, Environment
+from Simulation.CBS.p_cbs import CBS, Environment
 from dijkstar import Graph, find_path  #tizi simpatici che hanno implementato dijkstra
 
 
@@ -10,7 +10,6 @@ class frontier:
         self.destination_partition = front[5]
         self.start_pos = tuple((front[0], front[1]))
         self.destination_pos = tuple((front[3], front[4]))
-
 
 # noinspection PyTypeChecker
 class TokenPassing(object):
@@ -257,18 +256,19 @@ class TokenPassing(object):
         return res
 
     #restituisce una frontiera non una coordinata
-    def get_closest_frontier(self, agent_pos, frontiers_to_next_part):
+    def get_closest_frontier(self, agent_pos, frontiers_to_next_part, discarded_frontiers=[]):
         dist = -1
         res = -1
         for f in frontiers_to_next_part:
-            if dist == -1:
-                dist = self.admissible_heuristic(f.start_pos, agent_pos)
-                res = f
-            else:
-                tmp = self.admissible_heuristic(f.start_pos, agent_pos)
-                if tmp < dist:
-                    dist = tmp
+            if f not in discarded_frontiers:
+                if dist == -1:
+                    dist = self.admissible_heuristic(f.start_pos, agent_pos)
                     res = f
+                else:
+                    tmp = self.admissible_heuristic(f.start_pos, agent_pos)
+                    if tmp < dist:
+                        dist = tmp
+                        res = f
 
         if res == -1:
             print('Error in finding non-task endpoint, is instance well-formed?')
@@ -485,13 +485,14 @@ class TokenPassing(object):
 
             #se ho abs1, ma non ho un percorso nel token vuol dire che non sono riuscito a trovarlo
             #per qualche ragione, quindi reinserisco il vecchio tasks e lo rimuovo da pre_assignment
-            if len(self.global_view['abstract_to_loc1'][agent_name]) > 0:
-                self.global_view['tasks'][self.global_view['pre_assignment_agents_tasks'][agent_name]['task_name']] = \
-                    [self.global_view['pre_assignment_agents_tasks'][agent_name]['start'],
-                     self.global_view['pre_assignment_agents_tasks'][agent_name]['goal']]
-                self.global_view['pre_assignment_agents_tasks'].pop(agent_name)
-                self.global_view['abstract_to_loc1'][agent_name] = []
-                self.global_view['abstract_to_loc2'][agent_name] = []
+            #PENSO CHE AVENDO MODIFICATO GET IDLE AGENTS QUI NON CI ARRIVI MAI
+            # if len(self.global_view['abstract_to_loc1'][agent_name]) > 0:
+            #     self.global_view['tasks'][self.global_view['pre_assignment_agents_tasks'][agent_name]['task_name']] = \
+            #         [self.global_view['pre_assignment_agents_tasks'][agent_name]['start'],
+            #          self.global_view['pre_assignment_agents_tasks'][agent_name]['goal']]
+            #     self.global_view['pre_assignment_agents_tasks'].pop(agent_name)
+            #     self.global_view['abstract_to_loc1'][agent_name] = []
+            #     self.global_view['abstract_to_loc2'][agent_name] = []
 
             if len(available_tasks) > 0:
                 self.choose_task(agent_name, agent_pos, available_tasks)
@@ -521,9 +522,15 @@ class TokenPassing(object):
     def go_to_frontier(self, agent_name, agent_pos, all_idle_agents, actual_part, next_part):
         #scelgo la frontiera più vicina in base all'area in cui sono e a dove voglio andare
         frontiers_to_next_part = self.tokens[actual_part]['own_frontiers'][next_part]
-        closest_frontier = self.get_closest_frontier(agent_pos, frontiers_to_next_part)
+        discarded_frontiers = []
 
-        self.compute_real_path_single(agent_name, agent_pos, closest_frontier.start_pos, all_idle_agents, actual_part)
+        while len(self.tokens[actual_part]['agents'][agent_name]) == 1 \
+            and len(frontiers_to_next_part) > len(discarded_frontiers):
+            closest_frontier = self.get_closest_frontier(agent_pos, frontiers_to_next_part, discarded_frontiers)
+            self.compute_real_path_single(agent_name, agent_pos, closest_frontier.start_pos, all_idle_agents, actual_part)
+            if len(self.tokens[actual_part]['agents'][agent_name]) == 1:
+                discarded_frontiers.append(closest_frontier)
+
 
     def find_next_goal(self, agent_name, agent_pos, next_part, num_abs):
         abstract = "abstract_to_loc" + str(num_abs)
@@ -700,6 +707,7 @@ class TokenPassing(object):
                 else:
                     self.go_to_frontier(agent_name, agent_pos, local_idle_agents, agent_partition,
                                         self.global_view['abstract_to_loc1'][agent_name][1])
+
 
             #il pickup è nell'area in cui mi trovo
             elif len(self.global_view['abstract_to_loc1'][agent_name]) == 1:

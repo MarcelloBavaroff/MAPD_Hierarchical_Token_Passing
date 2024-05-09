@@ -7,8 +7,8 @@ import numpy as np
 
 import RoothPath
 from Simulation.tasks_maker import *
-from Simulation.TP import TokenPassing
-from Simulation.simulation import Simulation
+from Simulation.p_TP import TokenPassing
+from Simulation.p_simulation import Simulation
 
 def parameters(seed):
     random.seed(seed)
@@ -142,14 +142,14 @@ if __name__ == '__main__':
             array_Astar_total_expansions.append(Astar_total_expansions)
             array_Astar_exp_sum_max_per_timestep.append(Astar_exp_sum_max_per_timestep)
 
-    avg_completed_tasks = np.mean(array_completed_tasks)
-    avg_makespan = np.mean(array_makespan)
-    std_makespan = np.std(array_makespan)
-    avg_avg_service_time = np.mean(array_avg_service_time)
-    avg_std_dev = np.mean(array_std_dev)
-    avg_Astar_calls = np.mean(array_Astar_calls)
-    avg_Astar_total_expansions = np.mean(array_Astar_total_expansions)
-    avg_Astar_exp_sum_max_per_timestep = np.mean(array_Astar_exp_sum_max_per_timestep)
+    avg_completed_tasks = round(np.mean(array_completed_tasks), 2)
+    avg_makespan = round(np.mean(array_makespan), 2)
+    std_makespan = round(np.std(array_makespan), 2)
+    avg_avg_service_time = round(np.mean(array_avg_service_time), 2)
+    avg_std_dev = round(np.mean(array_std_dev), 2)
+    avg_Astar_calls = round(np.mean(array_Astar_calls), 2)
+    avg_Astar_total_expansions = round(np.mean(array_Astar_total_expansions), 2)
+    avg_Astar_exp_sum_max_per_timestep = round(np.mean(array_Astar_exp_sum_max_per_timestep), 2)
 
     # print("\nVersioneChange")
     print("Numero di run completate: ", run_complete)
@@ -162,8 +162,15 @@ if __name__ == '__main__':
         print("Chiamate a A* medie: ", avg_Astar_calls)
         print("Espansioni totali di A* in media: ", avg_Astar_total_expansions)
         print("Espansioni medie di A* considerando la parallelizzazione: ", avg_Astar_exp_sum_max_per_timestep)
+
+        excel_string = str(run_complete) + ";" + str(avg_completed_tasks) + ";" + str(avg_makespan) + ";" + str(
+            std_makespan) + ";" + str(avg_avg_service_time) + ";" + str(avg_std_dev) + ";" + str(
+            avg_Astar_calls) + ";" + str(avg_Astar_total_expansions) + ";" + str(avg_Astar_exp_sum_max_per_timestep) + "\n"
+        excel_string = excel_string.replace(".", ",")
+        print("Excel: ", excel_string)
     except:
         print("0 run completate")
+        excel_string = "0;0;0;0;0;0;0;0;0\n"
 
     with open(file_name, 'a') as file:
         file.write("\n\n" + "Numero di run completate: " + str(run_complete) + "\n")
@@ -175,6 +182,9 @@ if __name__ == '__main__':
         file.write("Chiamate ad A* medie: " + str(avg_Astar_calls) + "\n")
         file.write("Espansioni totali di A* in media: " + str(avg_Astar_total_expansions) + "\n")
         file.write("Espansioni medie di A* considerando la parallelizzazione: " + str(avg_Astar_exp_sum_max_per_timestep) + "\n")
+
+        file.write("\n\n" + "Excel: ")
+        file.write(excel_string)
 
 
 

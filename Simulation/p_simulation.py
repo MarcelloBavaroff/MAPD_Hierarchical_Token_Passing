@@ -1,5 +1,5 @@
 import time
-from Simulation.TP import TokenPassing
+from Simulation.p_TP import TokenPassing
 from Simulation.tasks_maker import *
 
 
