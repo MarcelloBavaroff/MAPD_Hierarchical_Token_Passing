@@ -77,7 +77,7 @@ class TokenPassing(object):
     #initialize a single token
     def init_token(self, index=0, partition=None):
         self.tokens[index]['agents'] = {}
-        self.tokens[index]['path_ends'] = set()
+        self.tokens[index]['path_ends'] = []
         self.tokens[index]['partition'] = partition  #x_min, y_min, x_max, y_max
         self.tokens[index]['own_frontiers'] = {}
         #self.tokens[index]['occupied_non_task_endpoints'] = set()
@@ -95,7 +95,7 @@ class TokenPassing(object):
             if self.find_partition(a['start']) == index:
                 self.tokens[index]['agents'][a['name']] = [a['start']]
                 if not tuple(a['start']) in self.non_task_endpoints:
-                    self.tokens[index]['path_ends'].add(tuple(a['start']))
+                    self.tokens[index]['path_ends'].append(tuple(a['start']))
                 # else:
                 #     self.tokens[index]['occupied_non_task_endpoints'].add(tuple(a['start']))
 
@@ -363,11 +363,12 @@ class TokenPassing(object):
     #qui di base controlla che nessun agente abbia come path ends pickup o delivery ed
     # inoltre
     def find_available_tasks(self, agent_pos):
+        part_index = self.find_partition(agent_pos)
         available_tasks = {}
         for task_name, task in self.global_view['tasks'].items():
             # se inizio e fine task non in path ends degli agenti (meno me) AND nemmeno in goals
-            if tuple(task[0]) not in self.tokens[0]['path_ends'].difference({tuple(agent_pos)}) and tuple(
-                    task[1]) not in self.tokens[0]['path_ends'].difference({tuple(agent_pos)}) \
+            if tuple(task[0]) not in self.tokens[part_index]['path_ends'].difference({tuple(agent_pos)}) and tuple(
+                    task[1]) not in self.tokens[part_index]['path_ends'].difference({tuple(agent_pos)}) \
                     and tuple(task[0]) not in self.get_agents_to_tasks_goals() and tuple(
                 task[1]) not in self.get_agents_to_tasks_goals():
                 available_tasks[task_name] = task
