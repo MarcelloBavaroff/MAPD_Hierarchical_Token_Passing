@@ -363,12 +363,17 @@ class TokenPassing(object):
     #qui di base controlla che nessun agente abbia come path ends pickup o delivery ed
     # inoltre
     def find_available_tasks(self, agent_pos):
-        part_index = self.find_partition(agent_pos)
+        #part_index = self.find_partition(agent_pos)
+        all_path_ends = set()
+        for a in range(self.number_of_areas):
+            for tup in self.tokens[a]['path_ends']:
+                all_path_ends.add(tuple(tup))
+
         available_tasks = {}
         for task_name, task in self.global_view['tasks'].items():
             # se inizio e fine task non in path ends degli agenti (meno me) AND nemmeno in goals
-            if tuple(task[0]) not in self.tokens[part_index]['path_ends'].difference({tuple(agent_pos)}) and tuple(
-                    task[1]) not in self.tokens[part_index]['path_ends'].difference({tuple(agent_pos)}) \
+            if tuple(task[0]) not in all_path_ends.difference({tuple(agent_pos)}) and tuple(
+                    task[1]) not in all_path_ends.difference({tuple(agent_pos)}) \
                     and tuple(task[0]) not in self.get_agents_to_tasks_goals() and tuple(
                 task[1]) not in self.get_agents_to_tasks_goals():
                 available_tasks[task_name] = task
@@ -461,11 +466,12 @@ class TokenPassing(object):
     # se ho solo un path passo solo il secondo
     def apply_path(self, agent_name, agent_pos, path1, path2, part_index):
         last_step = path2[-1]
-        self.update_ends(agent_pos, part_index)
+        agent_part = self.find_partition(agent_pos)
+        self.update_ends(agent_pos, agent_part)
 
         self.tokens[part_index]['agents'][agent_name] = []
 
-        self.tokens[part_index]['path_ends'].add(tuple([last_step['x'], last_step['y']]))
+        self.tokens[part_index]['path_ends'].append(tuple([last_step['x'], last_step['y']]))
         if path1 is not None:
             #self.tokens[part_index]['path_ends'].add(tuple([last_step['x'], last_step['y']]))
             for el in path1:
@@ -620,14 +626,19 @@ class TokenPassing(object):
             if name != agent_name and agent_pos in path:
                 if self.global_view['agents_to_areas'][name][0] == part_index:
                     # dovrebbe tenere solo la pozione attuale
+                    # non è più un path ends
+                    self.update_ends(self.tokens[part_index]['agents'][name][-1], part_index)
                     self.tokens[part_index]['agents'][name] = path[:1]
+                    self.tokens[part_index]['path_ends'].append(tuple(path[0]))
                 # se invece l'agente dovrà arrivare in questa partizione, ma attualmente è in frontiera altrove
                 else:
+                    self.update_ends(self.tokens[part_index]['agents'][name][-1], part_index)
                     self.tokens[part_index]['agents'].pop(name)
                     #self.global_view['agents_to_areas'][name] = self.global_view['agents_to_areas'][name][:1]
                     self.global_view['agents_to_areas'][name] = []
                     self.global_view['agents_to_areas'][name].append(self.find_partition(path[0]))
                     self.tokens[self.global_view['agents_to_areas'][name][0]]['agents'][name] = path[:1]
+                    self.tokens[self.global_view['agents_to_areas'][name][0]]['path_ends'].append(tuple(path[0]))
 
     def on_a_frontier(self, agent_pos, actual_part):
         frontiers = self.tokens[actual_part]['own_frontiers']
