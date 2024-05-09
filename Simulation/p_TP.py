@@ -360,6 +360,8 @@ class TokenPassing(object):
                         'task_name'] == 'safe_idle':
                 self.global_view['pre_assignment_agents_tasks'].pop(agent_name)
 
+    #qui di base controlla che nessun agente abbia come path ends pickup o delivery ed
+    # inoltre
     def find_available_tasks(self, agent_pos):
         available_tasks = {}
         for task_name, task in self.global_view['tasks'].items():
@@ -462,8 +464,9 @@ class TokenPassing(object):
 
         self.tokens[part_index]['agents'][agent_name] = []
 
+        self.tokens[part_index]['path_ends'].add(tuple([last_step['x'], last_step['y']]))
         if path1 is not None:
-            self.tokens[part_index]['path_ends'].add(tuple([last_step['x'], last_step['y']]))
+            #self.tokens[part_index]['path_ends'].add(tuple([last_step['x'], last_step['y']]))
             for el in path1:
                 self.tokens[part_index]['agents'][agent_name].append([el['x'], el['y']])
             # Don't repeat twice same step, elimino ultimo elemento
@@ -647,18 +650,29 @@ class TokenPassing(object):
         #len abs2 = 1 vuol dire che il delivery è quì
         #len abs2 > 1 vuol dire che la prossima destinazione sarà una frontiera
         #in abs2[0] c'è sempre la partizione corrente, quindi devo vedere abs2[1] per la prossima partizione
-
+        planned = False
         if len(self.global_view['abstract_to_loc2'][agent_name]) == 1:
             loc2 = self.global_view['pre_assignment_agents_tasks'][agent_name]['goal']
-            return self.compute_real_path_double(agent_name, agent_pos, pickup_position, loc2, all_idle_agents,
+            planned = self.compute_real_path_double(agent_name, agent_pos, pickup_position, loc2, all_idle_agents,
                                                  part_index, time_start)
         else:
             next_part = self.global_view['abstract_to_loc2'][agent_name][1]
             frontiers_to_next_part = self.tokens[part_index]['own_frontiers'][next_part]
             closest_frontier = self.get_closest_frontier(pickup_position, frontiers_to_next_part)
-            return self.compute_real_path_double(agent_name, agent_pos, pickup_position, closest_frontier.start_pos,
+            planned = self.compute_real_path_double(agent_name, agent_pos, pickup_position, closest_frontier.start_pos,
                                                  all_idle_agents, part_index, time_start)
 
+        if not planned:
+            print('Rimozione del task dall\'', agent_name)
+            self.global_view['tasks'][self.global_view['pre_assignment_agents_tasks'][agent_name]['task_name']] = \
+                [self.global_view['pre_assignment_agents_tasks'][agent_name]['start'],
+                 self.global_view['pre_assignment_agents_tasks'][agent_name]['goal']]
+            self.global_view['pre_assignment_agents_tasks'].pop(agent_name)
+            self.global_view['abstract_to_loc1'][agent_name] = []
+            self.global_view['abstract_to_loc2'][agent_name] = []
+
+
+        return planned
     def update_A_star_stats(self):
         self.sommaEspansioniAmaxTimestep += max(self.espansioniAstarXpart)
         self.espansioniAstarXpart = [0] * self.number_of_areas
