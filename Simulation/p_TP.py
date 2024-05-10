@@ -185,6 +185,14 @@ class TokenPassing(object):
                 closest = task_name
         return closest
 
+    def is_migrating(self, agent_name):
+        migrante = False
+        if len(self.global_view['abstract_to_loc1'][agent_name]) > 1:
+            migrante = True
+        elif len(self.global_view['abstract_to_loc2'][agent_name]) > 1:
+            migrante = True
+        return migrante
+
     def get_moving_obstacles_agents(self, agents, time_start):
         obstacles = {}
         for name, path in agents.items():  #agents.item ritorna un dizionario con nome agente e coordinate dello stesso
@@ -192,7 +200,10 @@ class TokenPassing(object):
                 for i in range(time_start, len(path)):
                     k = i - time_start
                     obstacles[(path[i][0], path[i][1], k)] = name
-                    if i == len(path) - 1 and not self.is_frontier_start_pos(path[i]):
+                    #se ultima posizione del path non è una frontiera oppure è una frontiera
+                    #e l'agente non sta migrando (abs1 = 1 o abs2 = 1) allora metto come ostacolo
+
+                    if i == len(path) - 1 and (not self.is_frontier_start_pos(path[i]) or not self.is_migrating(name)):
                         obstacles[(path[i][0], path[i][1], -k)] = name
         return obstacles
 
