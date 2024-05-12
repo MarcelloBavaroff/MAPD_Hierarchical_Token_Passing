@@ -189,6 +189,7 @@ class TokenPassing(object):
                 closest = task_name
         return closest
 
+    #considerando già che l'agente è su una frontiera
     def is_migrating(self, agent_name):
         migrante = False
         if len(self.global_view['abstract_to_loc1'][agent_name]) > 1:
@@ -207,8 +208,9 @@ class TokenPassing(object):
                     #se ultima posizione del path non è una frontiera oppure è una frontiera
                     #e l'agente non sta migrando (abs1 = 1 o abs2 = 1) allora metto come ostacolo
                     #se gli ho cancellato il task LO metto come ostacolo
-                    if i == len(path) - 1 and (not self.is_frontier_start_pos(path[i]) or not self.is_migrating(name) 
-                                               or (len(self.global_view['abstract_to_loc1'][name]) == 0 and len(self.global_view['abstract_to_loc2'][name]) == 0)):
+                    if i == len(path) - 1 and (not self.is_frontier_start_pos(path[i]) or not self.is_migrating(name)
+                                               or (len(self.global_view['abstract_to_loc1'][name]) == 0 and len(
+                                self.global_view['abstract_to_loc2'][name]) == 0)):
                         obstacles[(path[i][0], path[i][1], -k)] = name
         return obstacles
 
@@ -232,7 +234,11 @@ class TokenPassing(object):
                 # presumo agenti che finiranno il loro percorso e si fermeranno? Quindi metto ultima
                 # loro posizione
                 if 1 < len(agents_paths[agent]) <= time_start:
-                    obstacles.add((agents_paths[agent][-1][0], agents_paths[agent][-1][1]))
+                    #se l'agente sta per migrare non lo metto come idle obstacle
+                    if (not self.is_frontier_start_pos(agents_paths[agent][-1]) or not self.is_migrating(agent)
+                            or (len(self.global_view['abstract_to_loc1'][agent]) == 0 and
+                                len(self.global_view['abstract_to_loc2'][agent]) == 0)):
+                        obstacles.add((agents_paths[agent][-1][0], agents_paths[agent][-1][1]))
 
         return obstacles
 
@@ -377,7 +383,6 @@ class TokenPassing(object):
                     and len(self.tokens[partition]['agents'][agent_name]) == 1 and \
                     self.global_view['pre_assignment_agents_tasks'][agent_name][
                         'task_name'] == 'safe_idle':
-
                 self.global_view['pre_assignment_agents_tasks'].pop(agent_name)
                 self.global_view['discarded_tasks_for_agents'][agent_name] = []
 
@@ -402,8 +407,6 @@ class TokenPassing(object):
 
                 if task_name not in self.global_view['discarded_tasks_for_agents'][agent_name]:
                     available_tasks[task_name] = task
-
-
 
         return available_tasks
 
@@ -680,7 +683,8 @@ class TokenPassing(object):
         for name, path in copy.items():
             if name != agent_name:
                 #se è == 2 vuol dire che l'agente è in attesa su una frontiera e non lo tocco
-                if self.global_view['agents_to_areas'][name][0] == part_index and len(self.global_view['agents_to_areas'][name]) != 2:
+                if self.global_view['agents_to_areas'][name][0] == part_index and len(
+                        self.global_view['agents_to_areas'][name]) != 2:
                     # dovrebbe tenere solo la pozione attuale
                     # non è più un path ends
                     self.update_ends(self.tokens[part_index]['agents'][name][-1], part_index)
@@ -789,7 +793,8 @@ class TokenPassing(object):
             if len(self.global_view['abstract_to_loc1'][agent_name]) > 1:
                 on_frontier = self.on_a_frontier(agent_pos, agent_partition)
                 if on_frontier != -1:
-                    agents_to_REplan = self.migrazione(agent_name, agent_pos, agent_partition, on_frontier, 1,agents_to_plan)
+                    agents_to_REplan = self.migrazione(agent_name, agent_pos, agent_partition, on_frontier, 1,
+                                                       agents_to_plan)
                 else:
                     self.go_to_frontier(agent_name, agent_pos, local_idle_agents, agent_partition,
                                         self.global_view['abstract_to_loc1'][agent_name][1])
@@ -804,7 +809,8 @@ class TokenPassing(object):
             elif len(self.global_view['abstract_to_loc2'][agent_name]) > 1:
                 on_frontier = self.on_a_frontier(agent_pos, agent_partition)
                 if on_frontier != -1:
-                    agents_to_REplan = self.migrazione(agent_name, agent_pos, agent_partition, on_frontier, 2, agents_to_plan)
+                    agents_to_REplan = self.migrazione(agent_name, agent_pos, agent_partition, on_frontier, 2,
+                                                       agents_to_plan)
 
                 else:
                     self.go_to_frontier(agent_name, agent_pos, local_idle_agents, agent_partition,
