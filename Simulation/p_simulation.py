@@ -116,7 +116,7 @@ class Simulation(object):
     #viene chiamata per simulare un singolo timestep in avanti
     def time_forward(self, algorithm):
         self.time = self.time + 1
-        print('Time:', self.time)
+        print('Time:', self.time, " Completed tasks:", len(algorithm.get_completed_tasks()))
         start_time = time.time()
         algorithm.time_forward()
         self.algo_time += time.time() - start_time

@@ -681,10 +681,10 @@ class TokenPassing(object):
     def delete_conflicting_paths_more_strict(self, agent_name, part_index):
         copy = self.tokens[part_index]['agents'].copy()
         for name, path in copy.items():
-            if name != agent_name:
-                #se è == 2 vuol dire che l'agente è in attesa su una frontiera e non lo tocco
-                if self.global_view['agents_to_areas'][name][0] == part_index and len(
+            if name != agent_name and len(
                         self.global_view['agents_to_areas'][name]) != 2:
+                #se è == 2 vuol dire che l'agente è in attesa su una frontiera e non lo tocco
+                if self.global_view['agents_to_areas'][name][0] == part_index:
                     # dovrebbe tenere solo la pozione attuale
                     # non è più un path ends
                     self.update_ends(self.tokens[part_index]['agents'][name][-1], part_index)

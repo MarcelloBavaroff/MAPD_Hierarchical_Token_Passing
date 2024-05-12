@@ -75,7 +75,7 @@ if __name__ == '__main__':
     simulation = Simulation(tasks, agents)
     tp = TokenPassing(agents, dimensions, obstacles, non_task_endpoints, number_of_areas, partitions, simulation,
                       goal_endpoints, frontiers, a_star_max_iter=args.a_star_max_iter)
-    while len(tp.get_completed_tasks()) != len(tasks) and simulation.time < 10000:
+    while len(tp.get_completed_tasks()) != len(tasks) and simulation.time < 15000:
         simulation.time_forward(tp)
 
     cost = 0
