@@ -39,6 +39,7 @@ def parameters(seed):
     number_of_areas = param['map']['number_of_areas']
     partitions = param['map']['partitions']
     goal_endpoints = param['map']['delivery_locations']
+    goal_endpoints = [tuple(x) for x in goal_endpoints]
     frontiers = param['map']['frontiers']
 
 

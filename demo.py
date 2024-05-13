@@ -29,7 +29,7 @@ def read_tasks():
     return data_list
 
 if __name__ == '__main__':
-    #random.seed(1234)
+    random.seed(92332)
     parser = argparse.ArgumentParser()
     parser.add_argument('-a_star_max_iter', help='Maximum number of states explored by the low-level algorithm',
                         default=5000, type=int)
@@ -65,7 +65,7 @@ if __name__ == '__main__':
     else:
         # Genera i task
         tasks = gen_tasks(param['map']['pickup_locations'], param['map']['delivery_locations'],
-                                             param['n_tasks'], param['task_freq'])
+                                             param['n_tasks'], param['task_freq'], 92332)
     param['tasks'] = tasks
 
     with open(args.param + config['visual_postfix'], 'w') as param_file:

@@ -15,7 +15,7 @@ class frontier:
 # noinspection PyTypeChecker
 class TokenPassing(object):
     def __init__(self, agents, dimensions, obstacles, non_task_endpoints, number_of_areas, partitions, simulation,
-                 goal_endpoints, frontiers, a_star_max_iter=4000):
+                 goal_endpoints, frontiers, a_star_max_iter=100):
         random.seed(1234)
         self.agents = agents
         self.dimensions = dimensions
@@ -576,6 +576,14 @@ class TokenPassing(object):
             if len(self.tokens[actual_part]['agents'][agent_name]) == 1:
                 discarded_frontiers.append(closest_frontier)
 
+        # se non ho trovato una frontiera dove andare (len path = 1) cambio task
+        # se abs1 ha almeno len 1 allora devo fare il pickup
+        # se len(abs1) == 0 e sono sul pickup posso ancora cancellare il task
+        if len(self.tokens[actual_part]['agents'][agent_name]) == 1 and \
+            (len(self.global_view['abstract_to_loc1'][agent_name]) > 0 or agent_pos == self.global_view['pre_assignment_agents_tasks'][agent_name]['start']):
+            print('NO PATH TO FRONTIER', agent_name, ' idling at current position...')
+
+
     def find_next_goal(self, agent_name, agent_pos, next_part, num_abs):
         abstract = "abstract_to_loc" + str(num_abs)
 
@@ -596,7 +604,7 @@ class TokenPassing(object):
         next_goal = self.find_next_goal(agent_name, closest_frontier.destination_pos, next_part, num_abs)
         all_idle_agents = self.tokens[next_part]['agents'].copy()
 
-        pic_in_part = num_abs == 1 and len(self.global_view['abstract_to_loc1'][agent_name]) == 2
+        pic_in_part = (num_abs == 1 and len(self.global_view['abstract_to_loc1'][agent_name]) == 2)
 
         # se sto migrando, devo ancora fare il pickup e questo è nella partizione successiva
         if pic_in_part:
@@ -634,7 +642,8 @@ class TokenPassing(object):
             #segnali che l'agente rimarrà fermo in attesa di riprovare
             self.tokens[actual_part]['agents'][agent_name].append([agent_pos[0], agent_pos[1]])
             self.delete_conflicting_paths_more_strict(agent_name, actual_part)
-            if not pic_in_part:
+            #se sono sulla casella di pickup posso considerare come se non lo avessi fatto
+            if not pic_in_part or (agent_name in self.global_view['pre_assignment_agents_tasks'] and agent_pos == self.global_view['pre_assignment_agents_tasks'][agent_name]['start']):
                 self.remove_task_from_agents(agent_name)
             agents_to_plan = self.get_agents_to_plan()
 
@@ -681,17 +690,18 @@ class TokenPassing(object):
     def delete_conflicting_paths_more_strict(self, agent_name, part_index):
         copy = self.tokens[part_index]['agents'].copy()
         for name, path in copy.items():
-            if name != agent_name and len(
-                        self.global_view['agents_to_areas'][name]) != 2:
+            if name != agent_name:
                 #se è == 2 vuol dire che l'agente è in attesa su una frontiera e non lo tocco
-                if self.global_view['agents_to_areas'][name][0] == part_index:
+                if self.global_view['agents_to_areas'][name][0] == part_index and len(
+                        self.global_view['agents_to_areas'][name]) != 2:
                     # dovrebbe tenere solo la pozione attuale
                     # non è più un path ends
                     self.update_ends(self.tokens[part_index]['agents'][name][-1], part_index)
                     self.tokens[part_index]['agents'][name] = path[:1]
                     self.tokens[part_index]['path_ends'].append(tuple(path[0]))
                 # se invece l'agente dovrà arrivare in questa partizione, ma attualmente è in frontiera altrove
-                else:
+                elif self.global_view['agents_to_areas'][name][0] != part_index and len(
+                        self.global_view['agents_to_areas'][name]) == 2:
                     self.update_ends(self.tokens[part_index]['agents'][name][-1], part_index)
                     self.tokens[part_index]['agents'].pop(name)
                     #self.global_view['agents_to_areas'][name] = self.global_view['agents_to_areas'][name][:1]
@@ -811,7 +821,6 @@ class TokenPassing(object):
                 if on_frontier != -1:
                     agents_to_REplan = self.migrazione(agent_name, agent_pos, agent_partition, on_frontier, 2,
                                                        agents_to_plan)
-
                 else:
                     self.go_to_frontier(agent_name, agent_pos, local_idle_agents, agent_partition,
                                         self.global_view['abstract_to_loc2'][agent_name][1])
