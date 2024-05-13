@@ -15,7 +15,7 @@ def parameters(seed):
     #random_seed = seed
     parser = argparse.ArgumentParser()
     parser.add_argument('-a_star_max_iter', help='Maximum number of states explored by the low-level algorithm',
-                        default=500, type=int)
+                        default=200, type=int)
     parser.add_argument('-slow_factor', help='Slow factor of visualization', default=1, type=int)  # default=1
     parser.add_argument('-not_rand', help='Use if input has fixed tasks and delays', action='store_true', default=False)
     args = parser.parse_args()
@@ -164,8 +164,8 @@ if __name__ == '__main__':
         print("Espansioni totali di A* in media: ", avg_Astar_total_expansions)
         print("Espansioni medie di A* considerando la parallelizzazione: ", avg_Astar_exp_sum_max_per_timestep)
 
-        excel_string = str(run_complete) + ";" + str(avg_completed_tasks) + ";" + str(avg_makespan) + ";" + str(
-            std_makespan) + ";" + str(avg_avg_service_time) + ";" + str(avg_std_dev) + ";" + str(
+        excel_string = str(run_complete) + ";" + str(avg_completed_tasks) + ";" + str(avg_makespan) + "; ;" + str(
+            std_makespan) + ";" + str(avg_avg_service_time) + "; ;" + str(avg_std_dev) + ";" + str(
             avg_Astar_calls) + ";" + str(avg_Astar_total_expansions) + ";" + str(avg_Astar_exp_sum_max_per_timestep) + "\n"
         excel_string = excel_string.replace(".", ",")
         print("Excel: ", excel_string)
