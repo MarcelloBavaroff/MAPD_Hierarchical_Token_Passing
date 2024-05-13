@@ -581,7 +581,7 @@ class TokenPassing(object):
         # se len(abs1) == 0 e sono sul pickup posso ancora cancellare il task
         if len(self.tokens[actual_part]['agents'][agent_name]) == 1 and \
             (len(self.global_view['abstract_to_loc1'][agent_name]) > 0 or agent_pos == self.global_view['pre_assignment_agents_tasks'][agent_name]['start']):
-            print('NO PATH TO FRONTIER', agent_name, ' idling at current position...')
+            self.remove_task_from_agents(agent_name)
 
 
     def find_next_goal(self, agent_name, agent_pos, next_part, num_abs):
