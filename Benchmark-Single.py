@@ -118,7 +118,7 @@ if __name__ == '__main__':
     array_Astar_exp_sum_max_per_timestep = []
 
 
-    file_name = 'Comparisons/partition/1.txt'
+    file_name = 'Comparisons/corridoi2/a8.txt'
 
     with open('Comparisons/seeds1.txt', 'r') as file:
         # inserisci ogni riga in una lista
