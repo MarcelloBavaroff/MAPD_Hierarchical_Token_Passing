@@ -93,6 +93,8 @@ class Simulation(object):
                 algorithm.get_token(partition)['agents'].pop(agent['name'])
                 #cambio l'area di appartenenza dell'agente
                 algorithm.get_global_view()['agents_to_areas'][agent['name']] = algorithm.get_global_view()['agents_to_areas'][agent['name']][1:]
+                #libero la frontiera
+                algorithm.get_token(partition)['occupied_frontiers'].pop(agent['name'])
 
     def update_actual_paths(self, agent, algorithm, x_new, y_new, current_agent_pos, gb):
         self.agents_moved.add(agent['name'])
