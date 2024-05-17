@@ -206,12 +206,9 @@ class TokenPassing(object):
                 for i in range(time_start, len(path)):
                     k = i - time_start
                     obstacles[(path[i][0], path[i][1], k)] = name
-                    #se ultima posizione del path non è una frontiera oppure è una frontiera
-                    #e l'agente non sta migrando (abs1 = 1 o abs2 = 1) allora metto come ostacolo
-                    #se gli ho cancellato il task LO metto come ostacolo
-                    if i == len(path) - 1 and (not self.is_frontier_start_pos(path[i]) or not self.is_migrating(name)
-                                               or (len(self.global_view['abstract_to_loc1'][name]) == 0 and len(
-                                self.global_view['abstract_to_loc2'][name]) == 0)):
+                    #se l'ultima posizione è una frontiera metto l'ostacolo negativo a patto
+                    #di non aver pianificato la migrazione (len areas == 2)
+                    if i == len(path) - 1 and (not self.is_frontier_start_pos(path[i]) or len(self.global_view['agents_to_areas'][name]) == 1):
                         obstacles[(path[i][0], path[i][1], -k)] = name
         return obstacles
 
@@ -235,10 +232,9 @@ class TokenPassing(object):
                 # presumo agenti che finiranno il loro percorso e si fermeranno? Quindi metto ultima
                 # loro posizione
                 if 1 < len(agents_paths[agent]) <= time_start:
-                    #se l'agente sta per migrare non lo metto come idle obstacle
-                    if (not self.is_frontier_start_pos(agents_paths[agent][-1]) or not self.is_migrating(agent)
-                            or (len(self.global_view['abstract_to_loc1'][agent]) == 0 and
-                                len(self.global_view['abstract_to_loc2'][agent]) == 0)):
+                    #idle obstacles se sto andando alla frontiera, se invece sono lì ed ho pianificato di spostarmi
+                    #non lo metto
+                    if (not self.is_frontier_start_pos(agents_paths[agent][-1]) or len(self.global_view['agents_to_areas'][agent]) == 1):
                         obstacles.add((agents_paths[agent][-1][0], agents_paths[agent][-1][1]))
 
         return obstacles
@@ -765,7 +761,7 @@ class TokenPassing(object):
         else:
             next_part = self.global_view['abstract_to_loc2'][agent_name][1]
             frontiers_to_next_part = self.tokens[part_index]['own_frontiers'][next_part]
-            closest_frontier = self.get_closest_frontier(pickup_position, frontiers_to_next_part)
+            closest_frontier = self.get_closest_frontier(pickup_position, frontiers_to_next_part, part_index)
             planned = self.compute_real_path_double(agent_name, agent_pos, pickup_position, closest_frontier.start_pos,
                                                     all_idle_agents, part_index, time_start)
         if not planned:
