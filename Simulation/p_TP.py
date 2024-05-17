@@ -762,8 +762,12 @@ class TokenPassing(object):
             next_part = self.global_view['abstract_to_loc2'][agent_name][1]
             frontiers_to_next_part = self.tokens[part_index]['own_frontiers'][next_part]
             closest_frontier = self.get_closest_frontier(pickup_position, frontiers_to_next_part, part_index)
-            planned = self.compute_real_path_double(agent_name, agent_pos, pickup_position, closest_frontier.start_pos,
-                                                    all_idle_agents, part_index, time_start)
+            if closest_frontier == -1:
+                # do per scontato che trovo sempre un path
+                planned = self.compute_real_path_double(agent_name, agent_pos, pickup_position, closest_frontier.start_pos,
+                                                        all_idle_agents, part_index, time_start)
+                self.tokens[part_index]['occupied_frontiers'][agent_name] = closest_frontier
+
         if not planned:
             self.remove_task_from_agents(agent_name)
 
@@ -781,7 +785,7 @@ class TokenPassing(object):
         # vedo gli agent con pre assegnamento, ma non hanno ancora un path assegnato
         #IN FUTURO PIANIFICANO PER PRIMI GLI AGENTI ALLA FRONTIERA
         agents_to_plan = self.get_agents_to_plan()
-        agents_to_REplan = {}
+        #agents_to_REplan = {}
         while len(agents_to_plan) > 0:
 
             agent_name = random.choice(list(agents_to_plan.keys()))
