@@ -569,7 +569,7 @@ class TokenPassing(object):
         #discarded_frontiers = []
         closest_frontier = self.get_closest_frontier(agent_pos, frontiers_to_next_part, actual_part)
 
-        if closest_frontier == -1:
+        if closest_frontier != -1:
             #do per scontato che trovo sempre un path
             self.compute_real_path_single(agent_name, agent_pos, closest_frontier.start_pos, all_idle_agents,
                                       actual_part)
@@ -722,7 +722,7 @@ class TokenPassing(object):
         if agent_name in self.tokens[actual_part]['occupied_frontiers']:
             f = self.tokens[actual_part]['occupied_frontiers'][agent_name]
             if tuple(agent_pos) == f.start_pos:
-                return 1
+                return f.destination_partition
 
         return -1
 
@@ -762,7 +762,7 @@ class TokenPassing(object):
             next_part = self.global_view['abstract_to_loc2'][agent_name][1]
             frontiers_to_next_part = self.tokens[part_index]['own_frontiers'][next_part]
             closest_frontier = self.get_closest_frontier(pickup_position, frontiers_to_next_part, part_index)
-            if closest_frontier == -1:
+            if closest_frontier != -1:
                 # do per scontato che trovo sempre un path
                 planned = self.compute_real_path_double(agent_name, agent_pos, pickup_position, closest_frontier.start_pos,
                                                         all_idle_agents, part_index, time_start)
