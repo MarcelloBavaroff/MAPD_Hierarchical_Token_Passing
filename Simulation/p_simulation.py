@@ -21,6 +21,7 @@ class Simulation(object):
         for agent in self.agents:
             #x e y del path sono presi da 'pickup' dell'agente (posizione 0 e 1)
             self.actual_paths[agent['name']] = [{'t': 0, 'x': agent['start'][0], 'y': agent['start'][1]}]
+
     def update_abstract_paths(self, agent_name, old_pos, new_pos, gb, algorithm):
         if old_pos == new_pos:
             return

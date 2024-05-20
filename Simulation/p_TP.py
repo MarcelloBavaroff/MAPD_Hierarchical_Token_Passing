@@ -34,6 +34,8 @@ class TokenPassing(object):
         self.chiamateAstar = 0
         self.sommaEspansioniAtot = 0
         self.sommaEspansioniAmaxTimestep = 0
+        self.sumOfCosts = 0
+        self.maxAstar = 0
         self.goal_endpoints = goal_endpoints
         self.global_view = {}
         self.init_global_view()
@@ -44,6 +46,11 @@ class TokenPassing(object):
         self.espansioniAstarXpart = [0] * self.number_of_areas
 
         #vedi sotto
+
+    def get_max_Astar(self):
+        return self.maxAstar
+    def get_sum_of_costs(self):
+        return self.sumOfCosts
 
     def get_number_of_areas(self):
         return self.number_of_areas
@@ -279,11 +286,19 @@ class TokenPassing(object):
         occupied_frontiers = set()
         for a in self.tokens[actual_part]['occupied_frontiers']:
             occupied_frontiers.add(self.tokens[actual_part]['occupied_frontiers'][a])
+        
+        # nessun agente deve aver intenzione di passare su quella frontiera
+        # pickup inclusi
+        all_occupied_cells = set()
+        for agent in self.tokens[actual_part]['agents']:
+            for pos in self.tokens[actual_part]['agents'][agent]:
+                all_occupied_cells.add(tuple(pos))
+
 
         dist = -1
         res = -1
         for f in frontiers_to_next_part:
-            if f not in occupied_frontiers:
+            if f not in occupied_frontiers and f.start_pos not in all_occupied_cells:
                 if dist == -1:
                     dist = self.admissible_heuristic(f.start_pos, agent_pos)
                     res = f
@@ -294,7 +309,7 @@ class TokenPassing(object):
                         res = f
 
         if res == -1:
-            print('*************** NO AVAILABLE FRONTIER ****************')
+            print('*************** NO AVAILABLE FRONTIER in actual part:', actual_part, '****************')
             #exit(1)
         return res
 
@@ -336,6 +351,9 @@ class TokenPassing(object):
         self.chiamateAstar += 1
         self.sommaEspansioniAtot += espansioniA
         self.espansioniAstarXpart[part_index] += espansioniA
+        if espansioniA == self.a_star_max_iter:
+            self.maxAstar += 1
+
         return path
 
     def get_Astar_calls(self):
@@ -517,6 +535,8 @@ class TokenPassing(object):
         for el in path2:
             self.tokens[part_index]['agents'][agent_name].append([el['x'], el['y']])
 
+        self.sumOfCosts += len(self.tokens[part_index]['agents'][agent_name])
+
     # assegnamento dei task agli agenti, senza tener conto del percorso
     def assign_tasks(self):
         idle_agents = self.get_idle_agents_without_preass()
@@ -580,7 +600,7 @@ class TokenPassing(object):
         # se len(abs1) == 0 e sono sul pickup posso ancora cancellare il task
         elif len(self.tokens[actual_part]['agents'][agent_name]) == 1 and \
             (len(self.global_view['abstract_to_loc1'][agent_name]) > 0 or agent_pos == self.global_view['pre_assignment_agents_tasks'][agent_name]['start']):
-            self.remove_task_from_agents(agent_name)
+            self.remove_task_from_agents(agent_name, actual_part)
 
 
 
@@ -642,7 +662,7 @@ class TokenPassing(object):
             #self.delete_conflicting_paths_more_strict(agent_name, actual_part)
             #se sono sulla casella di pickup posso considerare come se non lo avessi fatto
             if not pic_in_part or (agent_name in self.global_view['pre_assignment_agents_tasks'] and agent_pos == self.global_view['pre_assignment_agents_tasks'][agent_name]['start']):
-                self.remove_task_from_agents(agent_name)
+                self.remove_task_from_agents(agent_name, actual_part)
             #agents_to_plan = self.get_agents_to_plan()
 
         #return agents_to_plan
@@ -736,7 +756,7 @@ class TokenPassing(object):
                 if tuple(agent_pos[0]) in self.non_task_endpoints:
                     self.global_view['occupied_non_task_endpoints'].add(tuple(agent_pos[0]))
 
-    def remove_task_from_agents(self, agent_name):
+    def remove_task_from_agents(self, agent_name, actual_part):
         print('Rimozione del task dall\'', agent_name)
         task_name = self.global_view['pre_assignment_agents_tasks'][agent_name]['task_name']
         if task_name != 'safe_idle':
@@ -747,6 +767,9 @@ class TokenPassing(object):
         self.global_view['pre_assignment_agents_tasks'].pop(agent_name)
         self.global_view['abstract_to_loc1'][agent_name] = []
         self.global_view['abstract_to_loc2'][agent_name] = []
+
+        if agent_name in self.tokens[actual_part]['occupied_frontiers']:
+            self.tokens[actual_part]['occupied_frontiers'].pop(agent_name)
 
     def pickup_in_partition(self, agent_name, agent_pos, pickup_position, all_idle_agents, part_index, time_start=0):
         #quì io sto facendo il pickup quindi il mio abs1 ha solo una partizione che è quella attuale
@@ -769,7 +792,7 @@ class TokenPassing(object):
                 self.tokens[part_index]['occupied_frontiers'][agent_name] = closest_frontier
 
         if not planned:
-            self.remove_task_from_agents(agent_name)
+            self.remove_task_from_agents(agent_name, part_index)
 
         return planned
 
