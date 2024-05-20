@@ -309,7 +309,7 @@ class TokenPassing(object):
                         res = f
 
         if res == -1:
-            print('*************** NO AVAILABLE FRONTIER in actual part:', actual_part, '****************')
+            print('*************** NO AVAILABLE FRONTIER in actual part:', actual_part, agent_pos, '****************')
             #exit(1)
         return res
 
@@ -611,7 +611,13 @@ class TokenPassing(object):
             #devo andare alla prossima frontiera
             frontiers_to_next_part = self.tokens[next_part]['own_frontiers'][self.global_view[abstract][agent_name][2]]
             closest_frontier = self.get_closest_frontier(agent_pos, frontiers_to_next_part, self.global_view['agents_to_areas'][agent_name][0])
-            return closest_frontier.start_pos
+            #matti nel dizionario il pair agente frontiera
+            if closest_frontier != -1:
+                self.tokens[next_part]['occupied_frontiers'][agent_name] = closest_frontier
+                return closest_frontier.start_pos
+            else:
+                print('*************** NO AVAILABLE FRONTIER in actual part:', next_part, agent_pos, '****************')
+                return -1
 
         elif len(self.global_view[abstract][agent_name]) == 2:
             return self.global_view['pre_assignment_agents_tasks'][agent_name]['goal']
@@ -633,7 +639,10 @@ class TokenPassing(object):
         else:
             next_goal = self.find_next_goal(agent_name, closest_frontier.destination_pos, next_part, num_abs)
             #valid_path = self.compute_real_path_single(agent_name, closest_frontier.destination_pos, next_goal, all_idle_agents, next_part, time_start=0) #perché time_start = 0?
-            valid_path = self.compute_real_path_single(agent_name, agent_pos, next_goal, all_idle_agents, next_part,
+            if next_goal == -1:
+                valid_path = False
+            else:
+                valid_path = self.compute_real_path_single(agent_name, agent_pos, next_goal, all_idle_agents, next_part,
                                                        time_start=0)
 
         if valid_path:
