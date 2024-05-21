@@ -121,7 +121,7 @@ if __name__ == '__main__':
     array_maxAstar = []
 
 
-    file_name = 'Comparisons/Noreplan/ori_corridoi2/6.txt'
+    file_name = 'Comparisons/Noreplan/4p_corridoi2/6.txt'
 
     with open('Comparisons/seeds1.txt', 'r') as file:
         # inserisci ogni riga in una lista

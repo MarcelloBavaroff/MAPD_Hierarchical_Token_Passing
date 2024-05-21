@@ -77,7 +77,7 @@ class TokenPassing(object):
             pos = [a['start']]
             self.global_view['agents_to_areas'][a['name']] = []
             self.global_view['agents_to_areas'][a['name']].append(self.find_partition(pos[0]))
-            if pos in self.non_task_endpoints:
+            if tuple(pos[0]) in self.non_task_endpoints:
                 self.global_view['occupied_non_task_endpoints'].add(tuple(a['start']))
 
             self.global_view['abstract_to_loc1'][a['name']] = []
@@ -91,7 +91,6 @@ class TokenPassing(object):
         self.tokens[index]['partition'] = partition  #x_min, y_min, x_max, y_max
         self.tokens[index]['own_frontiers'] = {}
         self.tokens[index]['occupied_frontiers'] = {}
-        #self.tokens[index]['occupied_non_task_endpoints'] = set()
 
         # qui salvo solo le frontiere che partono dalla partizione corrente
         # per ogni destinazione ho una lista frontiere che mi ci portano
@@ -107,8 +106,6 @@ class TokenPassing(object):
                 self.tokens[index]['agents'][a['name']] = [a['start']]
                 if not tuple(a['start']) in self.non_task_endpoints:
                     self.tokens[index]['path_ends'].append(tuple(a['start']))
-                # else:
-                #     self.tokens[index]['occupied_non_task_endpoints'].add(tuple(a['start']))
 
     #initialize all tokens
     def init_tokens(self, partitions):
@@ -758,21 +755,27 @@ class TokenPassing(object):
 
 
     #probailmente si può gestire diversamente
-    def update_non_task_endpoints(self):
-        self.global_view['occupied_non_task_endpoints'] = set()
-        for part in range(self.number_of_areas):
-            for agent_pos in self.tokens[part]['agents'].values():
-                if tuple(agent_pos[0]) in self.non_task_endpoints:
-                    self.global_view['occupied_non_task_endpoints'].add(tuple(agent_pos[0]))
+    # def update_non_task_endpoints(self):
+    #     self.global_view['occupied_non_task_endpoints'] = set()
+    #     for part in range(self.number_of_areas):
+    #         for agent_pos in self.tokens[part]['agents'].values():
+    #             if tuple(agent_pos[0]) in self.non_task_endpoints:
+    #                 self.global_view['occupied_non_task_endpoints'].add(tuple(agent_pos[0]))
 
     def remove_task_from_agents(self, agent_name, actual_part):
         print('Rimozione del task dall\'', agent_name)
         task_name = self.global_view['pre_assignment_agents_tasks'][agent_name]['task_name']
         if task_name != 'safe_idle':
             self.global_view['discarded_tasks_for_agents'][agent_name].append(task_name)
-        self.global_view['tasks'][task_name] = \
+            self.global_view['tasks'][task_name] = \
             [self.global_view['pre_assignment_agents_tasks'][agent_name]['start'],
              self.global_view['pre_assignment_agents_tasks'][agent_name]['goal']]
+        elif tuple(self.global_view['pre_assignment_agents_tasks'][agent_name]['goal']) in self.global_view['occupied_non_task_endpoints']:
+            self.global_view['occupied_non_task_endpoints'].remove(
+                tuple(self.global_view['pre_assignment_agents_tasks'][agent_name]['goal']))
+        
+
+        
         self.global_view['pre_assignment_agents_tasks'].pop(agent_name)
         self.global_view['abstract_to_loc1'][agent_name] = []
         self.global_view['abstract_to_loc2'][agent_name] = []
@@ -809,10 +812,24 @@ class TokenPassing(object):
         self.sommaEspansioniAmaxTimestep += max(self.espansioniAstarXpart)
         self.espansioniAstarXpart = [0] * self.number_of_areas
 
+    def verifica_nonte(self):
+        count = 0
+        for part in range(self.number_of_areas):
+            for agent in self.tokens[part]['agents']:
+                if tuple(self.tokens[part]['agents'][agent][0]) in self.non_task_endpoints:
+                    count += 1
+
+        if count != len(self.global_view['occupied_non_task_endpoints']):
+            print('ERRORE NON TASK ENDPOINTS')
+            exit(1)
+
     def time_forward(self):
         self.update_completed_tasks()
         self.collect_new_tasks()
+        #self.verifica_nonte()
         self.assign_tasks()
+
+        
 
         # vedo gli agent con pre assegnamento, ma non hanno ancora un path assegnato
         #IN FUTURO PIANIFICANO PER PRIMI GLI AGENTI ALLA FRONTIERA
@@ -868,4 +885,6 @@ class TokenPassing(object):
                 print("Entrambi gli abstact path sono vuoti, errore? " + agent_name)
 
         #self.update_non_task_endpoints()
+        if 'safe_idle' in self.global_view['tasks']:
+            self.global_view['tasks'].pop('safe_idle')
         self.update_A_star_stats()
