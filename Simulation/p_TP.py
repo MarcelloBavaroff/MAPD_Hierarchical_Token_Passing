@@ -43,10 +43,19 @@ class TokenPassing(object):
         self.graph = Graph()
         self.create_graph()
 
+        self.vec_areas = {}
+        self.parallel_rounds = 0
+        for i in range(self.number_of_areas):
+            self.vec_areas[i] = []
+
         self.espansioniAstarXpart = [0] * self.number_of_areas
 
         #vedi sotto
 
+    def get_parallel_rounds(self):
+        return self.parallel_rounds
+    def get_vec_areas(self):
+        return self.vec_areas
     def get_max_Astar(self):
         return self.maxAstar
     def get_sum_of_costs(self):
@@ -810,6 +819,14 @@ class TokenPassing(object):
 
     def update_A_star_stats(self):
         self.sommaEspansioniAmaxTimestep += max(self.espansioniAstarXpart)
+
+        if sum(self.espansioniAstarXpart) != max(self.espansioniAstarXpart):
+            self.parallel_rounds += 1
+
+        for i in range(self.number_of_areas):
+            self.vec_areas[i].append(self.espansioniAstarXpart[i])
+
+
         self.espansioniAstarXpart = [0] * self.number_of_areas
 
     def verifica_nonte(self):
@@ -829,16 +846,25 @@ class TokenPassing(object):
         #self.verifica_nonte()
         self.assign_tasks()
 
-        
-
         # vedo gli agent con pre assegnamento, ma non hanno ancora un path assegnato
         #IN FUTURO PIANIFICANO PER PRIMI GLI AGENTI ALLA FRONTIERA
         agents_to_plan = self.get_agents_to_plan()
-        #agents_to_REplan = {}
-        while len(agents_to_plan) > 0:
+        priority_agents = {}
+        copy_atp = agents_to_plan.copy()
+        for agent in copy_atp:
+            if agent in self.tokens[self.global_view['agents_to_areas'][agent][0]]['occupied_frontiers']:
+                priority_agents[agent] = agents_to_plan[agent]
+                agents_to_plan.pop(agent)
 
-            agent_name = random.choice(list(agents_to_plan.keys()))
-            agent_pos = agents_to_plan.pop(agent_name)[0]
+        #agents_to_REplan = {}
+        while len(agents_to_plan) > 0 or len(priority_agents) > 0:
+
+            if len(priority_agents) > 0:
+                agent_name = random.choice(list(priority_agents.keys()))
+                agent_pos = priority_agents.pop(agent_name)[0]
+            else:
+                agent_name = random.choice(list(agents_to_plan.keys()))
+                agent_pos = agents_to_plan.pop(agent_name)[0]
 
             agent_partition = self.global_view['agents_to_areas'][agent_name][0]
 
@@ -887,4 +913,5 @@ class TokenPassing(object):
         #self.update_non_task_endpoints()
         if 'safe_idle' in self.global_view['tasks']:
             self.global_view['tasks'].pop('safe_idle')
+
         self.update_A_star_stats()

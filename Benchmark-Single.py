@@ -77,7 +77,7 @@ def single_run(index_run, random_seed, file_name):
     simulation = Simulation(tasks, agents)
     tp = TokenPassing(agents, dimensions, obstacles, non_task_endpoints, number_of_areas, partitions, simulation,
                       goal_endpoints, frontiers, max_iter)
-    while len(tp.get_completed_tasks()) != len(tasks) and simulation.get_time() < 10000:
+    while len(tp.get_completed_tasks()) != len(tasks) and simulation.get_time() < 15000:
         simulation.time_forward(tp)
 
     completed_tasks = len(tp.get_completed_tasks())

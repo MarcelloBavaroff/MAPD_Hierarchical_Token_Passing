@@ -32,9 +32,9 @@ if __name__ == '__main__':
     #random.seed(92332)
     parser = argparse.ArgumentParser()
     parser.add_argument('-a_star_max_iter', help='Maximum number of states explored by the low-level algorithm',
-                        default=5000, type=int)
+                        default=200, type=int)
     parser.add_argument('-slow_factor', help='Slow factor of visualization', default=10, type=int) #default=1
-    parser.add_argument('-not_rand', help='Use if input has fixed tasks and delays', action='store_true', default=True)
+    parser.add_argument('-not_rand', help='Use if input has fixed tasks and delays', action='store_true', default=False)
 
     args = parser.parse_args()
 
@@ -77,6 +77,23 @@ if __name__ == '__main__':
                       goal_endpoints, frontiers, a_star_max_iter=args.a_star_max_iter)
     while len(tp.get_completed_tasks()) != len(tasks) and simulation.time < 10000:
         simulation.time_forward(tp)
+
+    vec = tp.get_vec_areas()
+    for i in range(number_of_areas):
+        print("Area", i, ":", sum(vec[i]))
+
+    print("Espansioni totali:", tp.get_total_expansions())
+    print("Espansioni totali per timestep:", tp.get_exp_sum_max_per_timestep())
+    print("Parallel rounds:", tp.get_parallel_rounds())
+
+    # parallel_exp = 0
+    # #calcolo alternativo del costo
+    # for i in range(simulation.time):
+    #     parallel_exp = parallel_exp + max(vec[0][i], vec[1][i], vec[2][i], vec[3][i])
+    #
+    # print("Espansioni totali parallele:", parallel_exp)
+
+
 
     cost = 0
     for path in simulation.actual_paths.values():
