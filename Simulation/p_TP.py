@@ -616,13 +616,13 @@ class TokenPassing(object):
         if len(self.global_view[abstract][agent_name]) > 2:
             #devo andare alla prossima frontiera
             frontiers_to_next_part = self.tokens[next_part]['own_frontiers'][self.global_view[abstract][agent_name][2]]
-            closest_frontier = self.get_closest_frontier(agent_pos, frontiers_to_next_part, self.global_view['agents_to_areas'][agent_name][0])
+            closest_frontier = self.get_closest_frontier(agent_pos, frontiers_to_next_part, self.global_view[abstract][agent_name][1])
             #matti nel dizionario il pair agente frontiera
             if closest_frontier != -1:
                 self.tokens[next_part]['occupied_frontiers'][agent_name] = closest_frontier
                 return closest_frontier.start_pos
             else:
-                print('*************** NO AVAILABLE FRONTIER in actual part:', next_part, agent_pos, '****************')
+                #print('*************** NO AVAILABLE FRONTIER in actual part:', next_part, agent_pos, '****************')
                 return -1
 
         elif len(self.global_view[abstract][agent_name]) == 2:
@@ -676,7 +676,9 @@ class TokenPassing(object):
             self.tokens[actual_part]['agents'][agent_name].append([agent_pos[0], agent_pos[1]])
             #self.delete_conflicting_paths_more_strict(agent_name, actual_part)
             #se sono sulla casella di pickup posso considerare come se non lo avessi fatto
-            if not pic_in_part or (agent_name in self.global_view['pre_assignment_agents_tasks'] and agent_pos == self.global_view['pre_assignment_agents_tasks'][agent_name]['start']):
+            #if not pic_in_part or (agent_name in self.global_view['pre_assignment_agents_tasks'] and agent_pos == self.global_view['pre_assignment_agents_tasks'][agent_name]['start']):
+            if agent_name in self.global_view['pre_assignment_agents_tasks'] and (num_abs == 1 or agent_pos == self.global_view['pre_assignment_agents_tasks'][agent_name]['start']):
+
                 self.remove_task_from_agents(agent_name, actual_part)
             #agents_to_plan = self.get_agents_to_plan()
 

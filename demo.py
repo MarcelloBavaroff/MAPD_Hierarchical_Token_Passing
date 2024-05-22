@@ -32,9 +32,9 @@ if __name__ == '__main__':
     #random.seed(92332)
     parser = argparse.ArgumentParser()
     parser.add_argument('-a_star_max_iter', help='Maximum number of states explored by the low-level algorithm',
-                        default=200, type=int)
+                        default=100, type=int)
     parser.add_argument('-slow_factor', help='Slow factor of visualization', default=10, type=int) #default=1
-    parser.add_argument('-not_rand', help='Use if input has fixed tasks and delays', action='store_true', default=False)
+    parser.add_argument('-not_rand', help='Use if input has fixed tasks and delays', action='store_true', default=True)
 
     args = parser.parse_args()
 
@@ -85,6 +85,7 @@ if __name__ == '__main__':
     print("Espansioni totali:", tp.get_total_expansions())
     print("Espansioni totali per timestep:", tp.get_exp_sum_max_per_timestep())
     print("Parallel rounds:", tp.get_parallel_rounds())
+    print("A* max:", tp.get_max_Astar())
 
     # parallel_exp = 0
     # #calcolo alternativo del costo
