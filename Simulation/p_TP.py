@@ -291,7 +291,10 @@ class TokenPassing(object):
     def get_closest_frontier(self, agent_pos, frontiers_to_next_part, actual_part):
         occupied_frontiers = set()
         for a in self.tokens[actual_part]['occupied_frontiers']:
-            occupied_frontiers.add(self.tokens[actual_part]['occupied_frontiers'][a])
+            # se invece l'agente ha due aree associate vuol dire che sta migrando e quindi
+            # la frontiera non è occupata per un tempo indefinito
+            if len(self.tokens[actual_part]['agents_to_areas'][a]) == 1:
+                occupied_frontiers.add(self.tokens[actual_part]['occupied_frontiers'][a])
         
         # nessun agente deve aver intenzione di passare su quella frontiera
         # pickup inclusi
@@ -299,7 +302,6 @@ class TokenPassing(object):
         for agent in self.tokens[actual_part]['agents']:
             for pos in self.tokens[actual_part]['agents'][agent]:
                 all_occupied_cells.add(tuple(pos))
-
 
         dist = -1
         res = -1
@@ -784,9 +786,7 @@ class TokenPassing(object):
         elif tuple(self.global_view['pre_assignment_agents_tasks'][agent_name]['goal']) in self.global_view['occupied_non_task_endpoints']:
             self.global_view['occupied_non_task_endpoints'].remove(
                 tuple(self.global_view['pre_assignment_agents_tasks'][agent_name]['goal']))
-        
 
-        
         self.global_view['pre_assignment_agents_tasks'].pop(agent_name)
         self.global_view['abstract_to_loc1'][agent_name] = []
         self.global_view['abstract_to_loc2'][agent_name] = []
