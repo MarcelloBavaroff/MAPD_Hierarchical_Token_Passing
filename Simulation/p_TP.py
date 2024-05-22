@@ -220,7 +220,7 @@ class TokenPassing(object):
                     k = i - time_start
                     obstacles[(path[i][0], path[i][1], k)] = name
                     #se l'ultima posizione è una frontiera metto l'ostacolo negativo a patto
-                    #di non aver pianificato la migrazione (len areas == 2)
+                    #di non aver pianificato la migrazione (len areas == 2), se ho pianificato non metto negativo
                     if i == len(path) - 1 and (not self.is_frontier_start_pos(path[i]) or len(self.global_view['agents_to_areas'][name]) == 1):
                         obstacles[(path[i][0], path[i][1], -k)] = name
         return obstacles
@@ -235,8 +235,7 @@ class TokenPassing(object):
 
         obstacles = set()
         #for g in self.goal_endpoints:
-        #    obstacles.add(tuple(g))
-
+        #   obstacles.add(tuple(g))
         for agent in agents_paths:
             if agent != agent_name:
                 # quelli nelle stazioni non li segno come ostacoli and tuple(path[0]) not in charging_stations_pos
