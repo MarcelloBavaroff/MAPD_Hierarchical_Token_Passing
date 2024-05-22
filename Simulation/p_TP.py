@@ -10,8 +10,6 @@ class frontier:
         self.destination_partition = front[5]
         self.start_pos = tuple((front[0], front[1]))
         self.destination_pos = tuple((front[3], front[4]))
-
-
 # noinspection PyTypeChecker
 class TokenPassing(object):
     def __init__(self, agents, dimensions, obstacles, non_task_endpoints, number_of_areas, partitions, simulation,
@@ -231,6 +229,31 @@ class TokenPassing(object):
                 return True
         return False
 
+    def abort_planning(self, agent_name, pos_to_go, part_index):
+
+        #frontiere occupate per un tempo indefinito
+        occupied_frontiers = set()
+        for a in self.tokens[part_index]['occupied_frontiers']:
+            # se invece l'agente ha due aree associate vuol dire che sta migrando e quindi
+            # la frontiera non è occupata per un tempo indefinito
+            if len(self.global_view['agents_to_areas'][a]) == 1:
+                occupied_frontiers.add(self.tokens[part_index]['occupied_frontiers'][a])
+
+        # if agent_name in self.tokens[part_index]['occupied_frontiers']:
+        # primo ciclo trova tutte le chiavi di own_frontiers, cioè le partizioni verso cui si può andare
+        for f in self.tokens[part_index]['own_frontiers']:
+            # frontiere verso la singola partizione
+            for front in self.tokens[part_index]['own_frontiers'][f]:
+                # corrisponde ad una frontiera e len areas == 1 abort planning, finirò in un A* limit
+                if front.start_pos == tuple(pos_to_go):
+                    if front in occupied_frontiers:
+                        return True
+                    else:
+                        return False
+        return False
+
+
+
     def get_idle_obstacles_agents(self, agents_paths, time_start, agent_name):
 
         obstacles = set()
@@ -292,7 +315,7 @@ class TokenPassing(object):
         for a in self.tokens[actual_part]['occupied_frontiers']:
             # se invece l'agente ha due aree associate vuol dire che sta migrando e quindi
             # la frontiera non è occupata per un tempo indefinito
-            if len(self.tokens[actual_part]['agents_to_areas'][a]) == 1:
+            if len(self.global_view['agents_to_areas'][a]) == 1:
                 occupied_frontiers.add(self.tokens[actual_part]['occupied_frontiers'][a])
         
         # nessun agente deve aver intenzione di passare su quella frontiera
@@ -456,6 +479,8 @@ class TokenPassing(object):
         self.global_view['occupied_non_task_endpoints'].add(tuple(closest_non_task_endpoint))
 
     def compute_real_path_double(self, agent_name, agent_pos, loc1, loc2, all_idle_agents, part_index, time_start=0):
+        if self.abort_planning(agent_name, loc1, part_index) or self.abort_planning(agent_name, loc2, part_index):
+            return False
 
         moving_obstacles_agents = self.get_moving_obstacles_agents(self.tokens[part_index]['agents'], time_start)
         idle_obstacles_agents = self.get_idle_obstacles_agents(all_idle_agents, time_start, agent_name)
@@ -499,6 +524,10 @@ class TokenPassing(object):
                 return True
 
     def compute_real_path_single(self, agent_name, agent_pos, goal_position, all_idle_agents, part_index, time_start=0):
+
+        if self.abort_planning(agent_name, goal_position, part_index):
+            #print(agent_name, 'aborted planning to goal position...')
+            return False
 
         moving_obstacles_agents = self.get_moving_obstacles_agents(self.tokens[part_index]['agents'], time_start)
         idle_obstacles_agents = self.get_idle_obstacles_agents(all_idle_agents, time_start, agent_name)
@@ -608,8 +637,6 @@ class TokenPassing(object):
         elif len(self.tokens[actual_part]['agents'][agent_name]) == 1 and \
             (len(self.global_view['abstract_to_loc1'][agent_name]) > 0 or agent_pos == self.global_view['pre_assignment_agents_tasks'][agent_name]['start']):
             self.remove_task_from_agents(agent_name, actual_part)
-
-
 
     def find_next_goal(self, agent_name, agent_pos, next_part, num_abs):
         abstract = "abstract_to_loc" + str(num_abs)
@@ -763,8 +790,6 @@ class TokenPassing(object):
                 return f.destination_partition
 
         return -1
-
-
 
     #probailmente si può gestire diversamente
     # def update_non_task_endpoints(self):

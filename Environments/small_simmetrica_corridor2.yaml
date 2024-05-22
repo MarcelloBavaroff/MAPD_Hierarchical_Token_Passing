@@ -7,14 +7,14 @@ agents:
     name: agent2
 -   start: [11, 7]
     name: agent3
-#-   start: [0, 4]
-#    name: agent4
-#-   start: [13, 4]
-#    name: agent5
-#-   start: [0, 3]
-#    name: agent6
-#-   start: [13, 3]
-#    name: agent7
+-   start: [0, 4]
+    name: agent4
+-   start: [13, 4]
+    name: agent5
+-   start: [0, 3]
+    name: agent6
+-   start: [13, 3]
+    name: agent7
 map:
     dimensions: [14, 8]
     obstacles:
@@ -39,10 +39,10 @@ map:
     - !!python/tuple [2, 0]
     - !!python/tuple [11, 0]
     - !!python/tuple [11, 7]
-#    - !!python/tuple [0, 4]
-#    - !!python/tuple [13, 4]
-#    - !!python/tuple [0, 3]
-#    - !!python/tuple [13, 3]
+    - !!python/tuple [0, 4]
+    - !!python/tuple [13, 4]
+    - !!python/tuple [0, 3]
+    - !!python/tuple [13, 3]
     pickup_locations:
     - [3, 1]
     - [4, 1]
