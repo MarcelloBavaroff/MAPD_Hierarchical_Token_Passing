@@ -13,7 +13,7 @@ class frontier:
 # noinspection PyTypeChecker
 class TokenPassing(object):
     def __init__(self, agents, dimensions, obstacles, non_task_endpoints, number_of_areas, partitions, simulation,
-                 goal_endpoints, frontiers, a_star_max_iter=200):
+                 goal_endpoints, frontiers, a_star_max_iter=500):
         random.seed(1234)
         self.agents = agents
         self.dimensions = dimensions

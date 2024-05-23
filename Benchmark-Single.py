@@ -100,15 +100,16 @@ def single_run(index_run, random_seed, file_name):
     Astar_exp_sum_max_per_timestep = tp.get_exp_sum_max_per_timestep()
     sum_of_costs = tp.get_sum_of_costs()
     maxAstar = tp.get_max_Astar()
+    parallel_rounds = tp.get_parallel_rounds()
 
     print_comparison("Partition", n_agents, completed_tasks, n_tasks, makespan, average_service_time, std_dev_st, Astar_calls,
                      Astar_total_expansions, Astar_exp_sum_max_per_timestep, index_run, random_seed, file_name)
 
-    return completed_tasks, n_tasks, makespan, average_service_time, std_dev_st, Astar_calls, Astar_total_expansions, Astar_exp_sum_max_per_timestep, sum_of_costs, maxAstar  # , completed_tasks2, n_tasks2, dead_agents2, makespan2, average_service_time2, cbs_calls2, cbs_calls_recharge2
+    return completed_tasks, n_tasks, makespan, average_service_time, std_dev_st, Astar_calls, Astar_total_expansions, Astar_exp_sum_max_per_timestep, sum_of_costs, maxAstar, parallel_rounds  # , completed_tasks2, n_tasks2, dead_agents2, makespan2, average_service_time2, cbs_calls2, cbs_calls_recharge2
 
 
 if __name__ == '__main__':
-    Astar_max = 200
+    Astar_max = 1
     run_complete = 0
     array_completed_tasks = []
     array_makespan = []
@@ -119,9 +120,10 @@ if __name__ == '__main__':
     array_Astar_exp_sum_max_per_timestep = []
     array_sum_of_costs = []
     array_maxAstar = []
+    array_parallel_rounds = []
 
 
-    file_name = 'Comparisons/Noreplan/4p_corridoi2/6.txt'
+    file_name = 'Comparisons/Noreplan/corridoi2/44.txt'
 
     with open('Comparisons/seeds1.txt', 'r') as file:
         # inserisci ogni riga in una lista
@@ -133,7 +135,7 @@ if __name__ == '__main__':
         # random_seed = random.randint(0, 100000)
         random_seed = int(seeds[i])
         (completed_tasks, n_tasks, makespan, average_service_time,
-        std_dev_st, Astar_calls, Astar_total_expansions, Astar_exp_sum_max_per_timestep, sum_of_costs, maxAstar) = \
+        std_dev_st, Astar_calls, Astar_total_expansions, Astar_exp_sum_max_per_timestep, sum_of_costs, maxAstar, parallel_rounds) = \
         (single_run(i, random_seed, file_name))
 
         if completed_tasks == n_tasks:
@@ -147,6 +149,7 @@ if __name__ == '__main__':
             array_Astar_exp_sum_max_per_timestep.append(Astar_exp_sum_max_per_timestep)
             array_sum_of_costs.append(sum_of_costs)
             array_maxAstar.append(maxAstar)
+            array_parallel_rounds.append(parallel_rounds)
 
     avg_completed_tasks = round(np.mean(array_completed_tasks), 2)
     avg_makespan = round(np.mean(array_makespan), 2)
@@ -158,6 +161,7 @@ if __name__ == '__main__':
     avg_Astar_exp_sum_max_per_timestep = round(np.mean(array_Astar_exp_sum_max_per_timestep), 2)
     avg_sum_of_costs = round(np.mean(array_sum_of_costs), 2)
     avg_maxAstar = round(np.mean(array_maxAstar), 2) * Astar_max
+    avg_parallel_rounds = round(np.mean(array_parallel_rounds), 2)
 
     # print("\nVersioneChange")
     print("Numero di run completate: ", run_complete)
@@ -172,11 +176,12 @@ if __name__ == '__main__':
         print("Espansioni medie di A* considerando la parallelizzazione: ", avg_Astar_exp_sum_max_per_timestep)
         print("Sum of costs: ", avg_sum_of_costs)
         print("Max Astar: ", avg_maxAstar)
+        print("Parallel rounds: ", avg_parallel_rounds)
 
         excel_string = (str(run_complete) + ";" + str(avg_completed_tasks) + ";" + str(avg_makespan) + "; ;" + str(
             std_makespan) + ";" + str(avg_avg_service_time) + "; ;" + str(avg_std_dev) + ";" + str(
             avg_Astar_calls) + ";" + str(avg_Astar_total_expansions) + ";" + str(avg_Astar_exp_sum_max_per_timestep)
-                        + ";" + str(avg_sum_of_costs) + ";" + str(avg_maxAstar) + "\n")
+                        + ";" + str(avg_sum_of_costs) + ";" + str(avg_maxAstar) + ";" + str(parallel_rounds) + "\n")
         excel_string = excel_string.replace(".", ",")
         print("Excel: ", excel_string)
     except:
@@ -194,6 +199,8 @@ if __name__ == '__main__':
         file.write("Espansioni totali di A* in media: " + str(avg_Astar_total_expansions) + "\n")
         file.write("Espansioni medie di A* considerando la parallelizzazione: " + str(avg_Astar_exp_sum_max_per_timestep) + "\n")
         file.write("Sum of costs: " + str(avg_sum_of_costs) + "\n")
+        file.write("Max Astar: " + str(avg_maxAstar) + "\n")
+        file.write("Parallel rounds: " + str(avg_parallel_rounds) + "\n")
 
         file.write("\n\n" + "Excel: ")
         file.write(excel_string)
