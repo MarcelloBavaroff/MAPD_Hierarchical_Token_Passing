@@ -252,8 +252,6 @@ class TokenPassing(object):
                         return False
         return False
 
-
-
     def get_idle_obstacles_agents(self, agents_paths, time_start, agent_name):
 
         obstacles = set()
@@ -262,7 +260,7 @@ class TokenPassing(object):
         for agent in agents_paths:
             if agent != agent_name:
                 # quelli nelle stazioni non li segno come ostacoli and tuple(path[0]) not in charging_stations_pos
-                if len(agents_paths[agent]) == 1:
+                if len(agents_paths[agent]) == 1 and len(self.global_view['agents_to_areas'][agent]) == 1:
                     obstacles.add((agents_paths[agent][0][0], agents_paths[agent][0][1]))
                 # presumo agenti che finiranno il loro percorso e si fermeranno? Quindi metto ultima
                 # loro posizione
