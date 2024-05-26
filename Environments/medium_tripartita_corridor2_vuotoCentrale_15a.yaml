@@ -1,4 +1,10 @@
 agents:
+-   start: [0, 2]
+    name: agent2
+-   start: [0, 3]
+    name: agent3
+-   start: [0, 4]
+    name: agent4
 -   start: [0, 15]
     name: agent5
 -   start: [0, 16]
@@ -19,6 +25,10 @@ agents:
     name: agent13
 -   start: [19, 4]
     name: agent14
+-   start: [19, 15]
+    name: agent15
+-   start: [19, 16]
+    name: agent16
 
 map:
     dimensions: [20, 20]
@@ -101,6 +111,9 @@ map:
     - !!python/tuple [15, 2]
     - !!python/tuple [16, 2]
     non_task_endpoints:
+    - !!python/tuple [0, 2]
+    - !!python/tuple [0, 3]
+    - !!python/tuple [0, 4]
     - !!python/tuple [0, 15]
     - !!python/tuple [0, 16]
     - !!python/tuple [0, 17]
@@ -111,6 +124,8 @@ map:
     - !!python/tuple [19, 2]
     - !!python/tuple [19, 3]
     - !!python/tuple [19, 4]
+    - !!python/tuple [19, 15]
+    - !!python/tuple [19, 16]
     pickup_locations:
     - [3, 18]
     - [4, 18]
