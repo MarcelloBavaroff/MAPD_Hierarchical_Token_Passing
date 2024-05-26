@@ -15,7 +15,7 @@ def parameters(seed):
     #random_seed = seed
     parser = argparse.ArgumentParser()
     parser.add_argument('-a_star_max_iter', help='Maximum number of states explored by the low-level algorithm',
-                        default=200, type=int)
+                        default=1000, type=int)
     parser.add_argument('-slow_factor', help='Slow factor of visualization', default=1, type=int)  # default=1
     parser.add_argument('-not_rand', help='Use if input has fixed tasks and delays', action='store_true', default=False)
     args = parser.parse_args()
@@ -123,7 +123,7 @@ if __name__ == '__main__':
     array_parallel_rounds = []
 
 
-    file_name = 'Comparisons/Noreplan/corridoi2/44.txt'
+    file_name = 'Comparisons/Noreplan/medium_corridor2/3.txt'
 
     with open('Comparisons/seeds1.txt', 'r') as file:
         # inserisci ogni riga in una lista
@@ -181,7 +181,7 @@ if __name__ == '__main__':
         excel_string = (str(run_complete) + ";" + str(avg_completed_tasks) + ";" + str(avg_makespan) + "; ;" + str(
             std_makespan) + ";" + str(avg_avg_service_time) + "; ;" + str(avg_std_dev) + ";" + str(
             avg_Astar_calls) + ";" + str(avg_Astar_total_expansions) + ";" + str(avg_Astar_exp_sum_max_per_timestep)
-                        + ";" + str(avg_sum_of_costs) + ";" + str(avg_maxAstar) + ";" + str(parallel_rounds) + "\n")
+                        + ";" + str(avg_sum_of_costs) + ";" + str(avg_maxAstar) + ";" + str(avg_parallel_rounds) + "\n")
         excel_string = excel_string.replace(".", ",")
         print("Excel: ", excel_string)
     except:
