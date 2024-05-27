@@ -1,14 +1,4 @@
 agents:
--   start: [0, 0]
-    name: agent0
--   start: [0, 1]
-    name: agent1
--   start: [0, 2]
-    name: agent2
--   start: [0, 3]
-    name: agent3
--   start: [0, 4]
-    name: agent4
 -   start: [0, 15]
     name: agent5
 -   start: [0, 16]
@@ -29,19 +19,9 @@ agents:
     name: agent13
 -   start: [27, 4]
     name: agent14
--   start: [27, 15]
-    name: agent15
--   start: [27, 16]
-    name: agent16
--   start: [27, 17]
-    name: agent17
--   start: [27, 18]
-    name: agent18
--   start: [27, 19]
-    name: agent19
 
 map:
-    dimensions: [20, 28]
+    dimensions: [28, 20]
     obstacles:
     - !!python/tuple [3, 17]
     - !!python/tuple [4, 17]
@@ -156,13 +136,7 @@ map:
     - !!python/tuple [22, 2]
     - !!python/tuple [23, 2]
     - !!python/tuple [24, 2]
-    -
     non_task_endpoints:
-    - !!python/tuple [0, 0]
-    - !!python/tuple [0, 1]
-    - !!python/tuple [0, 2]
-    - !!python/tuple [0, 3]
-    - !!python/tuple [0, 4]
     - !!python/tuple [0, 15]
     - !!python/tuple [0, 16]
     - !!python/tuple [0, 17]
@@ -173,11 +147,6 @@ map:
     - !!python/tuple [27, 2]
     - !!python/tuple [27, 3]
     - !!python/tuple [27, 4]
-    - !!python/tuple [27, 15]
-    - !!python/tuple [27, 16]
-    - !!python/tuple [27, 17]
-    - !!python/tuple [27, 18]
-    - !!python/tuple [27, 19]
     pickup_locations:
     - [3, 18]
     - [4, 18]

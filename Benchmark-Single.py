@@ -122,7 +122,7 @@ if __name__ == '__main__':
     array_maxAstar = []
     array_parallel_rounds = []
 
-    file_name = 'Comparisons/Noreplan/quadripartita_corridoi2/6.txt'
+    file_name = 'Comparisons/Noreplan/XL_corridoi2/7.txt'
 
     with open('Comparisons/seeds1.txt', 'r') as file:
         # inserisci ogni riga in una lista
@@ -131,28 +131,28 @@ if __name__ == '__main__':
 
     for i in range(20):
         print("Run numero: ", i + 1)
-        # random_seed = random.randint(0, 100000)
+        #random_seed = random.randint(0, 100000)
         random_seed = int(seeds[i])
-        try:
-            (completed_tasks, n_tasks, makespan, average_service_time,
-             std_dev_st, Astar_calls, Astar_total_expansions, Astar_exp_sum_max_per_timestep, sum_of_costs, maxAstar,
-             parallel_rounds) = \
-                (single_run(i, random_seed, file_name))
+        #try:
+        (completed_tasks, n_tasks, makespan, average_service_time,
+         std_dev_st, Astar_calls, Astar_total_expansions, Astar_exp_sum_max_per_timestep, sum_of_costs, maxAstar,
+         parallel_rounds) = \
+            (single_run(i, random_seed, file_name))
 
-            if completed_tasks == n_tasks:
-                run_complete += 1
-                array_completed_tasks.append(completed_tasks)
-                array_makespan.append(makespan)
-                array_avg_service_time.append(average_service_time)
-                array_std_dev.append(std_dev_st)
-                array_Astar_calls.append(Astar_calls)
-                array_Astar_total_expansions.append(Astar_total_expansions)
-                array_Astar_exp_sum_max_per_timestep.append(Astar_exp_sum_max_per_timestep)
-                array_sum_of_costs.append(sum_of_costs)
-                array_maxAstar.append(maxAstar)
-                array_parallel_rounds.append(parallel_rounds)
-        except:
-            print("Errore in run ", i)
+        if completed_tasks == n_tasks:
+            run_complete += 1
+            array_completed_tasks.append(completed_tasks)
+            array_makespan.append(makespan)
+            array_avg_service_time.append(average_service_time)
+            array_std_dev.append(std_dev_st)
+            array_Astar_calls.append(Astar_calls)
+            array_Astar_total_expansions.append(Astar_total_expansions)
+            array_Astar_exp_sum_max_per_timestep.append(Astar_exp_sum_max_per_timestep)
+            array_sum_of_costs.append(sum_of_costs)
+            array_maxAstar.append(maxAstar)
+            array_parallel_rounds.append(parallel_rounds)
+        #except:
+        #    print("Errore in run ", i)
 
     avg_completed_tasks = round(np.mean(array_completed_tasks), 2)
     avg_makespan = round(np.mean(array_makespan), 2)

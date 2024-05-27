@@ -10,6 +10,8 @@ class frontier:
         self.destination_partition = front[5]
         self.start_pos = tuple((front[0], front[1]))
         self.destination_pos = tuple((front[3], front[4]))
+
+
 # noinspection PyTypeChecker
 class TokenPassing(object):
     def __init__(self, agents, dimensions, obstacles, non_task_endpoints, number_of_areas, partitions, simulation,
@@ -52,10 +54,13 @@ class TokenPassing(object):
 
     def get_parallel_rounds(self):
         return self.parallel_rounds
+
     def get_vec_areas(self):
         return self.vec_areas
+
     def get_max_Astar(self):
         return self.maxAstar
+
     def get_sum_of_costs(self):
         return self.sumOfCosts
 
@@ -219,7 +224,8 @@ class TokenPassing(object):
                     obstacles[(path[i][0], path[i][1], k)] = name
                     #se l'ultima posizione è una frontiera metto l'ostacolo negativo a patto
                     #di non aver pianificato la migrazione (len areas == 2), se ho pianificato non metto negativo
-                    if i == len(path) - 1 and (not self.is_frontier_start_pos(path[i]) or len(self.global_view['agents_to_areas'][name]) == 1):
+                    if i == len(path) - 1 and (not self.is_frontier_start_pos(path[i]) or len(
+                            self.global_view['agents_to_areas'][name]) == 1):
                         obstacles[(path[i][0], path[i][1], -k)] = name
         return obstacles
 
@@ -267,7 +273,8 @@ class TokenPassing(object):
                 if 1 < len(agents_paths[agent]) <= time_start:
                     #idle obstacles se sto andando alla frontiera, se invece sono lì ed ho pianificato di spostarmi
                     #non lo metto
-                    if (not self.is_frontier_start_pos(agents_paths[agent][-1]) or len(self.global_view['agents_to_areas'][agent]) == 1):
+                    if (not self.is_frontier_start_pos(agents_paths[agent][-1]) or len(
+                            self.global_view['agents_to_areas'][agent]) == 1):
                         obstacles.add((agents_paths[agent][-1][0], agents_paths[agent][-1][1]))
 
         return obstacles
@@ -315,7 +322,7 @@ class TokenPassing(object):
             # la frontiera non è occupata per un tempo indefinito
             if len(self.global_view['agents_to_areas'][a]) == 1:
                 occupied_frontiers.add(self.tokens[actual_part]['occupied_frontiers'][a])
-        
+
         # nessun agente deve aver intenzione di passare su quella frontiera
         # pickup inclusi
         all_occupied_cells = set()
@@ -626,14 +633,15 @@ class TokenPassing(object):
         if closest_frontier != -1:
             #do per scontato che trovo sempre un path
             self.compute_real_path_single(agent_name, agent_pos, closest_frontier.start_pos, all_idle_agents,
-                                      actual_part)
+                                          actual_part)
             self.tokens[actual_part]['occupied_frontiers'][agent_name] = closest_frontier
 
         # se non ho trovato una frontiera dove andare (len path = 1) cambio task
         # se abs1 ha almeno len 1 allora devo fare il pickup
         # se len(abs1) == 0 e sono sul pickup posso ancora cancellare il task
         elif len(self.tokens[actual_part]['agents'][agent_name]) == 1 and \
-            (len(self.global_view['abstract_to_loc1'][agent_name]) > 0 or agent_pos == self.global_view['pre_assignment_agents_tasks'][agent_name]['start']):
+                (len(self.global_view['abstract_to_loc1'][agent_name]) > 0 or agent_pos ==
+                 self.global_view['pre_assignment_agents_tasks'][agent_name]['start']):
             self.remove_task_from_agents(agent_name, actual_part)
 
     def find_next_goal(self, agent_name, agent_pos, next_part, num_abs):
@@ -642,7 +650,8 @@ class TokenPassing(object):
         if len(self.global_view[abstract][agent_name]) > 2:
             #devo andare alla prossima frontiera
             frontiers_to_next_part = self.tokens[next_part]['own_frontiers'][self.global_view[abstract][agent_name][2]]
-            closest_frontier = self.get_closest_frontier(agent_pos, frontiers_to_next_part, self.global_view[abstract][agent_name][1])
+            closest_frontier = self.get_closest_frontier(agent_pos, frontiers_to_next_part,
+                                                         self.global_view[abstract][agent_name][1])
             #matti nel dizionario il pair agente frontiera
             if closest_frontier != -1:
                 self.tokens[next_part]['occupied_frontiers'][agent_name] = closest_frontier
@@ -675,7 +684,7 @@ class TokenPassing(object):
                 valid_path = False
             else:
                 valid_path = self.compute_real_path_single(agent_name, agent_pos, next_goal, all_idle_agents, next_part,
-                                                       time_start=0)
+                                                           time_start=0)
 
         if valid_path:
             print('Agent', agent_name, 'migrating to partition', next_part, '...')
@@ -703,8 +712,8 @@ class TokenPassing(object):
             #self.delete_conflicting_paths_more_strict(agent_name, actual_part)
             #se sono sulla casella di pickup posso considerare come se non lo avessi fatto
             #if not pic_in_part or (agent_name in self.global_view['pre_assignment_agents_tasks'] and agent_pos == self.global_view['pre_assignment_agents_tasks'][agent_name]['start']):
-            if agent_name in self.global_view['pre_assignment_agents_tasks'] and (num_abs == 1 or agent_pos == self.global_view['pre_assignment_agents_tasks'][agent_name]['start']):
-
+            if agent_name in self.global_view['pre_assignment_agents_tasks'] and (
+                    num_abs == 1 or agent_pos == self.global_view['pre_assignment_agents_tasks'][agent_name]['start']):
                 self.remove_task_from_agents(agent_name, actual_part)
             #agents_to_plan = self.get_agents_to_plan()
 
@@ -803,9 +812,10 @@ class TokenPassing(object):
         if task_name != 'safe_idle':
             self.global_view['discarded_tasks_for_agents'][agent_name].append(task_name)
             self.global_view['tasks'][task_name] = \
-            [self.global_view['pre_assignment_agents_tasks'][agent_name]['start'],
-             self.global_view['pre_assignment_agents_tasks'][agent_name]['goal']]
-        elif tuple(self.global_view['pre_assignment_agents_tasks'][agent_name]['goal']) in self.global_view['occupied_non_task_endpoints']:
+                [self.global_view['pre_assignment_agents_tasks'][agent_name]['start'],
+                 self.global_view['pre_assignment_agents_tasks'][agent_name]['goal']]
+        elif tuple(self.global_view['pre_assignment_agents_tasks'][agent_name]['goal']) in self.global_view[
+            'occupied_non_task_endpoints']:
             self.global_view['occupied_non_task_endpoints'].remove(
                 tuple(self.global_view['pre_assignment_agents_tasks'][agent_name]['goal']))
 
@@ -832,7 +842,8 @@ class TokenPassing(object):
             closest_frontier = self.get_closest_frontier(pickup_position, frontiers_to_next_part, part_index)
             if closest_frontier != -1:
                 # do per scontato che trovo sempre un path
-                planned = self.compute_real_path_double(agent_name, agent_pos, pickup_position, closest_frontier.start_pos,
+                planned = self.compute_real_path_double(agent_name, agent_pos, pickup_position,
+                                                        closest_frontier.start_pos,
                                                         all_idle_agents, part_index, time_start)
                 self.tokens[part_index]['occupied_frontiers'][agent_name] = closest_frontier
 
@@ -849,7 +860,6 @@ class TokenPassing(object):
 
         for i in range(self.number_of_areas):
             self.vec_areas[i].append(self.espansioniAstarXpart[i])
-
 
         self.espansioniAstarXpart = [0] * self.number_of_areas
 
@@ -898,15 +908,20 @@ class TokenPassing(object):
             #se non ha abstract path(s) calcolo
             if len(self.global_view['abstract_to_loc1'][agent_name]) == 0 and \
                     len(self.global_view['abstract_to_loc2'][agent_name]) == 0:
-                self.compute_abstract_path(agent_pos, self.global_view['pre_assignment_agents_tasks'][agent_name]['start'], agent_name, 1)
-                self.compute_abstract_path(self.global_view['pre_assignment_agents_tasks'][agent_name]['start'], self.global_view['pre_assignment_agents_tasks'][agent_name]['goal'], agent_name, 2)
-
+                self.compute_abstract_path(agent_pos,
+                                           self.global_view['pre_assignment_agents_tasks'][agent_name]['start'],
+                                           agent_name, 1)
+                self.compute_abstract_path(self.global_view['pre_assignment_agents_tasks'][agent_name]['start'],
+                                           self.global_view['pre_assignment_agents_tasks'][agent_name]['goal'],
+                                           agent_name, 2)
 
             #-----------------------------PATH REALI--------------------------------
             if len(self.global_view['abstract_to_loc1'][agent_name]) > 1:
-                on_frontier = self.on_a_frontier(agent_name, agent_pos, agent_partition)
-                if on_frontier != -1:
-                    self.migrazione(agent_name, agent_pos, agent_partition, on_frontier, 1, agents_to_plan)
+                #on_frontier = self.on_a_frontier(agent_name, agent_pos, agent_partition)
+                if agent_name in self.tokens[agent_partition]['occupied_frontiers'] and \
+                        tuple(agent_pos) == self.tokens[agent_partition]['occupied_frontiers'][agent_name].start_pos:
+                    #if on_frontier != -1:
+                    self.migrazione(agent_name, agent_pos, agent_partition, self.tokens[agent_partition]['occupied_frontiers'][agent_name].destination_partition, 1, agents_to_plan)
                 else:
                     self.go_to_frontier(agent_name, agent_pos, local_idle_agents, agent_partition,
                                         self.global_view['abstract_to_loc1'][agent_name][1])
@@ -919,10 +934,12 @@ class TokenPassing(object):
 
             #da qui in giù abstract path 1 è vuoto quindi devo andare al delivery o al non task endpoint
             elif len(self.global_view['abstract_to_loc2'][agent_name]) > 1:
-                on_frontier = self.on_a_frontier(agent_name, agent_pos, agent_partition)
-                if on_frontier != -1:
-                    self.migrazione(agent_name, agent_pos, agent_partition, on_frontier, 2,
-                                                       agents_to_plan)
+                #on_frontier = self.on_a_frontier(agent_name, agent_pos, agent_partition)
+                #if on_frontier != -1:
+                if agent_name in self.tokens[agent_partition]['occupied_frontiers'] and \
+                        tuple(agent_pos) == self.tokens[agent_partition]['occupied_frontiers'][agent_name].start_pos:
+                    self.migrazione(agent_name, agent_pos, agent_partition, self.tokens[agent_partition]['occupied_frontiers'][agent_name].destination_partition, 2, agents_to_plan)
+
                 else:
                     self.go_to_frontier(agent_name, agent_pos, local_idle_agents, agent_partition,
                                         self.global_view['abstract_to_loc2'][agent_name][1])
