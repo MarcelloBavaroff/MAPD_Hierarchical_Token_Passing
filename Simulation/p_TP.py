@@ -642,7 +642,7 @@ class TokenPassing(object):
         elif len(self.tokens[actual_part]['agents'][agent_name]) == 1 and \
                 (len(self.global_view['abstract_to_loc1'][agent_name]) > 0 or agent_pos ==
                  self.global_view['pre_assignment_agents_tasks'][agent_name]['start']):
-            self.remove_task_from_agents(agent_name, actual_part)
+            self.remove_task_from_agents(agent_name, [actual_part])
 
     def find_next_goal(self, agent_name, agent_pos, next_part, num_abs):
         abstract = "abstract_to_loc" + str(num_abs)
@@ -714,7 +714,7 @@ class TokenPassing(object):
             #if not pic_in_part or (agent_name in self.global_view['pre_assignment_agents_tasks'] and agent_pos == self.global_view['pre_assignment_agents_tasks'][agent_name]['start']):
             if agent_name in self.global_view['pre_assignment_agents_tasks'] and (
                     num_abs == 1 or agent_pos == self.global_view['pre_assignment_agents_tasks'][agent_name]['start']):
-                self.remove_task_from_agents(agent_name, actual_part)
+                self.remove_task_from_agents(agent_name, [actual_part, next_part])
             #agents_to_plan = self.get_agents_to_plan()
 
         #return agents_to_plan
@@ -806,7 +806,7 @@ class TokenPassing(object):
     #             if tuple(agent_pos[0]) in self.non_task_endpoints:
     #                 self.global_view['occupied_non_task_endpoints'].add(tuple(agent_pos[0]))
 
-    def remove_task_from_agents(self, agent_name, actual_part):
+    def remove_task_from_agents(self, agent_name, part_to_remove):
         print('Rimozione del task dall\'', agent_name)
         task_name = self.global_view['pre_assignment_agents_tasks'][agent_name]['task_name']
         if task_name != 'safe_idle':
@@ -823,8 +823,10 @@ class TokenPassing(object):
         self.global_view['abstract_to_loc1'][agent_name] = []
         self.global_view['abstract_to_loc2'][agent_name] = []
 
-        if agent_name in self.tokens[actual_part]['occupied_frontiers']:
-            self.tokens[actual_part]['occupied_frontiers'].pop(agent_name)
+        for part in part_to_remove:
+            if agent_name in self.tokens[part]['occupied_frontiers']:
+                self.tokens[part]['occupied_frontiers'].pop(agent_name)
+
 
     def pickup_in_partition(self, agent_name, agent_pos, pickup_position, all_idle_agents, part_index, time_start=0):
         #quì io sto facendo il pickup quindi il mio abs1 ha solo una partizione che è quella attuale
@@ -847,8 +849,10 @@ class TokenPassing(object):
                                                         all_idle_agents, part_index, time_start)
                 self.tokens[part_index]['occupied_frontiers'][agent_name] = closest_frontier
 
-        if not planned:
-            self.remove_task_from_agents(agent_name, part_index)
+        #se pickup in partition viene chiamato in maniera diretta cancello da quì
+        #se viene chiamato da migrazione non lo cancello
+        if not planned and self.find_partition(agent_pos) == part_index:
+            self.remove_task_from_agents(agent_name, [part_index])
 
         return planned
 
@@ -917,16 +921,15 @@ class TokenPassing(object):
 
             #-----------------------------PATH REALI--------------------------------
             if len(self.global_view['abstract_to_loc1'][agent_name]) > 1:
-                #on_frontier = self.on_a_frontier(agent_name, agent_pos, agent_partition)
-                if agent_name in self.tokens[agent_partition]['occupied_frontiers'] and \
-                        tuple(agent_pos) == self.tokens[agent_partition]['occupied_frontiers'][agent_name].start_pos:
-                    #if on_frontier != -1:
-                    self.migrazione(agent_name, agent_pos, agent_partition, self.tokens[agent_partition]['occupied_frontiers'][agent_name].destination_partition, 1, agents_to_plan)
+                on_frontier = self.on_a_frontier(agent_name, agent_pos, agent_partition)
+                if on_frontier != -1:
+                    self.migrazione(agent_name, agent_pos, agent_partition, on_frontier, 1, agents_to_plan)
                 else:
                     self.go_to_frontier(agent_name, agent_pos, local_idle_agents, agent_partition,
                                         self.global_view['abstract_to_loc1'][agent_name][1])
 
             #il pickup è nell'area in cui mi trovo
+            #o all'inizio o appena mi viene assegnato un nuovo task
             elif len(self.global_view['abstract_to_loc1'][agent_name]) == 1:
                 self.pickup_in_partition(agent_name, agent_pos,
                                          self.global_view['pre_assignment_agents_tasks'][agent_name]['start'],
@@ -934,12 +937,9 @@ class TokenPassing(object):
 
             #da qui in giù abstract path 1 è vuoto quindi devo andare al delivery o al non task endpoint
             elif len(self.global_view['abstract_to_loc2'][agent_name]) > 1:
-                #on_frontier = self.on_a_frontier(agent_name, agent_pos, agent_partition)
-                #if on_frontier != -1:
-                if agent_name in self.tokens[agent_partition]['occupied_frontiers'] and \
-                        tuple(agent_pos) == self.tokens[agent_partition]['occupied_frontiers'][agent_name].start_pos:
+                on_frontier = self.on_a_frontier(agent_name, agent_pos, agent_partition)
+                if on_frontier != -1:
                     self.migrazione(agent_name, agent_pos, agent_partition, self.tokens[agent_partition]['occupied_frontiers'][agent_name].destination_partition, 2, agents_to_plan)
-
                 else:
                     self.go_to_frontier(agent_name, agent_pos, local_idle_agents, agent_partition,
                                         self.global_view['abstract_to_loc2'][agent_name][1])
