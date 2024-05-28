@@ -242,7 +242,8 @@ class TokenPassing(object):
         for a in self.tokens[part_index]['occupied_frontiers']:
             # se invece l'agente ha due aree associate vuol dire che sta migrando e quindi
             # la frontiera non è occupata per un tempo indefinito
-            if a != agent_name and len(self.global_view['agents_to_areas'][a]) == 1:
+            # caso particolare: ha 2 aree e la seconda è part index perché ci sta migrando
+            if a != agent_name and (len(self.global_view['agents_to_areas'][a]) == 1 or (len(self.global_view['agents_to_areas'][a]) == 2 and self.global_view['agents_to_areas'][a][1] == part_index)):
                 occupied_frontiers.add(self.tokens[part_index]['occupied_frontiers'][a])
 
         # if agent_name in self.tokens[part_index]['occupied_frontiers']:
