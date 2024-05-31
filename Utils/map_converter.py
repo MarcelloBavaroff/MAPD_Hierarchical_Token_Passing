@@ -6,7 +6,8 @@ import json
 
 if __name__ == '__main__':
     yaml_dic = {}
-    with open(os.path.join(os.path.join(RoothPath.get_root(), 'Benchmarks'), 'den312d.map')) as ascii_map:
+    map = 'warehouse-20-40-10-2-2'
+    with open(os.path.join(os.path.join(RoothPath.get_root(), 'Environments/Stern'), (map+'.map'))) as ascii_map:
         ascii_map.readline()
         h = int(re.findall(r'\d+', ascii_map.readline())[0])
         w = int(re.findall(r'\d+', ascii_map.readline())[0])
@@ -26,5 +27,5 @@ if __name__ == '__main__':
 
     with open(os.path.join(RoothPath.get_root(), 'config.json'), 'r') as json_file:
         config = json.load(json_file)
-    with open(os.path.join(os.path.join(RoothPath.get_root(), config['input_path']), 'dragon_age_map.yaml'), 'w') as param_file:
+    with open(os.path.join(os.path.join(RoothPath.get_root(), config['input_path']), (map+'.yaml')), 'w') as param_file:
         yaml.dump(yaml_dic, param_file)

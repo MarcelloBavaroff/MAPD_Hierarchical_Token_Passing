@@ -243,7 +243,9 @@ class TokenPassing(object):
             # se invece l'agente ha due aree associate vuol dire che sta migrando e quindi
             # la frontiera non è occupata per un tempo indefinito
             # caso particolare: ha 2 aree e la seconda è part index perché ci sta migrando
-            if a != agent_name and (len(self.global_view['agents_to_areas'][a]) == 1 or (len(self.global_view['agents_to_areas'][a]) == 2 and self.global_view['agents_to_areas'][a][1] == part_index)):
+            if a != agent_name and (len(self.global_view['agents_to_areas'][a]) == 1 or
+                                    (len(self.global_view['agents_to_areas'][a]) == 2 and
+                                     self.global_view['agents_to_areas'][a][1] == part_index)):
                 occupied_frontiers.add(self.tokens[part_index]['occupied_frontiers'][a])
 
         # if agent_name in self.tokens[part_index]['occupied_frontiers']:
@@ -828,7 +830,6 @@ class TokenPassing(object):
             if agent_name in self.tokens[part]['occupied_frontiers']:
                 self.tokens[part]['occupied_frontiers'].pop(agent_name)
 
-
     def pickup_in_partition(self, agent_name, agent_pos, pickup_position, all_idle_agents, part_index, time_start=0):
         #quì io sto facendo il pickup quindi il mio abs1 ha solo una partizione che è quella attuale
         #len abs2 = 1 vuol dire che il delivery è quì
@@ -940,7 +941,9 @@ class TokenPassing(object):
             elif len(self.global_view['abstract_to_loc2'][agent_name]) > 1:
                 on_frontier = self.on_a_frontier(agent_name, agent_pos, agent_partition)
                 if on_frontier != -1:
-                    self.migrazione(agent_name, agent_pos, agent_partition, self.tokens[agent_partition]['occupied_frontiers'][agent_name].destination_partition, 2, agents_to_plan)
+                    self.migrazione(agent_name, agent_pos, agent_partition,
+                                    self.tokens[agent_partition]['occupied_frontiers'][
+                                        agent_name].destination_partition, 2, agents_to_plan)
                 else:
                     self.go_to_frontier(agent_name, agent_pos, local_idle_agents, agent_partition,
                                         self.global_view['abstract_to_loc2'][agent_name][1])
