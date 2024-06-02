@@ -46,11 +46,9 @@ def create_frontiers():
 
     # Itera attraverso le righe e le colonne specificate
 
-    for i in range(2, 84, 4):
-        f = [102, i, 2, 103, i, 3]
+    for i in range(1, 83, 2):
+        f = [149, i, 6, 148, i, 5]
         frontiers.append(f)
-
-
 
     # Stampa gli ostacoli generati
     for f in frontiers:
