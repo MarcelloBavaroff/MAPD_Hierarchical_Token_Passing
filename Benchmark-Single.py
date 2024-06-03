@@ -44,7 +44,7 @@ def parameters(seed):
 
 
     tasks = gen_tasks(param['map']['pickup_locations'], param['map']['delivery_locations'],
-                                             param['n_tasks'], param['task_freq'], seed)
+                                             1000, 5, seed)
     param['tasks'] = tasks
 
     # with open('Comparisons/seeds2.txt', 'a') as file:
@@ -77,7 +77,7 @@ def single_run(index_run, random_seed, file_name):
     simulation = Simulation(tasks, agents)
     tp = TokenPassing(agents, dimensions, obstacles, non_task_endpoints, number_of_areas, partitions, simulation,
                       goal_endpoints, frontiers, max_iter)
-    while len(tp.get_completed_tasks()) != len(tasks) and simulation.get_time() < 15000:
+    while len(tp.get_completed_tasks()) != len(tasks) and simulation.get_time() < 30000:
         simulation.time_forward(tp)
 
     completed_tasks = len(tp.get_completed_tasks())
@@ -122,7 +122,7 @@ if __name__ == '__main__':
     array_maxAstar = []
     array_parallel_rounds = []
 
-    file_name = 'Comparisons/Stern/11p7.txt'
+    file_name = 'Comparisons/Stern/14p3.txt'
 
     with open('Comparisons/seeds1.txt', 'r') as file:
         # inserisci ogni riga in una lista
