@@ -606,7 +606,8 @@ class TokenPassing(object):
                 self.choose_task(agent_name, agent_pos, available_tasks)
 
             elif self.check_safe_idle(agent_pos):
-                print('No available tasks for agent', agent_name, ' idling at current position...')
+                a = 0
+                #print('No available tasks for agent', agent_name, ' idling at current position...')
 
             else:
                 self.choose_non_task_endpoint(agent_name, agent_pos)
