@@ -1,17 +1,18 @@
 import yaml
 
+
 def create_non_task_endpoints():
     # Inizializza la lista degli ostacoli
     non_task_endpoints = []
 
     # Itera attraverso le righe e le colonne specificate
-    for i in range(1, 16):
-        n = [159, i]
+    for i in range(1, 83):
+        n = [168, i]
         non_task_endpoints.append(n)
 
-    for i in range(47, 63):
-        n = [159, i]
-        non_task_endpoints.append(n)
+    # for i in range(47, 63):
+    #     n = [159, i]
+    #     non_task_endpoints.append(n)
 
     for non in non_task_endpoints:
         print("- !!python/tuple", non)
@@ -22,7 +23,7 @@ def create_delivery():
     delivery = []
 
     # Itera attraverso le righe e le colonne specificate
-    for i in range(16, 47):
+    for i in range(1, 83):
         n = [1, i]
         delivery.append(n)
 
@@ -32,7 +33,7 @@ def create_delivery():
 
 def create_agents():
     # Apri il file yaml e carica i dati
-    with open('/Users/bavaroff258/PycharmProjects/MAPD_TP/Environments/Stern/warehouse-161x63p3.yaml', 'r') as file:
+    with open('/Users/bavaroff258/PycharmProjects/MAPD_partition/Environments/Stern/warehouse-170x84-3p_one_side.yaml', 'r') as file:
         data = yaml.load(file, Loader=yaml.FullLoader)
 
     # Ottieni la lista di non_task_endpoints
@@ -62,7 +63,7 @@ def create_pickup():
         for i in range(26 + 11 * k, 36 + 11 * k):
             for j in range(4, 61, 3):
                 # Aggiungi un ostacolo alla lista degli ostacoli
-                pick = [[i, j]]#, [i, j + 1]]
+                pick = [[i, j]]  #, [i, j + 1]]
                 pickups.extend(pick)
 
     # Stampa gli ostacoli generati
@@ -85,4 +86,4 @@ def create_frontiers():
         print("-    ", f)
 
 
-create_frontiers()
+create_agents()
