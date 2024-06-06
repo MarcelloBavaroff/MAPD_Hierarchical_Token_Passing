@@ -76,14 +76,22 @@ def create_frontiers():
     frontiers = []
 
     # Itera attraverso le righe e le colonne specificate
+    k = 0
+    for j in range(30, 140, 12):
+        for i in range(1, 82, 4):
+            # 31, 1, k+1, 30, 1, k
+            f = [j+1, i, k+1, j, i, k]
+            # 30, 2, k, 31, 2, k+1
+            ff = [j, i+1, k, j+1, i+1, k+1]
+            frontiers.append(f)
+            frontiers.append(ff)
+        k += 1
 
-    for i in range(2, 62, 2):
-        f = [140, i, 6, 139, i, 5]
-        frontiers.append(f)
+
 
     # Stampa gli ostacoli generati
     for f in frontiers:
         print("-    ", f)
 
 
-create_agents()
+create_frontiers()
