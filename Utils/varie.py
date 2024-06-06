@@ -76,15 +76,16 @@ def create_frontiers():
     frontiers = []
 
     # Itera attraverso le righe e le colonne specificate
-    k = 0
-    for j in range(30, 140, 12):
-        for i in range(1, 82, 4):
+    k = 5
+    for j in range(85, 135, 11):
+        for i in range(1, 60, 6):
             # 31, 1, k+1, 30, 1, k
-            f = [j+1, i, k+1, j, i, k]
+            f = [j, i, k, j+1, i, k+1]
             # 30, 2, k, 31, 2, k+1
-            ff = [j, i+1, k, j+1, i+1, k+1]
+            ff = [j+1, i+3, k+1, j, i+3, k]
             frontiers.append(f)
             frontiers.append(ff)
+        frontiers.append([j, 61, k, j+1, 61, k+1])
         k += 1
 
 
