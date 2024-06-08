@@ -122,7 +122,7 @@ if __name__ == '__main__':
     array_maxAstar = []
     array_parallel_rounds = []
 
-    file_name = 'Comparisons/Stern/13hp3.txt'
+    file_name = 'Comparisons/Stern/15hp5.txt'
 
     with open('Comparisons/seeds1.txt', 'r') as file:
         # inserisci ogni riga in una lista
