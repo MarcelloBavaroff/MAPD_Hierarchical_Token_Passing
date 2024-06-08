@@ -33,7 +33,8 @@ def create_delivery():
 
 def create_agents():
     # Apri il file yaml e carica i dati
-    with open('/Users/bavaroff258/PycharmProjects/MAPD_partition/Environments/Stern/warehouse-170x84-3p_one_side.yaml', 'r') as file:
+    with open('/Users/bavaroff258/PycharmProjects/MAPD_partition/Environments/Stern/warehouse-170x84-3p_one_side.yaml',
+              'r') as file:
         data = yaml.load(file, Loader=yaml.FullLoader)
 
     # Ottieni la lista di non_task_endpoints
@@ -71,7 +72,7 @@ def create_pickup():
         print("-    ", p)
 
 
-def create_frontiers():
+def create_frontiers_vertical():
     # Inizializza la lista degli ostacoli
     frontiers = []
 
@@ -80,19 +81,53 @@ def create_frontiers():
     for j in range(85, 135, 11):
         for i in range(1, 60, 6):
             # 31, 1, k+1, 30, 1, k
-            f = [j, i, k, j+1, i, k+1]
+            f = [j, i, k, j + 1, i, k + 1]
             # 30, 2, k, 31, 2, k+1
-            ff = [j+1, i+3, k+1, j, i+3, k]
+            ff = [j + 1, i + 3, k + 1, j, i + 3, k]
             frontiers.append(f)
             frontiers.append(ff)
-        frontiers.append([j, 61, k, j+1, 61, k+1])
+        frontiers.append([j, 61, k, j + 1, 61, k + 1])
         k += 1
-
-
-
     # Stampa gli ostacoli generati
     for f in frontiers:
         print("-    ", f)
 
 
-create_frontiers()
+def create_frontiers_horizontal():
+    # Inizializza la lista degli ostacoli
+    frontiers = []
+
+    # Itera attraverso le righe e le colonne specificate
+    k = 0
+    for j in range(20, 41, 20):
+        for i in range(135, 156, 2):
+            # 31, 1, k+1, 30, 1, k
+            f = [i, j+1, k+1, i, j, k]
+            # 30, 2, k, 31, 2, k+1
+            ff = [i+1, j, k, i+1, j+1, k+1]
+            frontiers.append(f)
+            frontiers.append(ff)
+        k += 1
+    # k = 0
+    # for j in range(27, 56, 28):
+    #     for i in range(36, 143, 12):
+    #         # 31, 1, k+1, 30, 1, k
+    #         f = [i, j + 1, k + 1, i, j, k]
+    #         # 30, 2, k, 31, 2, k+1
+    #         ff = [i + 1, j, k, i + 1, j + 1, k + 1]
+    #         frontiers.append(f)
+    #         frontiers.append(ff)
+    #     k += 1
+
+    # for i in range(36, 130, 11):
+    #     #prima basso
+    #     frontiers.append([i, 41, 2, i, 40, 1])
+    #     #frontiers.append([i+1, 25, 0, i+1, 26, 1])
+    #     #poi alto
+    #     #frontiers.append([i, 58, 2, i, 57, 1])
+    #     frontiers.append([i+1, 57, 1, i+1, 58, 2])
+    for f in frontiers:
+        print("-    ", f)
+
+
+create_frontiers_horizontal()

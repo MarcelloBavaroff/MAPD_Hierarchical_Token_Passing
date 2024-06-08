@@ -12,7 +12,7 @@ import ast
 
 def read_tasks():
     data_list = []
-    with open('LastRun/errore', 'r') as file:
+    with open('LastRun/tante_espansioni', 'r') as file:
         for line in file:
             try:
                 # Valuta la stringa come un dizionario Python
@@ -34,7 +34,7 @@ if __name__ == '__main__':
     parser.add_argument('-a_star_max_iter', help='Maximum number of states explored by the low-level algorithm',
                         default=1000, type=int)
     parser.add_argument('-slow_factor', help='Slow factor of visualization', default=10, type=int) #default=1
-    parser.add_argument('-not_rand', help='Use if input has fixed tasks and delays', action='store_true', default=False)
+    parser.add_argument('-not_rand', help='Use if input has fixed tasks and delays', action='store_true', default=True)
 
     args = parser.parse_args()
 
@@ -93,8 +93,6 @@ if __name__ == '__main__':
     #     parallel_exp = parallel_exp + max(vec[0][i], vec[1][i], vec[2][i], vec[3][i])
     #
     # print("Espansioni totali parallele:", parallel_exp)
-
-
 
     cost = 0
     for path in simulation.actual_paths.values():
