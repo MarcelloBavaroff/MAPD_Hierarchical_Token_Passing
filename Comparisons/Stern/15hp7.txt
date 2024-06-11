@@ -1,0 +1,21 @@
+
+
+0 Partition 9422
+('Number of agents: ', 60)
+('Number of completed tasks: ', 974, '/', 1000)
+('Makespan: ', 30000)
+('Average service time: ', 488.3521560574949)
+('Standard deviation: ', 533.7173499725073)
+('Total A* calls: ', 123232)
+('Total A* expansions: ', 176786026)
+('Espansioni considerando la parallelizzazione: ', 176301675)
+
+1 Partition 96519
+('Number of agents: ', 60)
+('Number of completed tasks: ', 965, '/', 1000)
+('Makespan: ', 30000)
+('Average service time: ', 445.040414507772)
+('Standard deviation: ', 414.34919745792325)
+('Total A* calls: ', 122235)
+('Total A* expansions: ', 175432796)
+('Espansioni considerando la parallelizzazione: ', 174991488)

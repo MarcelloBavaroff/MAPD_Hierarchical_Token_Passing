@@ -109,8 +109,8 @@ def create_frontiers_horizontal():
     #         frontiers.append(ff)
     #     k += 1
     # k = 0
-    # for j in range(27, 56, 28):
-    #     for i in range(36, 143, 12):
+    # for j in range(8, 55, 9):
+    #     for i in range(4, 25, 2):
     #         # 31, 1, k+1, 30, 1, k
     #         f = [i, j + 1, k + 1, i, j, k]
     #         # 30, 2, k, 31, 2, k+1
@@ -119,18 +119,23 @@ def create_frontiers_horizontal():
     #         frontiers.append(ff)
     #     k += 1
 
-    # for i in range(36, 130, 11):
-    #     #prima basso
-    #     if i % 2 == 0:
-    #         frontiers.append([i, 11, 0, i, 12, 1])
-    #         frontiers.append([i, 23, 1, i, 24, 2])
-    #         frontiers.append([i, 39, 3, i, 38, 2])
-    #         frontiers.append([i, 51, 4, i, 50, 3])
-    #     else:
-    #         frontiers.append([i, 12, 1, i, 11, 0])
-    #         frontiers.append([i, 24, 2, i, 23, 1])
-    #         frontiers.append([i, 38, 2, i, 39, 3])
-    #         frontiers.append([i, 50, 3, i, 51, 4])
+    for i in range(36, 130, 11):
+
+        if i % 2 == 0:
+            frontiers.append([i, 8, 0, i, 9, 1])
+            frontiers.append([i, 17, 1, i, 18, 2])
+            frontiers.append([i, 26, 2, i, 27, 3])
+            frontiers.append([i, 36, 4, i, 35, 3])
+            frontiers.append([i, 45, 5, i, 44, 4])
+            frontiers.append([i, 54, 6, i, 53, 5])
+        else:
+            frontiers.append([i, 9, 0, i, 8, 1])
+            frontiers.append([i, 18, 2, i, 17, 1])
+            frontiers.append([i, 27, 3, i, 26, 2])
+            frontiers.append([i, 35, 3, i, 36, 4])
+            frontiers.append([i, 44, 4, i, 45, 5])
+            frontiers.append([i, 53, 5, i, 54, 6])
+
     # for i in range(4, 26, 2):
     #     frontiers.append([i, 16, 1, i, 15, 0])
     #     frontiers.append([i+1, 15, 0, i+1, 16, 1])
@@ -140,16 +145,6 @@ def create_frontiers_horizontal():
     #     frontiers.append([i+1, 51, 2, i+1, 52, 3])
     #     frontiers.append([i, 68, 4, i, 67, 3])
     #     frontiers.append([i+1, 67, 3, i+1, 68, 4])
-    for i in range(36, 133, 12):
-        frontiers.append([i, 15, 0, i, 16, 1])
-        frontiers.append([i, 31, 1, i, 32, 2])
-        frontiers.append([i, 52, 3, i, 51, 2])
-        frontiers.append([i, 68, 4, i, 67, 3])
-
-        frontiers.append([i+1, 16, 1, i+1, 15, 0])
-        frontiers.append([i+1, 32, 2, i+1, 31, 1])
-        frontiers.append([i+1, 51, 2, i+1, 52, 3])
-        frontiers.append([i+1, 67, 3, i+1, 68, 4])
 
     for f in frontiers:
         print("-    ", f)
