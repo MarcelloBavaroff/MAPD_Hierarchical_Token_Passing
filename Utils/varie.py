@@ -77,17 +77,28 @@ def create_frontiers_vertical():
     frontiers = []
 
     # Itera attraverso le righe e le colonne specificate
-    k = 5
-    for j in range(85, 135, 11):
-        for i in range(1, 60, 6):
+    k = 1
+    for j in range(30, 140, 12):
+        for i in range(1, 82, 4):
             # 31, 1, k+1, 30, 1, k
             f = [j, i, k, j + 1, i, k + 1]
             # 30, 2, k, 31, 2, k+1
-            ff = [j + 1, i + 3, k + 1, j, i + 3, k]
+            ff = [j + 1, i + 1, k + 1, j, i + 1, k]
             frontiers.append(f)
             frontiers.append(ff)
-        frontiers.append([j, 61, k, j + 1, 61, k + 1])
+        #frontiers.append([j, 61, k, j + 1, 61, k + 1])
         k += 1
+
+    # j = 18
+    # k = 0
+    # for i in range(1, 82, 2):
+    #     # 31, 1, k+1, 30, 1, k
+    #     f = [j, i, k, j + 1, i, k + 1]
+    #     # 30, 2, k, 31, 2, k+1
+    #     ff = [j + 1, i+1, k + 1, j, i + 1, k]
+    #     frontiers.append(f)
+    #     frontiers.append(ff)
+
     # Stampa gli ostacoli generati
     for f in frontiers:
         print("-    ", f)
@@ -119,22 +130,6 @@ def create_frontiers_horizontal():
     #         frontiers.append(ff)
     #     k += 1
 
-    for i in range(36, 130, 11):
-
-        if i % 2 == 0:
-            frontiers.append([i, 8, 0, i, 9, 1])
-            frontiers.append([i, 17, 1, i, 18, 2])
-            frontiers.append([i, 26, 2, i, 27, 3])
-            frontiers.append([i, 36, 4, i, 35, 3])
-            frontiers.append([i, 45, 5, i, 44, 4])
-            frontiers.append([i, 54, 6, i, 53, 5])
-        else:
-            frontiers.append([i, 9, 0, i, 8, 1])
-            frontiers.append([i, 18, 2, i, 17, 1])
-            frontiers.append([i, 27, 3, i, 26, 2])
-            frontiers.append([i, 35, 3, i, 36, 4])
-            frontiers.append([i, 44, 4, i, 45, 5])
-            frontiers.append([i, 53, 5, i, 54, 6])
 
     # for i in range(4, 26, 2):
     #     frontiers.append([i, 16, 1, i, 15, 0])
@@ -150,4 +145,4 @@ def create_frontiers_horizontal():
         print("-    ", f)
 
 
-create_frontiers_horizontal()
+create_frontiers_vertical()
