@@ -76,32 +76,32 @@ def create_frontiers_vertical():
     # Inizializza la lista degli ostacoli
     frontiers = []
 
-    # Itera attraverso le righe e le colonne specificate
-    # k = 1
-    # for j in range(30, 130, 11):
-    #     for i in range(1, 61, 4):
-    #         if j < 80:
-    #             f = [j+1, i, k, j, i, k + 1]
-    #             ff = [j, i + 4, k + 1, j + 1, i + 4, k]
-    #         else:
-    #             f = [j, i, k, j + 1, i, k + 1]
-    #             ff = [j + 1, i + 4, k + 1, j, i + 4, k]
-    #         frontiers.append(f)
-    #         frontiers.append(ff)
-    #
-    #
-    #     #frontiers.append([j, 61, k, j + 1, 61, k + 1])
-    #     k += 1
+    #Itera attraverso le righe e le colonne specificate
+    k = 1
+    for j in range(30, 130, 11):
+        for i in range(1, 61, 8):
+            if j < 80:
+                f = [j+1, i, k, j, i, k + 1]
+                ff = [j, i + 4, k + 1, j + 1, i + 4, k]
+            else:
+                f = [j, i, k, j + 1, i, k + 1]
+                ff = [j + 1, i + 4, k + 1, j, i + 4, k]
+            frontiers.append(f)
+            frontiers.append(ff)
 
-    j = 140
-    k = 11
-    for i in range(1, 62, 2):
-        # 31, 1, k+1, 30, 1, k
-        f = [j, i, k, j + 1, i, k + 1]
-        # 30, 2, k, 31, 2, k+1
-        ff = [j + 1, i+1, k + 1, j, i + 1, k]
-        frontiers.append(f)
-        frontiers.append(ff)
+
+        #frontiers.append([j, 61, k, j + 1, 61, k + 1])
+        k += 1
+
+    # j = 140
+    # k = 11
+    # for i in range(1, 62, 2):
+    #     # 31, 1, k+1, 30, 1, k
+    #     f = [j, i, k, j + 1, i, k + 1]
+    #     # 30, 2, k, 31, 2, k+1
+    #     ff = [j + 1, i+1, k + 1, j, i + 1, k]
+    #     frontiers.append(f)
+    #     frontiers.append(ff)
 
     # Stampa gli ostacoli generati
     for f in frontiers:
