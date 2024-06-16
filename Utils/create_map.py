@@ -6,13 +6,13 @@ def create_non_task_endpoints():
     non_task_endpoints = []
 
     # Itera attraverso le righe e le colonne specificate
-    for i in range(1, 83):
-        n = [168, i]
-        non_task_endpoints.append(n)
+    for i in range(20, 40):
+        non_task_endpoints.append([i, 0])
+        non_task_endpoints.append([i, 113])
 
-    # for i in range(47, 63):
-    #     n = [159, i]
-    #     non_task_endpoints.append(n)
+    for i in range(82, 102):
+        non_task_endpoints.append([i, 0])
+        non_task_endpoints.append([i, 113])
 
     for non in non_task_endpoints:
         print("- !!python/tuple", non)
@@ -23,17 +23,16 @@ def create_delivery():
     delivery = []
 
     # Itera attraverso le righe e le colonne specificate
-    for i in range(1, 83):
-        n = [1, i]
-        delivery.append(n)
-
+    for i in range(40, 82):
+        delivery.append([i, 0])
+        delivery.append([i, 113])
     for d in delivery:
         print("-    ", d)
 
 
 def create_agents():
     # Apri il file yaml e carica i dati
-    with open('/Users/bavaroff258/PycharmProjects/MAPD_partition/Environments/Stern/warehouse-170x84-3p_one_side.yaml',
+    with open('\\Users\marce\PycharmProjects\MAPD_partition\Environments\Stern\corridoi2-122x114-3p.yaml',
               'r') as file:
         data = yaml.load(file, Loader=yaml.FullLoader)
 
@@ -59,13 +58,11 @@ def create_pickup():
     # Inizializza la lista degli ostacoli
     pickups = []
 
-    # Itera attraverso le righe e le colonne specificate
-    for k in range(10):
-        for i in range(26 + 11 * k, 36 + 11 * k):
-            for j in range(4, 61, 3):
-                # Aggiungi un ostacolo alla lista degli ostacoli
-                pick = [[i, j]]  #, [i, j + 1]]
-                pickups.extend(pick)
+    for x in range(2, 111, 12):
+        for y in range(20, 93, 4):
+            for i in range(x, x + 10):
+                pickups.append([i, y])
+                pickups.append([i, y + 1])
 
     # Stampa gli ostacoli generati
     for p in pickups:
@@ -77,31 +74,21 @@ def create_frontiers_vertical():
     frontiers = []
 
     #Itera attraverso le righe e le colonne specificate
+    # k = 0
+    # for j in range(27, 142, 6):
+    #     for i in range(1, 82, 4):
+    #         frontiers.append([j, i, k, j+1, i, k + 1])
+    #         frontiers.append([j + 1, i+1, k + 1, j, i + 1, k])
+    #     k += 1
+
+    j = 90
     k = 1
-    for j in range(30, 130, 11):
-        for i in range(1, 61, 8):
-            if j < 80:
-                f = [j+1, i, k, j, i, k + 1]
-                ff = [j, i + 4, k + 1, j + 1, i + 4, k]
-            else:
-                f = [j, i, k, j + 1, i, k + 1]
-                ff = [j + 1, i + 4, k + 1, j, i + 4, k]
-            frontiers.append(f)
-            frontiers.append(ff)
+    for i in range(16, 97, 4):
 
-
-        #frontiers.append([j, 61, k, j + 1, 61, k + 1])
-        k += 1
-
-    # j = 140
-    # k = 11
-    # for i in range(1, 62, 2):
-    #     # 31, 1, k+1, 30, 1, k
-    #     f = [j, i, k, j + 1, i, k + 1]
-    #     # 30, 2, k, 31, 2, k+1
-    #     ff = [j + 1, i+1, k + 1, j, i + 1, k]
-    #     frontiers.append(f)
-    #     frontiers.append(ff)
+        f = [j, i, k, j + 1, i, k + 1]
+        ff = [j + 1, i+1, k + 1, j, i + 1, k]
+        frontiers.append(f)
+        frontiers.append(ff)
 
     # Stampa gli ostacoli generati
     for f in frontiers:
@@ -149,4 +136,16 @@ def create_frontiers_horizontal():
         print("-    ", f)
 
 
-create_frontiers_vertical()
+def create_obstacles():
+    obstacles = []
+    for x in range(2, 111, 12):
+        for y in range(18, 95, 4):
+            for i in range(x, x+10):
+                obstacles.append([i, y])
+                obstacles.append([i, y+1])
+
+    for obs in obstacles:
+        print("- !!python/tuple", obs)
+
+
+create_agents()
