@@ -74,21 +74,21 @@ def create_frontiers_vertical():
     frontiers = []
 
     #Itera attraverso le righe e le colonne specificate
-    # k = 0
-    # for j in range(27, 142, 6):
-    #     for i in range(1, 82, 4):
-    #         frontiers.append([j, i, k, j+1, i, k + 1])
-    #         frontiers.append([j + 1, i+1, k + 1, j, i + 1, k])
-    #     k += 1
+    k = 0
+    for j in range(6, 115, 12):
+        for i in range(16, 97, 4):
+            frontiers.append([j, i, k, j+1, i, k + 1])
+            frontiers.append([j + 1, i+1, k + 1, j, i + 1, k])
+        k += 1
 
-    j = 103
-    k = 5
-    for i in range(16, 97, 4):
-
-        f = [j, i, k, j + 1, i, k + 1]
-        ff = [j + 1, i+1, k + 1, j, i + 1, k]
-        frontiers.append(f)
-        frontiers.append(ff)
+    # j = 103
+    # k = 5
+    # for i in range(16, 97, 4):
+    #
+    #     f = [j, i, k, j + 1, i, k + 1]
+    #     ff = [j + 1, i+1, k + 1, j, i + 1, k]
+    #     frontiers.append(f)
+    #     frontiers.append(ff)
 
     # Stampa gli ostacoli generati
     for f in frontiers:
