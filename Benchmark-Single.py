@@ -15,12 +15,12 @@ def parameters(seed):
     #random_seed = seed
     parser = argparse.ArgumentParser()
     parser.add_argument('-a_star_max_iter', help='Maximum number of states explored by the low-level algorithm',
-                        default=1000, type=int)
+                        default=1500, type=int)
     parser.add_argument('-slow_factor', help='Slow factor of visualization', default=1, type=int)  # default=1
     parser.add_argument('-not_rand', help='Use if input has fixed tasks and delays', action='store_true', default=False)
     args = parser.parse_args()
 
-    with open(os.path.join(RoothPath.get_root(), 'config.json'), 'r') as json_file:
+    with open(os.path.join(RoothPath.get_root(), 'config2.json'), 'r') as json_file:
         config = json.load(json_file)
     args.param = os.path.join(RoothPath.get_root(), os.path.join(config['input_path'], config['input_name']))
     args.output = os.path.join(RoothPath.get_root(), 'output.yaml')
@@ -44,7 +44,7 @@ def parameters(seed):
 
 
     tasks = gen_tasks(param['map']['pickup_locations'], param['map']['delivery_locations'],
-                                             1000, 0.2, seed)
+                                             1000, 5, seed)
     param['tasks'] = tasks
 
     # with open('Comparisons/seeds2.txt', 'a') as file:
@@ -122,7 +122,7 @@ if __name__ == '__main__':
     array_maxAstar = []
     array_parallel_rounds = []
 
-    file_name = 'Comparisons/Stern/21p11a1000.txt'
+    file_name = 'Comparisons/Stern/20p7a1500.txt'
 
     with open('Comparisons/seeds1.txt', 'r') as file:
         # inserisci ogni riga in una lista

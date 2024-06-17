@@ -1,0 +1,217 @@
+
+
+0 Partition 9422
+('Number of agents: ', 80)
+('Number of completed tasks: ', 1000, '/', 1000)
+('Makespan: ', 4165)
+('Average service time: ', 1129.428)
+('Standard deviation: ', 804.91425929474)
+('Total A* calls: ', 5509)
+('Total A* expansions: ', 382738)
+('Espansioni considerando la parallelizzazione: ', 318134)
+
+1 Partition 96519
+('Number of agents: ', 80)
+('Number of completed tasks: ', 1000, '/', 1000)
+('Makespan: ', 3841)
+('Average service time: ', 1088.388)
+('Standard deviation: ', 733.1022367009937)
+('Total A* calls: ', 5541)
+('Total A* expansions: ', 405243)
+('Espansioni considerando la parallelizzazione: ', 336760)
+
+2 Partition 71414
+('Number of agents: ', 80)
+('Number of completed tasks: ', 1000, '/', 1000)
+('Makespan: ', 3910)
+('Average service time: ', 1105.038)
+('Standard deviation: ', 740.6020595137443)
+('Total A* calls: ', 5433)
+('Total A* expansions: ', 390807)
+('Espansioni considerando la parallelizzazione: ', 322401)
+
+3 Partition 22300
+('Number of agents: ', 80)
+('Number of completed tasks: ', 1000, '/', 1000)
+('Makespan: ', 3970)
+('Average service time: ', 1085.683)
+('Standard deviation: ', 749.6320887682174)
+('Total A* calls: ', 5422)
+('Total A* expansions: ', 357428)
+('Espansioni considerando la parallelizzazione: ', 292369)
+
+4 Partition 36551
+('Number of agents: ', 80)
+('Number of completed tasks: ', 1000, '/', 1000)
+('Makespan: ', 4849)
+('Average service time: ', 1139.483)
+('Standard deviation: ', 823.6034565924307)
+('Total A* calls: ', 5554)
+('Total A* expansions: ', 399105)
+('Espansioni considerando la parallelizzazione: ', 330834)
+
+5 Partition 63211
+('Number of agents: ', 80)
+('Number of completed tasks: ', 1000, '/', 1000)
+('Makespan: ', 4035)
+('Average service time: ', 1071.699)
+('Standard deviation: ', 727.5031012985444)
+('Total A* calls: ', 5372)
+('Total A* expansions: ', 383534)
+('Espansioni considerando la parallelizzazione: ', 320411)
+
+6 Partition 36286
+('Number of agents: ', 80)
+('Number of completed tasks: ', 1000, '/', 1000)
+('Makespan: ', 3674)
+('Average service time: ', 1091.314)
+('Standard deviation: ', 750.1512203576021)
+('Total A* calls: ', 5399)
+('Total A* expansions: ', 389611)
+('Espansioni considerando la parallelizzazione: ', 320161)
+
+7 Partition 89598
+('Number of agents: ', 80)
+('Number of completed tasks: ', 1000, '/', 1000)
+('Makespan: ', 4512)
+('Average service time: ', 1099.775)
+('Standard deviation: ', 788.2826310245594)
+('Total A* calls: ', 5398)
+('Total A* expansions: ', 377962)
+('Espansioni considerando la parallelizzazione: ', 316419)
+
+8 Partition 96537
+('Number of agents: ', 80)
+('Number of completed tasks: ', 1000, '/', 1000)
+('Makespan: ', 4319)
+('Average service time: ', 1093.177)
+('Standard deviation: ', 774.6214389435656)
+('Total A* calls: ', 5402)
+('Total A* expansions: ', 387137)
+('Espansioni considerando la parallelizzazione: ', 317120)
+
+9 Partition 71399
+('Number of agents: ', 80)
+('Number of completed tasks: ', 1000, '/', 1000)
+('Makespan: ', 4072)
+('Average service time: ', 1089.066)
+('Standard deviation: ', 739.5648501950319)
+('Total A* calls: ', 5392)
+('Total A* expansions: ', 382177)
+('Espansioni considerando la parallelizzazione: ', 314421)
+
+10 Partition 80726
+('Number of agents: ', 80)
+('Number of completed tasks: ', 1000, '/', 1000)
+('Makespan: ', 3903)
+('Average service time: ', 1094.866)
+('Standard deviation: ', 742.6073000206771)
+('Total A* calls: ', 5458)
+('Total A* expansions: ', 389218)
+('Espansioni considerando la parallelizzazione: ', 322992)
+
+11 Partition 63731
+('Number of agents: ', 80)
+('Number of completed tasks: ', 1000, '/', 1000)
+('Makespan: ', 3770)
+('Average service time: ', 1087.529)
+('Standard deviation: ', 751.4091010621313)
+('Total A* calls: ', 5428)
+('Total A* expansions: ', 373824)
+('Espansioni considerando la parallelizzazione: ', 308028)
+
+12 Partition 22450
+('Number of agents: ', 80)
+('Number of completed tasks: ', 1000, '/', 1000)
+('Makespan: ', 4179)
+('Average service time: ', 1121.228)
+('Standard deviation: ', 763.7707339352565)
+('Total A* calls: ', 5523)
+('Total A* expansions: ', 368622)
+('Espansioni considerando la parallelizzazione: ', 301217)
+
+13 Partition 92332
+('Number of agents: ', 80)
+('Number of completed tasks: ', 1000, '/', 1000)
+('Makespan: ', 3709)
+('Average service time: ', 1087.402)
+('Standard deviation: ', 727.7027362845354)
+('Total A* calls: ', 5422)
+('Total A* expansions: ', 392686)
+('Espansioni considerando la parallelizzazione: ', 323030)
+
+14 Partition 96550
+('Number of agents: ', 80)
+('Number of completed tasks: ', 1000, '/', 1000)
+('Makespan: ', 3869)
+('Average service time: ', 1114.087)
+('Standard deviation: ', 771.1838233722226)
+('Total A* calls: ', 5444)
+('Total A* expansions: ', 411724)
+('Espansioni considerando la parallelizzazione: ', 347845)
+
+15 Partition 1088
+('Number of agents: ', 80)
+('Number of completed tasks: ', 1000, '/', 1000)
+('Makespan: ', 3889)
+('Average service time: ', 1073.003)
+('Standard deviation: ', 754.6263174518897)
+('Total A* calls: ', 5274)
+('Total A* expansions: ', 371239)
+('Espansioni considerando la parallelizzazione: ', 309033)
+
+16 Partition 83629
+('Number of agents: ', 80)
+('Number of completed tasks: ', 1000, '/', 1000)
+('Makespan: ', 3434)
+('Average service time: ', 1118.079)
+('Standard deviation: ', 763.5107155495591)
+('Total A* calls: ', 5470)
+('Total A* expansions: ', 370111)
+('Espansioni considerando la parallelizzazione: ', 304903)
+
+17 Partition 3994
+('Number of agents: ', 80)
+('Number of completed tasks: ', 1000, '/', 1000)
+('Makespan: ', 3705)
+('Average service time: ', 1098.373)
+('Standard deviation: ', 735.5411245273777)
+('Total A* calls: ', 5427)
+('Total A* expansions: ', 382487)
+('Espansioni considerando la parallelizzazione: ', 314875)
+
+18 Partition 74082
+('Number of agents: ', 80)
+('Number of completed tasks: ', 1000, '/', 1000)
+('Makespan: ', 3595)
+('Average service time: ', 1086.533)
+('Standard deviation: ', 723.2528001404489)
+('Total A* calls: ', 5462)
+('Total A* expansions: ', 395638)
+('Espansioni considerando la parallelizzazione: ', 325383)
+
+19 Partition 54011
+('Number of agents: ', 80)
+('Number of completed tasks: ', 1000, '/', 1000)
+('Makespan: ', 4509)
+('Average service time: ', 1087.86)
+('Standard deviation: ', 741.7767928426991)
+('Total A* calls: ', 5451)
+('Total A* expansions: ', 384983)
+('Espansioni considerando la parallelizzazione: ', 319958)
+
+Numero di run completate: 20
+Numero medio di task completati: 1000.0
+Makespan medio: 3995.45
+Deviazione standard del makespan: 338.93
+Tempo medio di servizio: 1098.1
+Deviazione standard del service time: 755.37
+Chiamate ad A* medie: 5439.05
+Espansioni totali di A* in media: 384813.7
+Espansioni medie di A* considerando la parallelizzazione: 318314.7
+Sum of costs: 181843.05
+Max Astar: 3.05
+Parallel rounds: 1096.5
+
+
+Excel: 20;1000,0;3995,45; ;338,93;1098,1; ;755,37;5439,05;384813,7;318314,7;181843,05;3,05;1096,5
