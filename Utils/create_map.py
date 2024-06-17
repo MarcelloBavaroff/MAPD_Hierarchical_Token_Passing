@@ -81,8 +81,8 @@ def create_frontiers_vertical():
     #         frontiers.append([j + 1, i+1, k + 1, j, i + 1, k])
     #     k += 1
 
-    j = 90
-    k = 1
+    j = 103
+    k = 5
     for i in range(16, 97, 4):
 
         f = [j, i, k, j + 1, i, k + 1]
@@ -148,4 +148,4 @@ def create_obstacles():
         print("- !!python/tuple", obs)
 
 
-create_agents()
+create_frontiers_vertical()
