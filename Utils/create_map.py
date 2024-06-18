@@ -100,17 +100,17 @@ def create_frontiers_horizontal():
     frontiers = []
 
     # Itera attraverso le righe e le colonne specificate
+    k = 2
+    for j in range(66, 91, 24):
+        for i in range(0, 121, 12):
+            # 31, 1, k+1, 30, 1, k
+            f = [i, j+1, k+1, i, j, k]
+            # 30, 2, k, 31, 2, k+1
+            ff = [i+1, j, k, i+1, j+1, k+1]
+            frontiers.append(f)
+            frontiers.append(ff)
+        k += 1
     #k = 0
-    # for j in range(20, 41, 20):
-    #     for i in range(135, 156, 2):
-    #         # 31, 1, k+1, 30, 1, k
-    #         f = [i, j+1, k+1, i, j, k]
-    #         # 30, 2, k, 31, 2, k+1
-    #         ff = [i+1, j, k, i+1, j+1, k+1]
-    #         frontiers.append(f)
-    #         frontiers.append(ff)
-    #     k += 1
-    # k = 0
     # for j in range(8, 55, 9):
     #     for i in range(4, 25, 2):
     #         # 31, 1, k+1, 30, 1, k
@@ -120,17 +120,6 @@ def create_frontiers_horizontal():
     #         frontiers.append(f)
     #         frontiers.append(ff)
     #     k += 1
-
-
-    # for i in range(4, 26, 2):
-    #     frontiers.append([i, 16, 1, i, 15, 0])
-    #     frontiers.append([i+1, 15, 0, i+1, 16, 1])
-    #     frontiers.append([i, 32, 2, i, 31, 1])
-    #     frontiers.append([i+1, 31, 1, i+1, 32, 2])
-    #     frontiers.append([i, 52, 3, i, 51, 2])
-    #     frontiers.append([i+1, 51, 2, i+1, 52, 3])
-    #     frontiers.append([i, 68, 4, i, 67, 3])
-    #     frontiers.append([i+1, 67, 3, i+1, 68, 4])
 
     for f in frontiers:
         print("-    ", f)
@@ -148,4 +137,4 @@ def create_obstacles():
         print("- !!python/tuple", obs)
 
 
-create_frontiers_vertical()
+create_frontiers_horizontal()
