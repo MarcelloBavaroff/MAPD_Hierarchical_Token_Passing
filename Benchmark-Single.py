@@ -44,7 +44,7 @@ def parameters(seed):
 
 
     tasks = gen_tasks(param['map']['pickup_locations'], param['map']['delivery_locations'],
-                                             1000, 5, seed)
+                                             1000, 0.2, seed)
     param['tasks'] = tasks
 
     # with open('Comparisons/seeds2.txt', 'a') as file:
@@ -122,7 +122,7 @@ if __name__ == '__main__':
     array_maxAstar = []
     array_parallel_rounds = []
 
-    file_name = 'Comparisons/Stern/20hp5a1000.txt'
+    file_name = 'Comparisons/Stern/21hp7a1000.txt'
 
     with open('Comparisons/seeds1.txt', 'r') as file:
         # inserisci ogni riga in una lista
