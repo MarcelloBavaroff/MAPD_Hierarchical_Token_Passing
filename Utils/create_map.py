@@ -100,16 +100,16 @@ def create_frontiers_horizontal():
     frontiers = []
 
     #Itera attraverso le righe e le colonne specificate
-    k = 5
-    for j in range(62, 95, 8):
-        for i in range(0, 121, 12):
-            # 31, 1, k+1, 30, 1, k
-            f = [i, j+1, k+1, i, j, k]
-            # 30, 2, k, 31, 2, k+1
-            ff = [i+1, j, k, i+1, j+1, k+1]
-            frontiers.append(f)
-            frontiers.append(ff)
-        k += 1
+    # k = 1
+    # for j in range(18, 51, 8):
+    #     for i in range(0, 121, 12):
+    #         # 31, 1, k+1, 30, 1, k
+    #         f = [i, j+1, k+1, i, j, k]
+    #         # 30, 2, k, 31, 2, k+1
+    #         ff = [i+1, j, k, i+1, j+1, k+1]
+    #         frontiers.append(f)
+    #         frontiers.append(ff)
+    #     k += 1
     #k = 0
     # for j in range(8, 55, 9):
     #     for i in range(4, 25, 2):
@@ -121,15 +121,15 @@ def create_frontiers_horizontal():
     #         frontiers.append(ff)
     #     k += 1
 
-    # k=7
-    # j=98
-    # for i in range(0, 121, 2):
-    #     # 31, 1, k+1, 30, 1, k
-    #     f = [i, j + 1, k + 1, i, j, k]
-    #     # 30, 2, k, 31, 2, k+1
-    #     ff = [i + 1, j, k, i + 1, j + 1, k + 1]
-    #     frontiers.append(f)
-    #     frontiers.append(ff)
+    k=11
+    j=102
+    for i in range(0, 121, 2):
+        # 31, 1, k+1, 30, 1, k
+        f = [i, j + 1, k + 1, i, j, k]
+        # 30, 2, k, 31, 2, k+1
+        ff = [i + 1, j, k, i + 1, j + 1, k + 1]
+        frontiers.append(f)
+        frontiers.append(ff)
 
     for f in frontiers:
         print("-    ", f)
