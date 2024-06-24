@@ -2,17 +2,27 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 
-# Crea una matrice di esempio
-matrix = np.array([
-    [1, 2, 3],
-    [4, 5, 6],
-    [7, 8, 9]
-])
 
-# Crea una heatmap utilizzando seaborn
-plt.figure(figsize=(8, 6))
-sns.heatmap(matrix, annot=True, cmap="YlGnBu", cbar=True, linewidths=.5, linecolor='gray')
+class PrintMatrix(object):
+    def __init__(self, all_paths, dimensions):
 
-# Mostra la heatmap
-plt.title('Heatmap della matrice')
-plt.show()
+        self.dimensions = dimensions
+        self.heatmap = np.zeros((dimensions[0], dimensions[1]))
+        for path in all_paths.values():
+            for c in path:
+                self.heatmap[c['x'], c['y']] += 1
+
+
+
+    def plot_heatmap(self):
+        # Crea una heatmap utilizzando seaborn
+        plt.figure(figsize=(10, 20))
+        sns.heatmap(self.heatmap, annot=False, cmap="YlGnBu", cbar=True, linewidths=.5, linecolor='gray')
+
+        # Mostra la heatmap
+        plt.title('Heatmap della matrice')
+        plt.show()
+
+
+
+
