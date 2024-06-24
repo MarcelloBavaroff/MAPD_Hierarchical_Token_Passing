@@ -58,8 +58,8 @@ def create_pickup():
     # Inizializza la lista degli ostacoli
     pickups = []
 
-    for x in range(2, 111, 12):
-        for y in range(20, 93, 4):
+    for x in range(26, 135, 12):
+        for y in range(69, 78, 4):
             for i in range(x, x + 10):
                 pickups.append([i, y])
                 pickups.append([i, y + 1])
@@ -147,4 +147,4 @@ def create_obstacles():
         print("- !!python/tuple", obs)
 
 
-create_frontiers_horizontal()
+create_pickup()

@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    with open(os.path.join(RoothPath.get_root(), 'config2.json'), 'r') as json_file:
+    with open(os.path.join(RoothPath.get_root(), 'config.json'), 'r') as json_file:
         config = json.load(json_file)
     args.param = os.path.join(RoothPath.get_root(), os.path.join(config['input_path'], config['input_name']))
     args.output = os.path.join(RoothPath.get_root(), 'output.yaml')
