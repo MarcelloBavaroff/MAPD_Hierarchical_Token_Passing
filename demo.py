@@ -9,6 +9,7 @@ from Simulation.p_simulation import Simulation
 import subprocess
 import sys
 import ast
+from Print_Matrix import PrintMatrix
 
 def read_tasks():
     data_list = []
@@ -97,11 +98,15 @@ if __name__ == '__main__':
     cost = 0
     for path in simulation.actual_paths.values():
         cost = cost + len(path)
+
+    matrix = PrintMatrix(simulation.actual_paths, dimensions)
+    matrix.plot_heatmap()
+
     output = {'schedule': simulation.actual_paths, 'cost': cost,
               'completed_tasks_times': tp.get_completed_tasks_times()}
     with open(args.output, 'w') as output_yaml:
         yaml.safe_dump(output, output_yaml)
 
     #legge dal file di output
-    create = [sys.executable, '-m', 'Utils.Visualization.visualize', '-slow_factor', str(args.slow_factor)]
-    subprocess.call(create)
+    # create = [sys.executable, '-m', 'Utils.Visualization.visualize', '-slow_factor', str(args.slow_factor)]
+    # subprocess.call(create)

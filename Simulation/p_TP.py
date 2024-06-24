@@ -1,5 +1,6 @@
 from math import fabs
 import random
+import numpy as np
 from Simulation.CBS.p_cbs import CBS, Environment
 from dijkstar import Graph, find_path  #tizi simpatici che hanno implementato dijkstra
 
@@ -50,8 +51,12 @@ class TokenPassing(object):
 
         self.espansioniAstarXpart = [0] * self.number_of_areas
 
+        self.heatmap = np.zeros((dimensions[0], dimensions[1]))
         #vedi sotto
 
+
+    def get_heatmap(self):
+        return self.heatmap
     def get_parallel_rounds(self):
         return self.parallel_rounds
 
@@ -580,6 +585,12 @@ class TokenPassing(object):
             self.tokens[part_index]['agents'][agent_name].append([el['x'], el['y']])
 
         self.sumOfCosts += len(self.tokens[part_index]['agents'][agent_name])
+
+        #update matrix
+        for t in self.tokens[part_index]['agents'][agent_name]:
+            self.heatmap[t[0], t[1]] += 1
+
+
 
     # assegnamento dei task agli agenti, senza tener conto del percorso
     def assign_tasks(self):
