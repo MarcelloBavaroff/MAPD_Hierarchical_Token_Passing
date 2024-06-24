@@ -366,3 +366,69 @@ Excel: 20;1000,0;5978,85; ;289,67;323,68; ;223,1;10569,05;577274,75;476566,65;22
 ('Total A* calls: ', 9981)
 ('Total A* expansions: ', 342027)
 ('Espansioni considerando la parallelizzazione: ', 267110)
+
+15 Partition 1088
+('Number of agents: ', 80)
+('Number of completed tasks: ', 1000, '/', 1000)
+('Makespan: ', 6198)
+('Average service time: ', 309.535)
+('Standard deviation: ', 207.0871043184486)
+('Total A* calls: ', 9856)
+('Total A* expansions: ', 331495)
+('Espansioni considerando la parallelizzazione: ', 256866)
+
+16 Partition 83629
+('Number of agents: ', 80)
+('Number of completed tasks: ', 1000, '/', 1000)
+('Makespan: ', 5936)
+('Average service time: ', 331.143)
+('Standard deviation: ', 219.4288188707217)
+('Total A* calls: ', 10060)
+('Total A* expansions: ', 336644)
+('Espansioni considerando la parallelizzazione: ', 258993)
+
+17 Partition 3994
+('Number of agents: ', 80)
+('Number of completed tasks: ', 1000, '/', 1000)
+('Makespan: ', 5986)
+('Average service time: ', 317.753)
+('Standard deviation: ', 203.2571572934149)
+('Total A* calls: ', 10055)
+('Total A* expansions: ', 349847)
+('Espansioni considerando la parallelizzazione: ', 271466)
+
+18 Partition 74082
+('Number of agents: ', 80)
+('Number of completed tasks: ', 1000, '/', 1000)
+('Makespan: ', 6019)
+('Average service time: ', 341.177)
+('Standard deviation: ', 296.53290487060616)
+('Total A* calls: ', 10112)
+('Total A* expansions: ', 349536)
+('Espansioni considerando la parallelizzazione: ', 271366)
+
+19 Partition 54011
+('Number of agents: ', 80)
+('Number of completed tasks: ', 1000, '/', 1000)
+('Makespan: ', 5688)
+('Average service time: ', 304.071)
+('Standard deviation: ', 168.0073568597518)
+('Total A* calls: ', 10037)
+('Total A* expansions: ', 342967)
+('Espansioni considerando la parallelizzazione: ', 264883)
+
+Numero di run completate: 20
+Numero medio di task completati: 1000.0
+Makespan medio: 5980.7
+Deviazione standard del makespan: 295.28
+Tempo medio di servizio: 323.71
+Deviazione standard del service time: 223.71
+Chiamate ad A* medie: 10036.75
+Espansioni totali di A* in media: 344370.35
+Espansioni medie di A* considerando la parallelizzazione: 267474.8
+Sum of costs: 227748.65
+Max Astar: 0.15
+Parallel rounds: 2511.15
+
+
+Excel: 20;1000,0;5980,7; ;295,28;323,71; ;223,71;10036,75;344370,35;267474,8;227748,65;0,15;2511,15
