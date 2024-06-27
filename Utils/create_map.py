@@ -111,7 +111,7 @@ def create_frontiers_horizontal():
     #     k += 1
 
     k=0
-    rows = [11, 23, 35, 47, 59, 71]
+    rows = [7, 15, 23, 31, 39, 43, 51, 59, 67, 75]
     for j in rows:
         for i in range(144, 165, 2):
             # 31, 1, k+1, 30, 1, k
