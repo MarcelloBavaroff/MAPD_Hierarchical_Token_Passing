@@ -1,0 +1,11 @@
+
+
+0 Partition 9422
+('Number of agents: ', 80)
+('Number of completed tasks: ', 970, '/', 1000)
+('Makespan: ', 30000)
+('Average service time: ', 4155.225773195876)
+('Standard deviation: ', 7190.204486256361)
+('Total A* calls: ', 348646)
+('Total A* expansions: ', 51821551)
+('Espansioni considerando la parallelizzazione: ', 31944909)
