@@ -222,7 +222,6 @@ class TokenPassing(object):
 
     def get_moving_obstacles_agents(self, agents, time_start):
         obstacles = {}
-        negative_obstacles = {}
         for name, path in agents.items():  #agents.item ritorna un dizionario con nome agente e coordinate dello stesso
             if len(path) > time_start and len(path) > 1:
                 for i in range(time_start, len(path)):
@@ -232,23 +231,13 @@ class TokenPassing(object):
                     #di non aver pianificato la migrazione (len areas == 2), se ho pianificato non metto negativo
                     if i == len(path) - 1 and (not self.is_frontier_start_pos(path[i]) or len(
                             self.global_view['agents_to_areas'][name]) == 1):
-                        try:
-                            negative_obstacles[-k].append((path[i][0], path[i][1]))
-                        except:
-                            negative_obstacles[-k] = [(path[i][0], path[i][1])]
-        return obstacles, negative_obstacles
+                        obstacles[(path[i][0], path[i][1], -k)] = name
+        return obstacles
 
     def is_frontier_start_pos(self, pos):
-
-        own_partition = self.find_partition(pos)
-        for f in self.tokens[own_partition]['own_frontiers']:
-            for front in self.tokens[own_partition]['own_frontiers'][f]:
-                if front.start_pos == tuple(pos):
-                    return True
-
-        # for f in self.frontiers:
-        #     if f.start_pos == tuple(pos):
-        #         return True
+        for f in self.frontiers:
+            if f.start_pos == tuple(pos):
+                return True
         return False
 
     def abort_planning(self, agent_name, pos_to_go, part_index):
@@ -298,69 +287,22 @@ class TokenPassing(object):
 
         return obstacles
 
-    def check_safe1(self, agent_pos):
-        return tuple(agent_pos) in self.non_task_endpoints
-
-    def check_safe2(self, agent_pos):
-        for task_name, task in self.global_view['tasks'].items():
-            if tuple(task[0]) == tuple(agent_pos) or tuple(task[1]) == tuple(agent_pos):
-                return False
-
-        return True
-
-    #questo controllo penso sia deprecato, serviva quando avvenivano i ricalcoli post path cancellati
-    def check_safe3(self, agent_pos):
-        for start_goal in self.get_agents_to_tasks_starts_goals():
-            if tuple(start_goal) == tuple(agent_pos):
-                return False
-        return True
-
-    def check_safe4(self, agent_pos):
-        # ragioniamo:
-        # probabilmente superfluo
-        for f in self.frontiers:
-            if f.start_pos == tuple(agent_pos) or f.destination_pos == tuple(agent_pos):
-                return False
-        return True
-
     def check_safe_idle(self, agent_pos):
 
         if tuple(agent_pos) in self.non_task_endpoints:
             return True
 
-        #becca solo i delivery
-        if agent_pos in self.goal_endpoints:
-            for task_name, task in self.global_view['tasks'].items():
-                if tuple(task[0]) == tuple(agent_pos) or tuple(task[1]) == tuple(agent_pos):
-                    return False
-            return True
-
+        for task_name, task in self.global_view['tasks'].items():
+            if tuple(task[0]) == tuple(agent_pos) or tuple(task[1]) == tuple(agent_pos):
+                return False
         for start_goal in self.get_agents_to_tasks_starts_goals():
             if tuple(start_goal) == tuple(agent_pos):
                 return False
-
-        own_partition = self.find_partition(agent_pos)
-        for f in self.tokens[own_partition]['own_frontiers']:
-            for front in self.tokens[own_partition]['own_frontiers'][f]:
-                if front.start_pos == tuple(agent_pos):
-                    return False
-
-        # for f in self.frontiers:
-        #     if f.start_pos == tuple(agent_pos) or f.destination_pos == tuple(agent_pos):
-        #         return False
+        #probabilmente superfluo
+        for f in self.frontiers:
+            if f.start_pos == tuple(agent_pos) or f.destination_pos == tuple(agent_pos):
+                return False
         return True
-
-    #questo l'ho ripreso dal lavoro sulle batterie, sono accettate come pos safe solo i NONte
-    #ed i goal dove non mira nessun altro
-    def check_safe_idle_strict(self, agent_pos):
-
-        if tuple(agent_pos) in self.non_task_endpoints:
-            return True
-
-        if agent_pos in self.goal_endpoints:
-            return self.check_safe2(agent_pos)
-
-        return False
 
     def get_closest_non_task_endpoint(self, agent_pos):
         dist = -1
@@ -420,21 +362,11 @@ class TokenPassing(object):
         #elif tuple(agent_pos) in self.tokens[part_index]['occupied_non_task_endpoints']:
         #    self.tokens[part_index]['occupied_non_task_endpoints'].remove(tuple(agent_pos))
 
-    # def get_agents_to_tasks_goals(self):
-    #     goals = set()
-    #     for el in self.global_view['pre_assignment_agents_tasks'].values():
-    #         goals.add(tuple(el['goal']))
-    #     return goals
-
-    #potrei aver frainteso, non dovevo mettere tutti i taks, ma sono gli agents_to_tasks
-    def not_in_assigned_goals(self, pos0, pos1):
+    def get_agents_to_tasks_goals(self):
+        goals = set()
         for el in self.global_view['pre_assignment_agents_tasks'].values():
-            if tuple(el['goal']) == tuple(pos0) or tuple(el['goal']) == tuple(pos1):
-                return False
-        return True
-
-    def not_in_assigned_goals2(self, pos0, pos1, assigned_goals):
-        return tuple(pos0) not in assigned_goals and tuple(pos1) not in assigned_goals
+            goals.add(tuple(el['goal']))
+        return goals
 
     def get_agents_to_tasks_starts_goals(self):
         starts_goals = set()
@@ -525,18 +457,13 @@ class TokenPassing(object):
             for tup in self.tokens[a]['path_ends']:
                 all_path_ends.add(tuple(tup))
 
-
-        assigned_goals = set()
-        for el in self.global_view['pre_assignment_agents_tasks'].values():
-            assigned_goals.add(tuple(el['goal']))
-
         available_tasks = {}
         for task_name, task in self.global_view['tasks'].items():
             # se inizio e fine task non in path ends degli agenti (meno me) AND nemmeno in goals
-            if self.not_in_assigned_goals2(task[0], task[1], assigned_goals) and tuple(task[0]) not in all_path_ends.difference({tuple(agent_pos)}) and tuple(
-                    task[1]) not in all_path_ends.difference({tuple(agent_pos)}):
-                #     and tuple(task[0]) not in self.get_agents_to_tasks_goals() and tuple(
-                # task[1]) not in self.get_agents_to_tasks_goals():
+            if tuple(task[0]) not in all_path_ends.difference({tuple(agent_pos)}) and tuple(
+                    task[1]) not in all_path_ends.difference({tuple(agent_pos)}) \
+                    and tuple(task[0]) not in self.get_agents_to_tasks_goals() and tuple(
+                task[1]) not in self.get_agents_to_tasks_goals():
 
                 #se da errore di chiave vuol dire che l'agente non ha task discarded
 
@@ -568,7 +495,7 @@ class TokenPassing(object):
         if self.abort_planning(agent_name, loc1, part_index) or self.abort_planning(agent_name, loc2, part_index):
             return False
 
-        moving_obstacles_agents, negative_moving_obstacles = self.get_moving_obstacles_agents(self.tokens[part_index]['agents'], time_start)
+        moving_obstacles_agents = self.get_moving_obstacles_agents(self.tokens[part_index]['agents'], time_start)
         idle_obstacles_agents = self.get_idle_obstacles_agents(all_idle_agents, time_start, agent_name)
         idle_obstacles_agents |= (set(self.non_task_endpoints) - {tuple(loc1)})
         idle_obstacles_agents |= (set(self.goal_endpoints) - {tuple(loc1)})
@@ -576,7 +503,7 @@ class TokenPassing(object):
 
         agent = {'name': agent_name, 'start': agent_pos, 'goal': loc1}
         env = Environment(self.tokens[part_index]['partition'], [agent], self.obstacles | idle_obstacles_agents,
-                          moving_obstacles_agents, negative_moving_obstacles, self.non_task_endpoints, a_star_max_iter=self.a_star_max_iter)
+                          moving_obstacles_agents, self.non_task_endpoints, a_star_max_iter=self.a_star_max_iter)
         cbs = CBS(env)
         path1 = self.search(cbs, part_index)
         if not path1:
@@ -586,7 +513,7 @@ class TokenPassing(object):
             #print("Solution found to task start for agent", agent_name, " searching solution to task goal...")
             cost1 = env.compute_solution_cost(path1)
 
-            moving_obstacles_agents, negative_moving_obstacles = self.get_moving_obstacles_agents(self.tokens[part_index]['agents'],
+            moving_obstacles_agents = self.get_moving_obstacles_agents(self.tokens[part_index]['agents'],
                                                                        time_start + cost1 - 1)
             idle_obstacles_agents = self.get_idle_obstacles_agents(all_idle_agents, time_start + cost1 - 1, agent_name)
             idle_obstacles_agents |= (set(self.non_task_endpoints) - {tuple(loc1), tuple(loc2)})
@@ -595,7 +522,7 @@ class TokenPassing(object):
 
             agent = {'name': agent_name, 'start': loc1, 'goal': loc2}
             env = Environment(self.tokens[part_index]['partition'], [agent], self.obstacles | idle_obstacles_agents,
-                              moving_obstacles_agents, negative_moving_obstacles, self.non_task_endpoints, a_star_max_iter=self.a_star_max_iter)
+                              moving_obstacles_agents, self.non_task_endpoints, a_star_max_iter=self.a_star_max_iter)
             cbs = CBS(env)
             path2 = self.search(cbs, part_index)
             if not path2:
@@ -615,7 +542,7 @@ class TokenPassing(object):
             #print(agent_name, 'aborted planning to goal position...')
             return False
 
-        moving_obstacles_agents, negative_moving_obstacles = self.get_moving_obstacles_agents(self.tokens[part_index]['agents'], time_start)
+        moving_obstacles_agents = self.get_moving_obstacles_agents(self.tokens[part_index]['agents'], time_start)
         idle_obstacles_agents = self.get_idle_obstacles_agents(all_idle_agents, time_start, agent_name)
         idle_obstacles_agents |= (set(self.non_task_endpoints) - {tuple(goal_position)})
         idle_obstacles_agents |= (set(self.goal_endpoints) - {tuple(goal_position)})
@@ -623,7 +550,7 @@ class TokenPassing(object):
 
         agent = {'name': agent_name, 'start': agent_pos, 'goal': goal_position}
         env = Environment(self.tokens[part_index]['partition'], [agent], self.obstacles | idle_obstacles_agents,
-                          moving_obstacles_agents, negative_moving_obstacles, self.non_task_endpoints, a_star_max_iter=self.a_star_max_iter)
+                          moving_obstacles_agents, self.non_task_endpoints, a_star_max_iter=self.a_star_max_iter)
         cbs = CBS(env)
         path = self.search(cbs, part_index)
         if not path:
