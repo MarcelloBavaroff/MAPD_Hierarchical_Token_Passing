@@ -93,9 +93,11 @@ class Constraints(object):
             "EC: " + str([str(ec) for ec in self.edge_constraints])
 
 class Environment(object):
-    def __init__(self, partition, agents, obstacles, moving_obstacles, non_task_endpoints, a_star_max_iter=-1):
+    def __init__(self, partition, agents, obstacles, moving_obstacles, negative_moving_obstacles, non_task_endpoints, a_star_max_iter=-1):
         if moving_obstacles is None:
             moving_obstacles = []
+        if negative_moving_obstacles is None:
+            negative_moving_obstacles = {}
         #self.dimension = dimension
         self.x_min = partition[0]
         self.x_max = partition[2]
@@ -103,6 +105,9 @@ class Environment(object):
         self.y_max = partition[3]
         self.obstacles = obstacles
         self.moving_obstacles = moving_obstacles
+        self.negative_moving_obstacles = negative_moving_obstacles
+        # dalla più piccola (più negativo) in poi
+        self.ordered_keys_negative = sorted(negative_moving_obstacles, reverse=True)
         self.a_star_max_iter = a_star_max_iter
         #per quello che facciamo noi è sempre 1
         self.agents = agents
@@ -215,19 +220,35 @@ class Environment(object):
                 all_obs.add((o[0], o[1]))
         return self.obstacles | all_obs
 
+    def check_motionless_obstacles(self, time, x, y):
+        #scorro dalla fine e poi mi fermo
+        valid = True
+        for i in self.ordered_keys_negative:
+            #vedo solo posizioni finali degli agenti ad un timestep successivo a time
+            if i >= -time:
+                #entro e vedo se c'è un ostacolo che rende non valida la pos
+                for o in self.negative_moving_obstacles[i]:
+                    if o[0] == x and o[1] == y:
+                        valid = False
+                        break
+            else:
+                break
+
+        return valid and (x, y) not in self.obstacles
+
     #momentaneamente l'OR serve per far passare come accettabile la wait sulla frontiera
     def state_valid_frontier(self, state):
         return ((state.location.x >= self.x_min and state.location.x <= self.x_max
             and state.location.y >= self.y_min and state.location.y <= self.y_max) or (state.location.x == self.start[0] and state.location.y == self.start[1])) \
             and VertexConstraint(state.time, state.location) not in self.constraints.vertex_constraints \
-            and (state.location.x, state.location.y) not in self.get_all_obstacles(state.time) \
+            and self.check_motionless_obstacles(state.time, state.location.x, state.location.y) \
             and (state.location.x, state.location.y, state.time) not in self.moving_obstacles
 
     def state_valid(self, state):
         return (state.location.x >= self.x_min and state.location.x <= self.x_max
             and state.location.y >= self.y_min and state.location.y <= self.y_max) \
             and VertexConstraint(state.time, state.location) not in self.constraints.vertex_constraints \
-            and (state.location.x, state.location.y) not in self.get_all_obstacles(state.time) \
+            and self.check_motionless_obstacles(state.time, state.location.x, state.location.y) \
             and (state.location.x, state.location.y, state.time) not in self.moving_obstacles
 
     def transition_valid(self, state_1, state_2):

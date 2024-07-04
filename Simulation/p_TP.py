@@ -222,6 +222,7 @@ class TokenPassing(object):
 
     def get_moving_obstacles_agents(self, agents, time_start):
         obstacles = {}
+        negative_obstacles = {}
         for name, path in agents.items():  #agents.item ritorna un dizionario con nome agente e coordinate dello stesso
             if len(path) > time_start and len(path) > 1:
                 for i in range(time_start, len(path)):
@@ -231,8 +232,11 @@ class TokenPassing(object):
                     #di non aver pianificato la migrazione (len areas == 2), se ho pianificato non metto negativo
                     if i == len(path) - 1 and (not self.is_frontier_start_pos(path[i]) or len(
                             self.global_view['agents_to_areas'][name]) == 1):
-                        obstacles[(path[i][0], path[i][1], -k)] = name
-        return obstacles
+                        try:
+                            negative_obstacles[-k].append((path[i][0], path[i][1]))
+                        except:
+                            negative_obstacles[-k] = [(path[i][0], path[i][1])]
+        return obstacles, negative_obstacles
 
     def is_frontier_start_pos(self, pos):
         for f in self.frontiers:
@@ -495,7 +499,7 @@ class TokenPassing(object):
         if self.abort_planning(agent_name, loc1, part_index) or self.abort_planning(agent_name, loc2, part_index):
             return False
 
-        moving_obstacles_agents = self.get_moving_obstacles_agents(self.tokens[part_index]['agents'], time_start)
+        moving_obstacles_agents, negative_moving_obstacles = self.get_moving_obstacles_agents(self.tokens[part_index]['agents'], time_start)
         idle_obstacles_agents = self.get_idle_obstacles_agents(all_idle_agents, time_start, agent_name)
         idle_obstacles_agents |= (set(self.non_task_endpoints) - {tuple(loc1)})
         idle_obstacles_agents |= (set(self.goal_endpoints) - {tuple(loc1)})
@@ -503,7 +507,7 @@ class TokenPassing(object):
 
         agent = {'name': agent_name, 'start': agent_pos, 'goal': loc1}
         env = Environment(self.tokens[part_index]['partition'], [agent], self.obstacles | idle_obstacles_agents,
-                          moving_obstacles_agents, self.non_task_endpoints, a_star_max_iter=self.a_star_max_iter)
+                          moving_obstacles_agents, negative_moving_obstacles, self.non_task_endpoints, a_star_max_iter=self.a_star_max_iter)
         cbs = CBS(env)
         path1 = self.search(cbs, part_index)
         if not path1:
@@ -513,7 +517,7 @@ class TokenPassing(object):
             #print("Solution found to task start for agent", agent_name, " searching solution to task goal...")
             cost1 = env.compute_solution_cost(path1)
 
-            moving_obstacles_agents = self.get_moving_obstacles_agents(self.tokens[part_index]['agents'],
+            moving_obstacles_agents, negative_moving_obstacles = self.get_moving_obstacles_agents(self.tokens[part_index]['agents'],
                                                                        time_start + cost1 - 1)
             idle_obstacles_agents = self.get_idle_obstacles_agents(all_idle_agents, time_start + cost1 - 1, agent_name)
             idle_obstacles_agents |= (set(self.non_task_endpoints) - {tuple(loc1), tuple(loc2)})
@@ -522,7 +526,7 @@ class TokenPassing(object):
 
             agent = {'name': agent_name, 'start': loc1, 'goal': loc2}
             env = Environment(self.tokens[part_index]['partition'], [agent], self.obstacles | idle_obstacles_agents,
-                              moving_obstacles_agents, self.non_task_endpoints, a_star_max_iter=self.a_star_max_iter)
+                              moving_obstacles_agents, negative_moving_obstacles, self.non_task_endpoints, a_star_max_iter=self.a_star_max_iter)
             cbs = CBS(env)
             path2 = self.search(cbs, part_index)
             if not path2:
@@ -542,7 +546,7 @@ class TokenPassing(object):
             #print(agent_name, 'aborted planning to goal position...')
             return False
 
-        moving_obstacles_agents = self.get_moving_obstacles_agents(self.tokens[part_index]['agents'], time_start)
+        moving_obstacles_agents, negative_moving_obstacles = self.get_moving_obstacles_agents(self.tokens[part_index]['agents'], time_start)
         idle_obstacles_agents = self.get_idle_obstacles_agents(all_idle_agents, time_start, agent_name)
         idle_obstacles_agents |= (set(self.non_task_endpoints) - {tuple(goal_position)})
         idle_obstacles_agents |= (set(self.goal_endpoints) - {tuple(goal_position)})
@@ -550,7 +554,7 @@ class TokenPassing(object):
 
         agent = {'name': agent_name, 'start': agent_pos, 'goal': goal_position}
         env = Environment(self.tokens[part_index]['partition'], [agent], self.obstacles | idle_obstacles_agents,
-                          moving_obstacles_agents, self.non_task_endpoints, a_star_max_iter=self.a_star_max_iter)
+                          moving_obstacles_agents, negative_moving_obstacles, self.non_task_endpoints, a_star_max_iter=self.a_star_max_iter)
         cbs = CBS(env)
         path = self.search(cbs, part_index)
         if not path:
