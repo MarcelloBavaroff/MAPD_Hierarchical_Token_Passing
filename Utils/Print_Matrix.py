@@ -29,12 +29,15 @@ class PrintMatrix(object):
 
     def plot_heatmap(self):
         # Crea una heatmap utilizzando seaborn
-        plt.figure(figsize=(5, 5*self.ratio))
-        to_show = sns.heatmap(self.heatmap, mask=self.mask, annot=False, cmap="YlGnBu", cbar=True, linewidths=.5, linecolor='gray')
+        plt.figure(figsize=(5*self.ratio, 5))
+        rotated_data = np.rot90(self.heatmap, k=-1)
+        rotated_mask = np.rot90(self.mask, k=-1)
+        to_show = sns.heatmap(rotated_data, mask=rotated_mask, annot=False, cmap="YlGnBu", cbar=True, linewidths=.5, linecolor='gray')
 
         for o in self.obstacles:
-            to_show.add_patch(plt.Rectangle((o[1], o[0]), 1, 1, fill=True, color='black', lw=0.5))
+            to_show.add_patch(plt.Rectangle((o[0], o[1]), 1, 1, fill=True, color='black', lw=0.5))
         # Mostra la heatmap
+        to_show.set_yticklabels(to_show.get_yticklabels()[::-1])
         plt.title('Heatmap della matrice')
         plt.show()
 

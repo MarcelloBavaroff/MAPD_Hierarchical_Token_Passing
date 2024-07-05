@@ -6,10 +6,8 @@ from Simulation.p_TP import TokenPassing
 import RoothPath
 from Simulation.tasks_maker import *
 from Simulation.p_simulation import Simulation
-import subprocess
-import sys
 import ast
-from Print_Matrix import PrintMatrix
+from Utils.Print_Matrix import PrintMatrix
 
 def read_tasks():
     data_list = []
@@ -103,7 +101,7 @@ if __name__ == '__main__':
     matrix.plot_heatmap()
 
     #output = {'schedule': simulation.actual_paths, 'cost': cost,
-   #           'completed_tasks_times': tp.get_completed_tasks_times()}
+    #           'completed_tasks_times': tp.get_completed_tasks_times()}
     #with open(args.output, 'w') as output_yaml:
     #    yaml.safe_dump(output, output_yaml)
 
