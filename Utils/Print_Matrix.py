@@ -27,9 +27,10 @@ class PrintMatrix(object):
 
 
 
-    def plot_heatmap(self):
+    def plot_heatmap(self, n_runs=1):
         # Crea una heatmap utilizzando seaborn
         plt.figure(figsize=(5*self.ratio, 5))
+        self.heatmap = self.heatmap/n_runs
         rotated_data = np.rot90(self.heatmap, k=-1)
         rotated_mask = np.rot90(self.mask, k=-1)
         to_show = sns.heatmap(rotated_data, mask=rotated_mask, annot=False, cmap="YlGnBu", cbar=True, linewidths=.5, linecolor='gray')

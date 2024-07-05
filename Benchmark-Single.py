@@ -9,6 +9,8 @@ import RoothPath
 from Simulation.tasks_maker import *
 from Simulation.p_TP import TokenPassing
 from Simulation.p_simulation import Simulation
+from Utils.Print_Matrix import PrintMatrix
+
 
 def parameters(seed):
     random.seed(seed)
@@ -105,7 +107,21 @@ def single_run(index_run, random_seed, file_name):
     print_comparison("Partition", n_agents, completed_tasks, n_tasks, makespan, average_service_time, std_dev_st, Astar_calls,
                      Astar_total_expansions, Astar_exp_sum_max_per_timestep, index_run, random_seed, file_name)
 
-    return completed_tasks, n_tasks, makespan, average_service_time, std_dev_st, Astar_calls, Astar_total_expansions, Astar_exp_sum_max_per_timestep, sum_of_costs, maxAstar, parallel_rounds, simulation.actual_paths  # , completed_tasks2, n_tasks2, dead_agents2, makespan2, average_service_time2, cbs_calls2, cbs_calls_recharge2
+    return completed_tasks, n_tasks, makespan, average_service_time, std_dev_st, Astar_calls, Astar_total_expansions, Astar_exp_sum_max_per_timestep, sum_of_costs, maxAstar, parallel_rounds, simulation.actual_paths, dimensions, obstacles, non_task_endpoints, goal_endpoints  # , completed_tasks2, n_tasks2, dead_agents2, makespan2, average_service_time2, cbs_calls2, cbs_calls_recharge2
+
+
+def compute_all_actual_paths(array_actual_paths):
+    all_paths = {}
+
+    #ac è un actual_path
+    for ac in array_actual_paths:
+        #key è una agente
+        for key in ac:
+            if key not in all_paths:
+                all_paths[key] = []
+            all_paths[key].extend(ac[key])
+
+    return all_paths
 
 
 if __name__ == '__main__':
@@ -121,8 +137,9 @@ if __name__ == '__main__':
     array_sum_of_costs = []
     array_maxAstar = []
     array_parallel_rounds = []
+    array_actual_paths = []
 
-    file_name = 'Comparisons/Stern/11hp21a500.txt'
+    file_name = 'Comparisons/Stern/test.txt'
 
     with open('Comparisons/seeds1.txt', 'r') as file:
         # inserisci ogni riga in una lista
@@ -136,7 +153,7 @@ if __name__ == '__main__':
         #try:
         (completed_tasks, n_tasks, makespan, average_service_time,
          std_dev_st, Astar_calls, Astar_total_expansions, Astar_exp_sum_max_per_timestep, sum_of_costs, maxAstar,
-         parallel_rounds, actual_paths) = \
+         parallel_rounds, actual_paths, dimensions, obstacles, non_task_endpoints, goal_endpoints) = \
             (single_run(i, random_seed, file_name))
 
         if completed_tasks == n_tasks:
@@ -151,6 +168,7 @@ if __name__ == '__main__':
             array_sum_of_costs.append(sum_of_costs)
             array_maxAstar.append(maxAstar)
             array_parallel_rounds.append(parallel_rounds)
+            array_actual_paths.append(actual_paths)
         #except:
         #    print("Errore in run ", i)
 
@@ -165,6 +183,7 @@ if __name__ == '__main__':
     avg_sum_of_costs = round(np.mean(array_sum_of_costs), 2)
     avg_maxAstar = round(np.mean(array_maxAstar), 2) * Astar_max
     avg_parallel_rounds = round(np.mean(array_parallel_rounds), 2)
+    all_paths = compute_all_actual_paths(array_actual_paths)
 
     # print("\nVersioneChange")
     print("Numero di run completate: ", run_complete)
@@ -207,6 +226,10 @@ if __name__ == '__main__':
 
         file.write("\n\n" + "Excel: ")
         file.write(excel_string)
+
+        matrix = PrintMatrix(all_paths, dimensions, obstacles, non_task_endpoints, goal_endpoints)
+        matrix.plot_heatmap(20)
+
 
 
 
