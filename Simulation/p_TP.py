@@ -525,7 +525,6 @@ class TokenPassing(object):
             for tup in self.tokens[a]['path_ends']:
                 all_path_ends.add(tuple(tup))
 
-
         assigned_goals = set()
         for el in self.global_view['pre_assignment_agents_tasks'].values():
             assigned_goals.add(tuple(el['goal']))

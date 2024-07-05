@@ -105,7 +105,7 @@ def single_run(index_run, random_seed, file_name):
     print_comparison("Partition", n_agents, completed_tasks, n_tasks, makespan, average_service_time, std_dev_st, Astar_calls,
                      Astar_total_expansions, Astar_exp_sum_max_per_timestep, index_run, random_seed, file_name)
 
-    return completed_tasks, n_tasks, makespan, average_service_time, std_dev_st, Astar_calls, Astar_total_expansions, Astar_exp_sum_max_per_timestep, sum_of_costs, maxAstar, parallel_rounds  # , completed_tasks2, n_tasks2, dead_agents2, makespan2, average_service_time2, cbs_calls2, cbs_calls_recharge2
+    return completed_tasks, n_tasks, makespan, average_service_time, std_dev_st, Astar_calls, Astar_total_expansions, Astar_exp_sum_max_per_timestep, sum_of_costs, maxAstar, parallel_rounds, simulation.actual_paths  # , completed_tasks2, n_tasks2, dead_agents2, makespan2, average_service_time2, cbs_calls2, cbs_calls_recharge2
 
 
 if __name__ == '__main__':
@@ -136,7 +136,7 @@ if __name__ == '__main__':
         #try:
         (completed_tasks, n_tasks, makespan, average_service_time,
          std_dev_st, Astar_calls, Astar_total_expansions, Astar_exp_sum_max_per_timestep, sum_of_costs, maxAstar,
-         parallel_rounds) = \
+         parallel_rounds, actual_paths) = \
             (single_run(i, random_seed, file_name))
 
         if completed_tasks == n_tasks:
