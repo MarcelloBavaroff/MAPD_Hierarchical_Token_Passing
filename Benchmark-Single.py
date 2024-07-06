@@ -139,7 +139,7 @@ if __name__ == '__main__':
     array_parallel_rounds = []
     array_actual_paths = []
 
-    file_name = 'Comparisons/Stern/test.txt'
+    file_name = 'Comparisons/Stern/11hp15.txt'
 
     with open('Comparisons/seeds1.txt', 'r') as file:
         # inserisci ogni riga in una lista

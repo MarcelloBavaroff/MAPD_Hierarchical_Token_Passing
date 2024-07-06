@@ -329,7 +329,7 @@ class TokenPassing(object):
             return True
 
         #becca solo i delivery
-        if agent_pos in self.goal_endpoints:
+        if tuple(agent_pos) in self.goal_endpoints:
             for task_name, task in self.global_view['tasks'].items():
                 if tuple(task[0]) == tuple(agent_pos) or tuple(task[1]) == tuple(agent_pos):
                     return False
