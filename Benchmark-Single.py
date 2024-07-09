@@ -139,7 +139,7 @@ if __name__ == '__main__':
     array_parallel_rounds = []
     array_actual_paths = []
 
-    file_name = 'Comparisons/Stern/22hp11a500.txt'
+    file_name = 'Comparisons/Stern/24hp11a500.txt'
 
     with open('Comparisons/seeds1.txt', 'r') as file:
         # inserisci ogni riga in una lista
@@ -203,7 +203,7 @@ if __name__ == '__main__':
         excel_string = (str(run_complete) + ";" + str(avg_completed_tasks) + ";" + str(avg_makespan) + "; ;" + str(
             std_makespan) + ";" + str(avg_avg_service_time) + "; ;" + str(avg_std_dev) + ";" + str(
             avg_Astar_calls) + ";" + str(avg_Astar_total_expansions) + ";" + str(avg_Astar_exp_sum_max_per_timestep)
-                        + ";" + str(avg_sum_of_costs) + ";" + str(avg_maxAstar) + ";" + str(avg_parallel_rounds) + "\n")
+                        + "; ;" + str(avg_sum_of_costs) + ";" + str(avg_maxAstar) + ";" + str(avg_parallel_rounds) + "\n")
         excel_string = excel_string.replace(".", ",")
         print("Excel: ", excel_string)
     except:
