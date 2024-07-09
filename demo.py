@@ -1,4 +1,7 @@
 import argparse
+import subprocess
+import sys
+
 import yaml
 import json
 import os
@@ -100,11 +103,11 @@ if __name__ == '__main__':
     matrix = PrintMatrix(simulation.actual_paths, dimensions, obstacles, non_task_endpoints, goal_endpoints)
     matrix.plot_heatmap()
 
-    #output = {'schedule': simulation.actual_paths, 'cost': cost,
-    #           'completed_tasks_times': tp.get_completed_tasks_times()}
-    #with open(args.output, 'w') as output_yaml:
-    #    yaml.safe_dump(output, output_yaml)
+    output = {'schedule': simulation.actual_paths, 'cost': cost,
+               'completed_tasks_times': tp.get_completed_tasks_times()}
+    with open(args.output, 'w') as output_yaml:
+        yaml.safe_dump(output, output_yaml)
 
     #legge dal file di output
-    #create = [sys.executable, '-m', 'Utils.Visualization.visualize', '-slow_factor', str(args.slow_factor)]
-    #subprocess.call(create)
+    create = [sys.executable, '-m', 'Utils.Visualization.visualize', '-slow_factor', str(args.slow_factor)]
+    subprocess.call(create)

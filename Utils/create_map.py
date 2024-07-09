@@ -111,24 +111,25 @@ def create_frontiers_horizontal():
     #     k += 1
 
     k=0
-    rows = [3, 7, 11, 15, 19, 23, 27, 31, 35, 39, 43, 47, 51, 55, 59, 63, 67, 71, 75, 79]
-    for j in rows:
+    rows = [3, 7, 11, 15, 19, 23, 31, 39, 43, 51, 59, 63, 67, 71, 75, 79]
+    rows2 = [18, 22, 26, 30, 34, 38, 46, 54, 58, 66, 74, 78, 82, 86, 90, 94]
+    for j in rows2:
         #j = j+15
-        for i in range(144, 165, 2):
-            # 31, 1, k+1, 30, 1, k
-            f = [i, j + 1, k + 1, i, j, k]
-            # 30, 2, k, 31, 2, k+1
-            ff = [i + 1, j, k, i + 1, j + 1, k + 1]
-            frontiers.append(f)
-            frontiers.append(ff)
-        for i in range(4, 26, 2):
-            # 31, 1, k+1, 30, 1, k
-            f = [i, j + 1, k + 1, i, j, k]
-            # 30, 2, k, 31, 2, k+1
-            ff = [i + 1, j, k, i + 1, j + 1, k + 1]
-            frontiers.append(f)
-            frontiers.append(ff)
-        for i in range(36, 135, 12):
+        # for i in range(144, 165, 2):
+        #     # 31, 1, k+1, 30, 1, k
+        #     f = [i, j + 1, k + 1, i, j, k]
+        #     # 30, 2, k, 31, 2, k+1
+        #     ff = [i + 1, j, k, i + 1, j + 1, k + 1]
+        #     frontiers.append(f)
+        #     frontiers.append(ff)
+        # for i in range(4, 26, 2):
+        #     # 31, 1, k+1, 30, 1, k
+        #     f = [i, j + 1, k + 1, i, j, k]
+        #     # 30, 2, k, 31, 2, k+1
+        #     ff = [i + 1, j, k, i + 1, j + 1, k + 1]
+        #     frontiers.append(f)
+        #     frontiers.append(ff)
+        for i in range(0, 121, 12):
             # 31, 1, k+1, 30, 1, k
             f = [i, j + 1, k + 1, i, j, k]
             # 30, 2, k, 31, 2, k+1
@@ -154,3 +155,4 @@ def create_obstacles():
 
 
 create_frontiers_horizontal()
+
