@@ -18002,8 +18002,8 @@ map:
     - [ 149, 77, 6, 148, 77, 5 ]
     - [ 149, 79, 6, 148, 79, 5 ]
     - [ 149, 81, 6, 148, 81, 5 ]
-n_tasks: 1000
-task_freq: 0.2
+n_tasks: 10
+task_freq: 5
 
 # densità 170x84=14280
 # 14280/84=170 servono più robot probabilmente
