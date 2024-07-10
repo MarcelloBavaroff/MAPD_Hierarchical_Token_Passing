@@ -1,6 +1,6 @@
 {
-    "input_path": "Environments/Stern/122x114",
-    "input_name": "corridoi2-122x114-horizontal-21p.yaml",
+    "input_path": "Environments/Stern/170x84",
+    "input_name": "task_sugiu-170x84-horizontal-21p.yaml",
     "visual_postfix": "_tmp",
     "experiments_path": "Experiments",
     "experiments_name": "experiments_new2_big_07_10_2021_00_42_53.json"
