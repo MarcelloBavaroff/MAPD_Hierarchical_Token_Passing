@@ -46,7 +46,7 @@ def parameters(seed):
 
 
     tasks = gen_tasks(param['map']['pickup_locations'], param['map']['delivery_locations'],
-                                             1000, 5, seed)
+                                             1000, 0.2, seed)
     param['tasks'] = tasks
 
     # with open('Comparisons/seeds2.txt', 'a') as file:
@@ -109,7 +109,7 @@ def single_run(index_run, random_seed, file_name):
 
     return (completed_tasks, n_tasks, makespan, average_service_time, std_dev_st, Astar_calls, Astar_total_expansions,
             Astar_exp_sum_max_per_timestep, sum_of_costs, maxAstar, parallel_rounds, simulation.actual_paths, dimensions,
-            obstacles, non_task_endpoints, goal_endpoints)  # , completed_tasks2, n_tasks2, dead_agents2, makespan2, average_service_time2, cbs_calls2, cbs_calls_recharge2
+            obstacles, agents, goal_endpoints)  # , completed_tasks2, n_tasks2, dead_agents2, makespan2, average_service_time2, cbs_calls2, cbs_calls_recharge2
 
 
 def compute_all_actual_paths(array_actual_paths):
@@ -141,7 +141,8 @@ if __name__ == '__main__':
     array_parallel_rounds = []
     array_actual_paths = []
 
-    file_name = 'Comparisons/Stern/24p11+4a500.txt'
+
+    file_name = 'Comparisons/Stern/27p3a500.txt'
 
     with open('Comparisons/seeds1.txt', 'r') as file:
         # inserisci ogni riga in una lista
@@ -155,7 +156,7 @@ if __name__ == '__main__':
         #try:
         (completed_tasks, n_tasks, makespan, average_service_time,
          std_dev_st, Astar_calls, Astar_total_expansions, Astar_exp_sum_max_per_timestep, sum_of_costs, maxAstar,
-         parallel_rounds, actual_paths, dimensions, obstacles, non_task_endpoints, goal_endpoints) = \
+         parallel_rounds, actual_paths, dimensions, obstacles, agents, goal_endpoints) = \
             (single_run(i, random_seed, file_name))
 
         if completed_tasks == n_tasks:
@@ -229,7 +230,7 @@ if __name__ == '__main__':
         file.write("\n\n" + "Excel: ")
         file.write(excel_string)
 
-        matrix = PrintMatrix(all_paths, dimensions, obstacles, non_task_endpoints, goal_endpoints)
+        matrix = PrintMatrix(all_paths, dimensions, obstacles, agents, goal_endpoints)
         matrix.plot_heatmap(20)
 
 

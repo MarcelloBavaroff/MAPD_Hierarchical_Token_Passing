@@ -53,6 +53,26 @@ def create_agents():
         print("-    start: [", agent['start'][0], ",", agent['start'][1], "]")
         print("     name:", agent['name'])
 
+def create_agents_independent():
+    agents = []
+    i=83
+    for y in range(1, 82, 2):
+        agent = {
+            'name': f'agent{i}',
+            'start': [10, y]
+        }
+        agents.append(agent)
+        agent = {
+            'name': f'agent{i+100}',
+            'start': [159, y]
+        }
+        agents.append(agent)
+        i+=1
+
+    for agent in agents:
+        print("-    start: [", agent['start'][0], ",", agent['start'][1], "]")
+        print("     name:", agent['name'])
+
 
 def create_pickup():
     # Inizializza la lista degli ostacoli
@@ -157,5 +177,5 @@ def create_obstacles():
         print("- !!python/tuple", obs)
 
 
-create_frontiers_vertical()
+create_agents_independent()
 

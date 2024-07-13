@@ -100,7 +100,7 @@ if __name__ == '__main__':
     for path in simulation.actual_paths.values():
         cost = cost + len(path)
 
-    matrix = PrintMatrix(simulation.actual_paths, dimensions, obstacles, non_task_endpoints, goal_endpoints)
+    matrix = PrintMatrix(simulation.actual_paths, dimensions, obstacles, agents, goal_endpoints)
     matrix.plot_heatmap()
 
     output = {'schedule': simulation.actual_paths, 'cost': cost,
