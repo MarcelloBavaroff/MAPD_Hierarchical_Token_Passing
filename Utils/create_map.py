@@ -94,24 +94,22 @@ def create_frontiers_vertical():
     frontiers = []
 
     #Itera attraverso le righe e le colonne specificate
-    columns_internal = [30, 42, 54, 66, 78, 90, 102, 114, 126, 138 ]
+    columns_internal = [30, 42, 66, 102, 126, 138 ]
     columns_external = [150, 162]
 
-    # k = 2
-    # for j in columns_internal:
-    #     for i in range(1, 82, 4):
-    #         frontiers.append([j, i, k, j+1, i, k + 1])
-    #         frontiers.append([j + 1, i+1, k + 1, j, i + 1, k])
-    #     k += 1
-
-    k = 12
-    for j in columns_external:
-        for i in range(1, 82, 2):
+    k = 0
+    for j in columns_internal:
+        for i in range(1, 82, 4):
             frontiers.append([j, i, k, j+1, i, k + 1])
             frontiers.append([j + 1, i+1, k + 1, j, i + 1, k])
         k += 1
 
-
+    # k = 12
+    # for j in columns_external:
+    #     for i in range(1, 82, 2):
+    #         frontiers.append([j, i, k, j+1, i, k + 1])
+    #         frontiers.append([j + 1, i+1, k + 1, j, i + 1, k])
+    #     k += 1
 
     # Stampa gli ostacoli generati
     for f in frontiers:
@@ -177,5 +175,5 @@ def create_obstacles():
         print("- !!python/tuple", obs)
 
 
-create_agents_independent()
+create_frontiers_vertical()
 
