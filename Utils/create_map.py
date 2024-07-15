@@ -6,13 +6,17 @@ def create_non_task_endpoints():
     non_task_endpoints = []
 
     # Itera attraverso le righe e le colonne specificate
-    for i in range(20, 40):
-        non_task_endpoints.append([i, 0])
-        non_task_endpoints.append([i, 113])
+    for i in range(4, 24):
+        non_task_endpoints.append([i, 1])
+        non_task_endpoints.append([i, 82])
+        non_task_endpoints.append([i, 4])
+        non_task_endpoints.append([i, 79])
 
-    for i in range(82, 102):
-        non_task_endpoints.append([i, 0])
-        non_task_endpoints.append([i, 113])
+    for i in range(146, 166):
+        non_task_endpoints.append([i, 1])
+        non_task_endpoints.append([i, 82])
+        non_task_endpoints.append([i, 4])
+        non_task_endpoints.append([i, 79])
 
     for non in non_task_endpoints:
         print("- !!python/tuple", non)
@@ -23,16 +27,16 @@ def create_delivery():
     delivery = []
 
     # Itera attraverso le righe e le colonne specificate
-    for i in range(40, 82):
-        delivery.append([i, 0])
-        delivery.append([i, 113])
+    for i in range(1, 83):
+        delivery.append([1, i])
+        delivery.append([168, i])
     for d in delivery:
         print("-    ", d)
 
 
 def create_agents():
     # Apri il file yaml e carica i dati
-    with open('\\Users\marce\PycharmProjects\MAPD_partition\Environments\Stern\corridoi2-122x114-3p.yaml',
+    with open(f'Environments/Stern/160aV2-warehouse-170x84.yaml',
               'r') as file:
         data = yaml.load(file, Loader=yaml.FullLoader)
 
@@ -55,19 +59,19 @@ def create_agents():
 
 def create_agents_independent():
     agents = []
-    i=83
-    for y in range(1, 82, 2):
+    i=80
+    for y in range(3, 80, 2):
         agent = {
             'name': f'agent{i}',
             'start': [10, y]
         }
         agents.append(agent)
         agent = {
-            'name': f'agent{i+100}',
+            'name': f'agent{i+1}',
             'start': [159, y]
         }
         agents.append(agent)
-        i+=1
+        i+=2
 
     for agent in agents:
         print("-    start: [", agent['start'][0], ",", agent['start'][1], "]")
@@ -94,22 +98,24 @@ def create_frontiers_vertical():
     frontiers = []
 
     #Itera attraverso le righe e le colonne specificate
-    columns_internal = [30, 42, 66, 78, 90, 102, 126, 138 ]
+    columns_internal = [30, 42, 54, 66, 78, 90, 102, 114, 126, 138 ]
     columns_external = [150, 162]
 
-    k = 0
-    for j in columns_internal:
-        for i in range(1, 82, 4):
+    # k = 2
+    # for j in columns_internal:
+    #     for i in range(1, 82, 4):
+    #         frontiers.append([j, i, k, j+1, i, k + 1])
+    #         frontiers.append([j + 1, i+1, k + 1, j, i + 1, k])
+    #     k += 1
+
+    k = 12
+    for j in columns_external:
+        for i in range(1, 82, 2):
             frontiers.append([j, i, k, j+1, i, k + 1])
             frontiers.append([j + 1, i+1, k + 1, j, i + 1, k])
         k += 1
 
-    # k = 12
-    # for j in columns_external:
-    #     for i in range(1, 82, 2):
-    #         frontiers.append([j, i, k, j+1, i, k + 1])
-    #         frontiers.append([j + 1, i+1, k + 1, j, i + 1, k])
-    #     k += 1
+
 
     # Stampa gli ostacoli generati
     for f in frontiers:
@@ -132,25 +138,25 @@ def create_frontiers_horizontal():
     #     k += 1
 
     k=0
-    rows = [7, 11, 15, 19, 23, 27, 31, 35, 39, 43, 47, 51, 55, 59, 63, 67, 71, 75]
-    #rows2 = [18, 22, 26, 30, 34, 38, 46, 54, 58, 66, 74, 78, 82, 86, 90, 94]
-    for j in rows:
+    rows = [3, 7, 11, 15, 19, 23, 31, 39, 43, 51, 59, 63, 67, 71, 75, 79]
+    rows2 = [18, 22, 26, 30, 34, 38, 46, 54, 58, 66, 74, 78, 82, 86, 90, 94]
+    for j in rows2:
         #j = j+15
-        for i in range(144, 165, 2):
-            # 31, 1, k+1, 30, 1, k
-            f = [i, j + 1, k + 1, i, j, k]
-            # 30, 2, k, 31, 2, k+1
-            ff = [i + 1, j, k, i + 1, j + 1, k + 1]
-            frontiers.append(f)
-            frontiers.append(ff)
-        for i in range(4, 26, 2):
-            # 31, 1, k+1, 30, 1, k
-            f = [i, j + 1, k + 1, i, j, k]
-            # 30, 2, k, 31, 2, k+1
-            ff = [i + 1, j, k, i + 1, j + 1, k + 1]
-            frontiers.append(f)
-            frontiers.append(ff)
-        for i in range(36, 133, 12):
+        # for i in range(144, 165, 2):
+        #     # 31, 1, k+1, 30, 1, k
+        #     f = [i, j + 1, k + 1, i, j, k]
+        #     # 30, 2, k, 31, 2, k+1
+        #     ff = [i + 1, j, k, i + 1, j + 1, k + 1]
+        #     frontiers.append(f)
+        #     frontiers.append(ff)
+        # for i in range(4, 26, 2):
+        #     # 31, 1, k+1, 30, 1, k
+        #     f = [i, j + 1, k + 1, i, j, k]
+        #     # 30, 2, k, 31, 2, k+1
+        #     ff = [i + 1, j, k, i + 1, j + 1, k + 1]
+        #     frontiers.append(f)
+        #     frontiers.append(ff)
+        for i in range(0, 121, 12):
             # 31, 1, k+1, 30, 1, k
             f = [i, j + 1, k + 1, i, j, k]
             # 30, 2, k, 31, 2, k+1
@@ -174,6 +180,5 @@ def create_obstacles():
     for obs in obstacles:
         print("- !!python/tuple", obs)
 
-
-create_frontiers_horizontal()
+create_agents()
 
