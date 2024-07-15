@@ -94,7 +94,7 @@ def create_frontiers_vertical():
     frontiers = []
 
     #Itera attraverso le righe e le colonne specificate
-    columns_internal = [30, 42, 66, 102, 126, 138 ]
+    columns_internal = [30, 42, 66, 78, 90, 102, 126, 138 ]
     columns_external = [150, 162]
 
     k = 0
