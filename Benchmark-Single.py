@@ -142,7 +142,7 @@ if __name__ == '__main__':
     array_actual_paths = []
 
 
-    file_name = 'Comparisons/Stern/26p7a500.txt'
+    file_name = 'Comparisons/Stern/mixed13.txt'
 
     with open('Comparisons/seeds1.txt', 'r') as file:
         # inserisci ogni riga in una lista
