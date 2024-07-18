@@ -28,15 +28,17 @@ class PrintMatrix(object):
                 # if c['x'] == 0 or c['x'] == dimensions[0] - 1 or c['y'] == 0 or c['y'] == dimensions[1] - 1:
                 #     continue
 
-
+        max = np.max(self.heatmap)
+        index = np.where(self.heatmap == max)
+        print("Max:", max, "at", index)
 
 
     def plot_heatmap(self, n_runs=1):
         # Crea una heatmap utilizzando seaborn
         plt.figure(figsize=(5*self.ratio, 5))
         self.heatmap = self.heatmap/n_runs
-        rotated_data = np.rot90(self.heatmap, k=-1)
-        rotated_mask = np.rot90(self.mask, k=-1)
+        rotated_data = np.rot90(self.heatmap, k=1)
+        rotated_mask = np.rot90(self.mask, k=1)
         to_show = sns.heatmap(rotated_data, mask=rotated_mask, annot=False, cmap="YlGnBu", cbar=True, linewidths=.5, linecolor='gray')
 
         for o in self.obstacles:
