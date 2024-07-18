@@ -2,21 +2,16 @@ import yaml
 
 
 def create_non_task_endpoints():
-    # Inizializza la lista degli ostacoli
     non_task_endpoints = []
-
-    # Itera attraverso le righe e le colonne specificate
-    for i in range(4, 24):
-        non_task_endpoints.append([i, 1])
-        non_task_endpoints.append([i, 82])
-        non_task_endpoints.append([i, 4])
-        non_task_endpoints.append([i, 79])
-
-    for i in range(146, 166):
-        non_task_endpoints.append([i, 1])
-        non_task_endpoints.append([i, 82])
-        non_task_endpoints.append([i, 4])
-        non_task_endpoints.append([i, 79])
+    i = 0
+    rows = [7, 15, 23, 59, 67, 75]
+    for y in rows:
+        for x in range(4, 24):
+            non_task_endpoints.append([x, y])
+            i += 1
+        for x in range(146, 166):
+            non_task_endpoints.append([x, y])
+            i += 1
 
     for non in non_task_endpoints:
         print("- !!python/tuple", non)
@@ -27,9 +22,17 @@ def create_delivery():
     delivery = []
 
     # Itera attraverso le righe e le colonne specificate
-    for i in range(1, 83):
-        delivery.append([1, i])
-        delivery.append([168, i])
+    # for i in range(1, 83):
+    #     delivery.append([1, i])
+    #     delivery.append([168, i])
+
+    rows = [1, 82]
+    for j in rows:
+        for i in range(4, 23):
+            delivery.append([i, j])
+        for i in range(147, 166):
+            delivery.append([i, j])
+
     for d in delivery:
         print("-    ", d)
 
@@ -57,21 +60,28 @@ def create_agents():
         print("-    start: [", agent['start'][0], ",", agent['start'][1], "]")
         print("     name:", agent['name'])
 
+
 def create_agents_independent():
     agents = []
-    i=80
-    for y in range(3, 80, 2):
-        agent = {
-            'name': f'agent{i}',
-            'start': [10, y]
-        }
-        agents.append(agent)
-        agent = {
-            'name': f'agent{i+1}',
-            'start': [159, y]
-        }
-        agents.append(agent)
-        i+=2
+    i=0
+    rows = [7, 15, 23, 59, 67, 75]
+    for y in rows:
+        for x in range(4, 24):
+            agent = {
+                'name': f'agent{i}',
+                'start': [x, y]
+            }
+            agents.append(agent)
+            i += 1
+        for x in range(146, 166):
+            agent = {
+                'name': f'agent{i+120}',
+                'start': [x, y]
+            }
+            agents.append(agent)
+            i += 1
+
+
 
     for agent in agents:
         print("-    start: [", agent['start'][0], ",", agent['start'][1], "]")
@@ -114,8 +124,6 @@ def create_frontiers_vertical():
     #         frontiers.append([j, i, k, j+1, i, k + 1])
     #         frontiers.append([j + 1, i+1, k + 1, j, i + 1, k])
     #     k += 1
-
-
 
     # Stampa gli ostacoli generati
     for f in frontiers:
@@ -181,5 +189,6 @@ def create_obstacles():
     for obs in obstacles:
         print("- !!python/tuple", obs)
 
-create_frontiers_horizontal()
+
+create_non_task_endpoints()
 
