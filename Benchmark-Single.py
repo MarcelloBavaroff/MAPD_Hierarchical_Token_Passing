@@ -17,7 +17,7 @@ def parameters(seed):
     #random_seed = seed
     parser = argparse.ArgumentParser()
     parser.add_argument('-a_star_max_iter', help='Maximum number of states explored by the low-level algorithm',
-                        default=500, type=int)
+                        default=1000, type=int)
     parser.add_argument('-slow_factor', help='Slow factor of visualization', default=1, type=int)  # default=1
     parser.add_argument('-not_rand', help='Use if input has fixed tasks and delays', action='store_true', default=False)
     args = parser.parse_args()
@@ -79,7 +79,7 @@ def single_run(index_run, random_seed, file_name):
     simulation = Simulation(tasks, agents)
     tp = TokenPassing(agents, dimensions, obstacles, non_task_endpoints, number_of_areas, partitions, simulation,
                       goal_endpoints, frontiers, max_iter)
-    while len(tp.get_completed_tasks()) != len(tasks) and simulation.get_time() < 30000:
+    while len(tp.get_completed_tasks()) != len(tasks) and simulation.get_time() < 10000:
         simulation.time_forward(tp)
 
     completed_tasks = len(tp.get_completed_tasks())
@@ -142,7 +142,7 @@ if __name__ == '__main__':
     array_actual_paths = []
 
 
-    file_name = 'Comparisons/Stern/mixed11_2.txt'
+    file_name = 'Comparisons/Stern/28p3a500.txt'
 
     with open('Comparisons/seeds1.txt', 'r') as file:
         # inserisci ogni riga in una lista
