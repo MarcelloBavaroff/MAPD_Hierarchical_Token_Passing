@@ -17649,7 +17649,7 @@ map:
   partitions:
   - [ 0, 0, 30, 83 ]  #angolo in basso a sinistra e dopo angolo in alto a destra prima area
   - [ 31, 0, 42, 83 ]  #angolo in basso a sinistra e dopo angolo in alto a destra seconda area
-  - [ 42, 0, 66, 83 ]
+  - [ 43, 0, 66, 83 ]
   - [ 67, 0, 78, 83 ]
   - [ 79, 0, 90, 83 ]
   - [ 91, 0, 102, 83 ]
