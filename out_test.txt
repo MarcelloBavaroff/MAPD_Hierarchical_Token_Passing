@@ -10,25 +10,20 @@
 {'start_time': 2, 'pickup': [112, 29], 'delivery': [168, 20], 'task_name': 'task9'}
 Time: 1  Completed tasks: 0
 Solution found to task start for agent agent143  searching solution to task goal...
+Solution found to task start for agent agent319  doing task...
+Solution found to task start for agent agent184  searching solution to task goal...
+Solution found to task start for agent agent8  searching solution to task goal...
+Solution found to task start for agent agent147  searching solution to task goal...
+Solution found to task start for agent agent94  searching solution to task goal...
+Solution found to task start for agent agent7  searching solution to task goal...
 Traceback (most recent call last):
-  File "/Applications/PyCharm.app/Contents/plugins/python/helpers/pydev/pydevd.py", line 1551, in _exec
-    pydev_imports.execfile(file, globals, locals)  # execute the script
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Applications/PyCharm.app/Contents/plugins/python/helpers/pydev/_pydev_imps/_pydev_execfile.py", line 18, in execfile
-    exec(compile(contents+"\n", file, 'exec'), glob, loc)
   File "/Users/bavaroff258/PycharmProjects/MAPD_partition/demo.py", line 81, in <module>
     simulation.time_forward(tp)
   File "/Users/bavaroff258/PycharmProjects/MAPD_partition/Simulation/p_simulation.py", line 123, in time_forward
     algorithm.time_forward()
-  File "/Users/bavaroff258/PycharmProjects/MAPD_partition/Simulation/p_TP_multithread.py", line 1087, in time_forward
-    self.path_selection(agent_name, agent_pos, waiting_agents, executive_threads)
-  File "/Users/bavaroff258/PycharmProjects/MAPD_partition/Simulation/p_TP_multithread.py", line 1008, in path_selection
-    if self.check_available_token(agent_name, agent_partition, waiting_agents, executive_threads):
-       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/bavaroff258/PycharmProjects/MAPD_partition/Simulation/p_TP_multithread.py", line 963, in check_available_token
-    self.clean_threads(executive_threads)
-  File "/Users/bavaroff258/PycharmProjects/MAPD_partition/Simulation/p_TP_multithread.py", line 956, in clean_threads
-    finished_threads = [key for key, thread in executive_threads.items() if not thread.is_alive()]
-                                                                                ^^^^^^^^^^^^^^^
-AttributeError: 'NoneType' object has no attribute 'is_alive'
-Backend MacOSX is interactive backend. Turning interactive mode on.
+  File "/Users/bavaroff258/PycharmProjects/MAPD_partition/Simulation/p_TP_multithread.py", line 1106, in time_forward
+    self.handle_waiting_agents(waiting_agents, executive_threads)
+  File "/Users/bavaroff258/PycharmProjects/MAPD_partition/Simulation/p_TP_multithread.py", line 1059, in handle_waiting_agents
+    for part in waiting_agents:
+RuntimeError: dictionary changed size during iteration
+Solution found to task start for agent agent149  doing task...

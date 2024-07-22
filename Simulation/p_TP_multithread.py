@@ -57,6 +57,7 @@ class TokenPassing(object):
         # self.jft_lock = threading.Lock()
         self.finish_event = threading.Event()
         self.finish_event_lock = threading.Lock()
+        self.print_lock = threading.Lock()
         #vedi sotto
 
 
@@ -145,7 +146,6 @@ class TokenPassing(object):
     def create_graph(self):
         for f in self.frontiers:
             self.graph.add_edge(f.start_partition, f.destination_partition, 1)
-        #print(self.graph)
 
     #restituisce l'indice della partizione in cui si trova la posizione pos (thanks co-pilot)
     def find_partition(self, pos):
@@ -382,7 +382,8 @@ class TokenPassing(object):
                         dist = tmp
                         res = endpoint
         if res == -1:
-            print('Error in finding non-task endpoint, is instance well-formed?')
+            with self.print_lock:
+                print('Error in finding non-task endpoint, is instance well-formed?')
             #exit(1)
         return res
 
@@ -425,7 +426,8 @@ class TokenPassing(object):
                         res = f
 
         if res == -1:
-            print('*************** NO AVAILABLE FRONTIER in actual part:', actual_part, agent_pos, '****************')
+            with self.print_lock:
+                print('*************** NO AVAILABLE FRONTIER in actual part:', actual_part, agent_pos, '****************')
             #exit(1)
         return res
 
@@ -626,7 +628,8 @@ class TokenPassing(object):
         cbs = CBS(env)
         path1 = self.search(cbs, part_index)
         if not path1:
-            print("Solution not found to loc1 for agent", agent_name, " idling at current position...")
+            with self.print_lock:
+                print("Solution not found to loc1 for agent", agent_name, " idling at current position...")
             return False
         else:
             #print("Solution found to task start for agent", agent_name, " searching solution to task goal...")
@@ -645,10 +648,12 @@ class TokenPassing(object):
             cbs = CBS(env)
             path2 = self.search(cbs, part_index)
             if not path2:
-                print("Solution not found to task goal for agent", agent_name, " idling at current position...")
+                with self.print_lock:
+                    print("Solution not found to task goal for agent", agent_name, " idling at current position...")
                 return False
             else:
-                print("Solution found to task start for agent", agent_name, " doing task...")
+                with self.print_lock:
+                    print("Solution found to task start for agent", agent_name, " doing task...")
                 # serve per mettere nel nuovo token l'agente che migra e solo dal timestep dopo iniziare il percorso
                 for i in range(time_start):
                     path1[agent_name].insert(0, path1[agent_name][0])
@@ -658,7 +663,6 @@ class TokenPassing(object):
     def compute_real_path_single(self, agent_name, agent_pos, goal_position, all_idle_agents, part_index, time_start=0):
 
         if self.abort_planning(agent_name, goal_position, part_index):
-            #print(agent_name, 'aborted planning to goal position...')
             return False
 
         moving_obstacles_agents, negative_moving_obstacles = self.get_moving_obstacles_agents(self.tokens[part_index]['agents'], time_start)
@@ -673,10 +677,12 @@ class TokenPassing(object):
         cbs = CBS(env)
         path = self.search(cbs, part_index)
         if not path:
-            print("Solution not found to task goal for agent", agent_name, " idling at current position...")
+            with self.print_lock:
+                print("Solution not found to task goal for agent", agent_name, " idling at current position...")
             return False
         else:
-            print("Solution found to task start for agent", agent_name, " searching solution to task goal...")
+            with self.print_lock:
+                print("Solution found to task start for agent", agent_name, " searching solution to task goal...")
             #serve per mettere nel nuovo token l'agente che migra e solo dal timestep dopo iniziare il percorso
             #for i in range(time_start):
             #    path[agent_name].insert(0, path[agent_name][0])
@@ -821,7 +827,8 @@ class TokenPassing(object):
                                                            time_start=0)
 
         if valid_path:
-            print('Agent', agent_name, 'migrating to partition', next_part, '...')
+            with self.print_lock:
+                print('Agent', agent_name, 'migrating to partition', next_part, '...')
             #se serve rimanere il wait nella posizione di frontiera
             num_wait = self.tokens[next_part]['agents'][agent_name].count(agent_pos)
             if num_wait > 1:
@@ -840,7 +847,8 @@ class TokenPassing(object):
                 self.update_ends(agent_pos, actual_part)  # apply path aggiorna solo dell'area dopo
 
         else:
-            print('NO PATH DOPO MIGRAZIONE', agent_name, ' idling at current position...')
+            with self.print_lock:
+                print('NO PATH DOPO MIGRAZIONE', agent_name, ' idling at current position...')
             #segnali che l'agente rimarrà fermo in attesa di riprovare
             self.tokens[actual_part]['agents'][agent_name].append([agent_pos[0], agent_pos[1]])
             #self.delete_conflicting_paths_more_strict(agent_name, actual_part)
@@ -881,7 +889,8 @@ class TokenPassing(object):
     #                 self.global_view['occupied_non_task_endpoints'].add(tuple(agent_pos[0]))
 
     def remove_task_from_agents(self, agent_name, part_to_remove):
-        print('Rimozione del task dall\'', agent_name)
+        with self.print_lock:
+            print('Rimozione del task dall\'', agent_name)
         task_name = self.global_view['pre_assignment_agents_tasks'][agent_name]['task_name']
         if task_name != 'safe_idle':
             self.global_view['discarded_tasks_for_agents'][agent_name].add(task_name)
@@ -993,13 +1002,15 @@ class TokenPassing(object):
             if on_frontier != -1:
                 closest_frontier = self.tokens[agent_partition]['occupied_frontiers'][agent_name]
                 if self.check_available_token(agent_name, on_frontier, waiting_agents, executive_threads):
-                    th = threading.Thread(target=self.migrazione, args=(agent_name, agent_pos, agent_partition, on_frontier, 1, closest_frontier)).start()
+                    th = threading.Thread(target=self.migrazione, args=(agent_name, agent_pos, agent_partition, on_frontier, 1, closest_frontier))
                     executive_threads[on_frontier] = th
+                    th.start()
             else:
                 if self.check_available_token(agent_name, agent_partition, waiting_agents, executive_threads):
                     th = threading.Thread(target=self.go_to_frontier, args=(agent_name, agent_pos, local_idle_agents, agent_partition,
-                                                                          self.global_view['abstract_to_loc1'][agent_name][1])).start()
+                                                                          self.global_view['abstract_to_loc1'][agent_name][1]))
                     executive_threads[agent_partition] = th
+                    th.start()
 
 
         # il pickup è nell'area in cui mi trovo
@@ -1008,8 +1019,9 @@ class TokenPassing(object):
             if self.check_available_token(agent_name, agent_partition, waiting_agents, executive_threads):
                 th = threading.Thread(target=self.pickup_in_partition, args=(agent_name, agent_pos,
                                                                              self.global_view['pre_assignment_agents_tasks'][agent_name]['start'],
-                                                                             local_idle_agents, agent_partition)).start()
+                                                                             local_idle_agents, agent_partition))
                 executive_threads[agent_partition] = th
+                th.start()
 
         # da qui in giù abstract path 1 è vuoto quindi devo andare al delivery o al non task endpoint
         elif len(self.global_view['abstract_to_loc2'][agent_name]) > 1:
@@ -1018,21 +1030,24 @@ class TokenPassing(object):
             if on_frontier != -1:
                 closest_frontier = self.tokens[agent_partition]['occupied_frontiers'][agent_name]
                 if self.check_available_token(agent_name, on_frontier, waiting_agents, executive_threads):
-                    th = threading.Thread(target=self.migrazione, args=(agent_name, agent_pos, agent_partition, on_frontier, 2, closest_frontier)).start()
+                    th = threading.Thread(target=self.migrazione, args=(agent_name, agent_pos, agent_partition, on_frontier, 2, closest_frontier))
                     executive_threads[on_frontier] = th
+                    th.start()
             else:
                 if self.check_available_token(agent_name, agent_partition, waiting_agents, executive_threads):
                     th = threading.Thread(target=self.go_to_frontier, args=(agent_name, agent_pos, local_idle_agents, agent_partition,
-                                                                          self.global_view['abstract_to_loc2'][agent_name][1])).start()
+                                                                          self.global_view['abstract_to_loc2'][agent_name][1]))
                     executive_threads[agent_partition] = th
+                    th.start()
 
 
         elif len(self.global_view['abstract_to_loc2'][agent_name]) == 1:
             if self.check_available_token(agent_name, agent_partition, waiting_agents, executive_threads):
                 th = threading.Thread(target=self.compute_real_path_single, args=(agent_name, agent_pos,
                                                                                  self.global_view['pre_assignment_agents_tasks'][agent_name]['goal'],
-                                                                                 local_idle_agents, agent_partition)).start()
+                                                                                 local_idle_agents, agent_partition))
                 executive_threads[agent_partition] = th
+                th.start()
 
         else:
             print("Entrambi gli abstact path sono vuoti, errore? " + agent_name)
