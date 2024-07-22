@@ -5,7 +5,7 @@ import sys
 import yaml
 import json
 import os
-from Simulation.p_TP import TokenPassing
+from Simulation.p_TP_multithread import TokenPassing
 import RoothPath
 from Simulation.tasks_maker import *
 from Simulation.p_simulation import Simulation
@@ -101,7 +101,6 @@ if __name__ == '__main__':
         cost = cost + len(path)
 
     matrix = PrintMatrix(simulation.actual_paths, dimensions, obstacles, agents, goal_endpoints)
-    matrix.heatmap
     matrix.plot_heatmap()
 
     output = {'schedule': simulation.actual_paths, 'cost': cost,

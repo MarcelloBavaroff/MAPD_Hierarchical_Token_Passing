@@ -56,6 +56,7 @@ class TokenPassing(object):
         # self.just_finished_threads = 0
         # self.jft_lock = threading.Lock()
         self.finish_event = threading.Event()
+        self.finish_event_lock = threading.Lock()
         #vedi sotto
 
 
@@ -1037,21 +1038,20 @@ class TokenPassing(object):
             print("Entrambi gli abstact path sono vuoti, errore? " + agent_name)
 
     def handle_waiting_agents(self, waiting_agents, executive_threads):
-        # with self.jft_lock:
-        #     self.just_finished_threads = 0
 
         while len(waiting_agents) > 0:
             self.clean_threads(executive_threads)
             for part in waiting_agents:
                 if part not in executive_threads.keys():
                     agent_name = waiting_agents[part].pop(0)
+                    if len(waiting_agents[part]) == 0:
+                        del waiting_agents[part]
                     self.path_selection(agent_name, self.tokens[part]['agents'][agent_name][0], waiting_agents, executive_threads)
 
-            if self.just_finished_threads == 0:
-                #aspetto l'evento di terminazione di un thread
+            with self.finish_event_lock:
                 self.finish_event.wait()
-            with self.jft_lock:
-                self.just_finished_threads = 0
+                self.finish_event.clear()
+
 
 
 
@@ -1087,8 +1087,8 @@ class TokenPassing(object):
             self.path_selection(agent_name, agent_pos, waiting_agents, executive_threads)
             #ricordati che serve un buffer per le wait sulle frontiere
 
-            #qui metterei una nuova funzione che si occupa di gestire gli agenti in attesa
-            self.handle_waiting_agents(waiting_agents, executive_threads)
+        # qui metterei una nuova funzione che si occupa di gestire gli agenti in attesa
+        self.handle_waiting_agents(waiting_agents, executive_threads)
 
         #self.update_non_task_endpoints()
         if 'safe_idle' in self.global_view['tasks']:
