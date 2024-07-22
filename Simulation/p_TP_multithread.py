@@ -1,6 +1,7 @@
 from math import fabs
 import random
 import numpy as np
+import threading
 from Simulation.CBS.p_cbs import CBS, Environment
 from dijkstar import Graph, find_path  #tizi simpatici che hanno implementato dijkstra
 
@@ -52,12 +53,13 @@ class TokenPassing(object):
         self.espansioniAstarXpart = [0] * self.number_of_areas
         self.heatmap = np.zeros((dimensions[0], dimensions[1]))
         #serve per far in modo che non vengano fatte più richieste dello stesso token
-        self.token_available = [False] * len(partitions)
+        #self.token_available = [True] * len(partitions)
         #vedi sotto
 
 
     def get_heatmap(self):
         return self.heatmap
+
     def get_parallel_rounds(self):
         return self.parallel_rounds
 
@@ -792,8 +794,8 @@ class TokenPassing(object):
         elif len(self.global_view[abstract][agent_name]) == 2:
             return self.global_view['pre_assignment_agents_tasks'][agent_name]['goal']
 
-    def migrazione(self, agent_name, agent_pos, actual_part, next_part, num_abs):
-        closest_frontier = self.tokens[actual_part]['occupied_frontiers'][agent_name]
+    def migrazione(self, agent_name, agent_pos, actual_part, next_part, num_abs, closest_frontier):
+        #closest_frontier = self.tokens[actual_part]['occupied_frontiers'][agent_name]
         #next goal sarebbe da spostare
         all_idle_agents = self.tokens[next_part]['agents'].copy()
 
@@ -848,67 +850,6 @@ class TokenPassing(object):
 
         #return agents_to_plan
 
-    def delete_conflicting_paths(self, agent_name, agent_pos, part_index, num_wait):
-        for name, path in self.tokens[part_index]['agents'].items():
-            if name != agent_name:
-                for i in range(min(num_wait, len(path))):
-                    if path[i] == agent_pos:
-                        if self.global_view['agents_to_areas'][name][0] == part_index:
-                            #dovrebbe tenere solo la pozione attuale
-                            self.tokens[part_index]['agents'][name] = path[:1]
-                            break
-                        # se invece l'agente dovrà arrivare in questa partizione, ma attualmente è in frontiera altrove
-                        else:
-                            self.tokens[part_index]['agents'].pop(name)
-                            self.tokens[self.global_view['agents_to_areas'][name][0]]['agents'][name] = path[:1]
-                            break
-
-    # cancella il path di tutti quelli che in un qualche istante di tempo andranno in agent_pos
-    def delete_conflicting_paths_strict(self, agent_name, agent_pos, part_index, num_wait):
-        copy = self.tokens[part_index]['agents'].copy()
-        for name, path in copy.items():
-            if name != agent_name and agent_pos in path:
-                if self.global_view['agents_to_areas'][name][0] == part_index:
-                    # dovrebbe tenere solo la pozione attuale
-                    # non è più un path ends
-                    self.update_ends(self.tokens[part_index]['agents'][name][-1], part_index)
-                    self.tokens[part_index]['agents'][name] = path[:1]
-                    self.tokens[part_index]['path_ends'].add(tuple(path[0]))
-                # se invece l'agente dovrà arrivare in questa partizione, ma attualmente è in frontiera altrove
-                else:
-                    self.update_ends(self.tokens[part_index]['agents'][name][-1], part_index)
-                    self.tokens[part_index]['agents'].pop(name)
-                    #self.global_view['agents_to_areas'][name] = self.global_view['agents_to_areas'][name][:1]
-                    self.global_view['agents_to_areas'][name] = []
-                    self.global_view['agents_to_areas'][name].append(self.find_partition(path[0]))
-                    self.tokens[self.global_view['agents_to_areas'][name][0]]['agents'][name] = path[:1]
-                    self.tokens[self.global_view['agents_to_areas'][name][0]]['path_ends'].add(tuple(path[0]))
-
-    #rimuovo tutti tranne quelli che sono in attesa su una partizione e che hanno già pianificato
-    #la migrazione
-    def delete_conflicting_paths_more_strict(self, agent_name, part_index):
-        copy = self.tokens[part_index]['agents'].copy()
-        for name, path in copy.items():
-            if name != agent_name:
-                #se è == 2 vuol dire che l'agente è in attesa su una frontiera e non lo tocco
-                if self.global_view['agents_to_areas'][name][0] == part_index and len(
-                        self.global_view['agents_to_areas'][name]) != 2:
-                    # dovrebbe tenere solo la pozione attuale
-                    # non è più un path ends
-                    self.update_ends(self.tokens[part_index]['agents'][name][-1], part_index)
-                    self.tokens[part_index]['agents'][name] = path[:1]
-                    self.tokens[part_index]['path_ends'].add(tuple(path[0]))
-                # se invece l'agente dovrà arrivare in questa partizione, ma attualmente è in frontiera altrove
-                elif self.global_view['agents_to_areas'][name][0] != part_index and len(
-                        self.global_view['agents_to_areas'][name]) == 2:
-                    self.update_ends(self.tokens[part_index]['agents'][name][-1], part_index)
-                    self.tokens[part_index]['agents'].pop(name)
-                    #self.global_view['agents_to_areas'][name] = self.global_view['agents_to_areas'][name][:1]
-                    self.global_view['agents_to_areas'][name] = []
-                    self.global_view['agents_to_areas'][name].append(self.find_partition(path[0]))
-                    self.tokens[self.global_view['agents_to_areas'][name][0]]['agents'][name] = path[:1]
-                    self.tokens[self.global_view['agents_to_areas'][name][0]]['path_ends'].add(tuple(path[0]))
-
     def on_a_frontier_old(self, agent_pos, actual_part):
         frontiers = self.tokens[actual_part]['own_frontiers']
         for part, front in frontiers.items():
@@ -918,6 +859,7 @@ class TokenPassing(object):
 
         return -1
 
+    #restituisce la partizione di destinazione
     def on_a_frontier(self, agent_name, agent_pos, actual_part):
 
         if agent_name in self.tokens[actual_part]['occupied_frontiers']:
@@ -1006,14 +948,23 @@ class TokenPassing(object):
             print('ERRORE NON TASK ENDPOINTS')
             exit(1)
 
-    def check_available_token(self, agent_name, part_index):
-        if self.token_available[part_index]:
+    def check_available_token(self, agent_name, part_index, waiting_agents, executive_threads):
+
+        #rimozione thread inattivi
+        finished_threads = [key for key, thread in executive_threads.items() if not thread.is_alive()]
+        for key in finished_threads:
+            del executive_threads[key]
+
+        if part_index not in executive_threads.keys():
             return True
         else:
-            print('Agent', agent_name, 'waiting for token in partition', part_index, '...')
+            try:
+                waiting_agents[part_index].append(agent_name)
+            except KeyError:
+                waiting_agents[part_index] = [agent_name]
             return False
 
-    def path_selection(self, agent_name, agent_pos):
+    def path_selection(self, agent_name, agent_pos, waiting_agents, executive_threads):
         agent_partition = self.global_view['agents_to_areas'][agent_name][0]
 
         local_idle_agents = self.tokens[agent_partition]['agents'].copy()
@@ -1032,34 +983,51 @@ class TokenPassing(object):
         # -----------------------------PATH REALI--------------------------------
         if len(self.global_view['abstract_to_loc1'][agent_name]) > 1:
             on_frontier = self.on_a_frontier(agent_name, agent_pos, agent_partition)
+            # contiene la partizione di destinazione
             if on_frontier != -1:
-                self.migrazione(agent_name, agent_pos, agent_partition, on_frontier, 1)
+                closest_frontier = self.tokens[agent_partition]['occupied_frontiers'][agent_name]
+                if self.check_available_token(agent_name, on_frontier, waiting_agents, executive_threads):
+                    th = threading.Thread(target=self.migrazione, args=(agent_name, agent_pos, agent_partition, on_frontier, 1, closest_frontier)).start()
+                    executive_threads[on_frontier] = th
             else:
-                self.go_to_frontier(agent_name, agent_pos, local_idle_agents, agent_partition,
-                                    self.global_view['abstract_to_loc1'][agent_name][1])
+                if self.check_available_token(agent_name, agent_partition, waiting_agents, executive_threads):
+                    th = threading.Thread(target=self.go_to_frontier, args=(agent_name, agent_pos, local_idle_agents, agent_partition,
+                                                                          self.global_view['abstract_to_loc1'][agent_name][1])).start()
+                    executive_threads[agent_partition] = th
+
 
         # il pickup è nell'area in cui mi trovo
         # o all'inizio o appena mi viene assegnato un nuovo task
         elif len(self.global_view['abstract_to_loc1'][agent_name]) == 1:
-            self.pickup_in_partition(agent_name, agent_pos,
-                                     self.global_view['pre_assignment_agents_tasks'][agent_name]['start'],
-                                     local_idle_agents, agent_partition)
+            if self.check_available_token(agent_name, agent_partition, waiting_agents, executive_threads):
+                th = threading.Thread(target=self.pickup_in_partition, args=(agent_name, agent_pos,
+                                                                             self.global_view['pre_assignment_agents_tasks'][agent_name]['start'],
+                                                                             local_idle_agents, agent_partition)).start()
+                executive_threads[agent_partition] = th
 
         # da qui in giù abstract path 1 è vuoto quindi devo andare al delivery o al non task endpoint
         elif len(self.global_view['abstract_to_loc2'][agent_name]) > 1:
             on_frontier = self.on_a_frontier(agent_name, agent_pos, agent_partition)
+            #contiene la partizione di destinazione
             if on_frontier != -1:
-                self.migrazione(agent_name, agent_pos, agent_partition,
-                                self.tokens[agent_partition]['occupied_frontiers'][
-                                    agent_name].destination_partition, 2)
+                closest_frontier = self.tokens[agent_partition]['occupied_frontiers'][agent_name]
+                if self.check_available_token(agent_name, on_frontier, waiting_agents, executive_threads):
+                    th = threading.Thread(target=self.migrazione, args=(agent_name, agent_pos, agent_partition, on_frontier, 2, closest_frontier)).start()
+                    executive_threads[on_frontier] = th
             else:
-                self.go_to_frontier(agent_name, agent_pos, local_idle_agents, agent_partition,
-                                    self.global_view['abstract_to_loc2'][agent_name][1])
+                if self.check_available_token(agent_name, agent_partition, waiting_agents, executive_threads):
+                    th = threading.Thread(target=self.go_to_frontier, args=(agent_name, agent_pos, local_idle_agents, agent_partition,
+                                                                          self.global_view['abstract_to_loc2'][agent_name][1])).start()
+                    executive_threads[agent_partition] = th
+
 
         elif len(self.global_view['abstract_to_loc2'][agent_name]) == 1:
-            self.compute_real_path_single(agent_name, agent_pos,
-                                          self.global_view['pre_assignment_agents_tasks'][agent_name]['goal'],
-                                          local_idle_agents, agent_partition)
+            if self.check_available_token(agent_name, agent_partition, waiting_agents, executive_threads):
+                th = threading.Thread(target=self.compute_real_path_single, args=(agent_name, agent_pos,
+                                                                                 self.global_view['pre_assignment_agents_tasks'][agent_name]['goal'],
+                                                                                 local_idle_agents, agent_partition)).start()
+                executive_threads[agent_partition] = th
+
         else:
             print("Entrambi gli abstact path sono vuoti, errore? " + agent_name)
 
@@ -1070,10 +1038,12 @@ class TokenPassing(object):
         #self.verifica_nonte()
         self.assign_tasks()
 
-        # vedo gli agent con pre assegnamento, ma non hanno ancora un path assegnato
-        #IN FUTURO PIANIFICANO PER PRIMI GLI AGENTI ALLA FRONTIERA
         agents_to_plan = self.get_agents_to_plan()
         priority_agents = {}
+        #dict of partitions, for each one with a list of waiting agents
+        waiting_agents = {}
+        #dict of partitions, for each one with the executing thread
+        executive_threads = {}
         copy_atp = agents_to_plan.copy()
         for agent in copy_atp:
             if agent in self.tokens[self.global_view['agents_to_areas'][agent][0]]['occupied_frontiers']:
@@ -1090,7 +1060,7 @@ class TokenPassing(object):
                 agent_name = random.choice(list(agents_to_plan.keys()))
                 agent_pos = agents_to_plan.pop(agent_name)[0]
 
-            self.path_selection(agent_name, agent_pos)
+            self.path_selection(agent_name, agent_pos, waiting_agents, executive_threads)
             #controllo se l'agente vuole lavorare su un'area già occupata
             #ricordati che serve un buffer per le wait sulle frontiere
 
