@@ -52,8 +52,10 @@ class TokenPassing(object):
 
         self.espansioniAstarXpart = [0] * self.number_of_areas
         self.heatmap = np.zeros((dimensions[0], dimensions[1]))
-        #serve per far in modo che non vengano fatte più richieste dello stesso token
-        #self.token_available = [True] * len(partitions)
+        #serve per vedere quanti thread hanno finito nel mentre che vengono eseguite altre operazioni
+        # self.just_finished_threads = 0
+        # self.jft_lock = threading.Lock()
+        self.finish_event = threading.Event()
         #vedi sotto
 
 
@@ -948,13 +950,16 @@ class TokenPassing(object):
             print('ERRORE NON TASK ENDPOINTS')
             exit(1)
 
-    def check_available_token(self, agent_name, part_index, waiting_agents, executive_threads):
-
-        #rimozione thread inattivi
+    def clean_threads(self, executive_threads):
+        # rimozione thread inattivi
         finished_threads = [key for key, thread in executive_threads.items() if not thread.is_alive()]
         for key in finished_threads:
             del executive_threads[key]
 
+    def check_available_token(self, agent_name, part_index, waiting_agents, executive_threads):
+
+        #rimozione thread inattivi
+        self.clean_threads(executive_threads)
         if part_index not in executive_threads.keys():
             return True
         else:
@@ -1031,6 +1036,25 @@ class TokenPassing(object):
         else:
             print("Entrambi gli abstact path sono vuoti, errore? " + agent_name)
 
+    def handle_waiting_agents(self, waiting_agents, executive_threads):
+        # with self.jft_lock:
+        #     self.just_finished_threads = 0
+
+        while len(waiting_agents) > 0:
+            self.clean_threads(executive_threads)
+            for part in waiting_agents:
+                if part not in executive_threads.keys():
+                    agent_name = waiting_agents[part].pop(0)
+                    self.path_selection(agent_name, self.tokens[part]['agents'][agent_name][0], waiting_agents, executive_threads)
+
+            if self.just_finished_threads == 0:
+                #aspetto l'evento di terminazione di un thread
+                self.finish_event.wait()
+            with self.jft_lock:
+                self.just_finished_threads = 0
+
+
+
 
     def time_forward(self):
         self.update_completed_tasks()
@@ -1061,8 +1085,10 @@ class TokenPassing(object):
                 agent_pos = agents_to_plan.pop(agent_name)[0]
 
             self.path_selection(agent_name, agent_pos, waiting_agents, executive_threads)
-            #controllo se l'agente vuole lavorare su un'area già occupata
             #ricordati che serve un buffer per le wait sulle frontiere
+
+            #qui metterei una nuova funzione che si occupa di gestire gli agenti in attesa
+            self.handle_waiting_agents(waiting_agents, executive_threads)
 
         #self.update_non_task_endpoints()
         if 'safe_idle' in self.global_view['tasks']:
