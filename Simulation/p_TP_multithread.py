@@ -1068,7 +1068,7 @@ class TokenPassing(object):
         while len(waiting_agents) > 0:
             self.clean_threads(executive_threads)
             for part in copy_waiting_agents:
-                if part not in executive_threads.keys():
+                if part not in executive_threads.keys() and part in waiting_agents.keys():
                     agent_name = waiting_agents[part].pop(0)
                     if len(waiting_agents[part]) == 0:
                         del waiting_agents[part]

@@ -5,7 +5,7 @@ import sys
 import yaml
 import json
 import os
-from Simulation.p_TP import TokenPassing
+from Simulation.p_TP_multithread import TokenPassing
 import RoothPath
 from Simulation.tasks_maker import *
 from Simulation.p_simulation import Simulation
@@ -107,7 +107,7 @@ if __name__ == '__main__':
     #            'completed_tasks_times': tp.get_completed_tasks_times()}
     # with open(args.output, 'w') as output_yaml:
     #     yaml.safe_dump(output, output_yaml)
-    #
-    # #legge dal file di output
-    # create = [sys.executable, '-m', 'Utils.Visualization.visualize', '-slow_factor', str(args.slow_factor)]
-    # subprocess.call(create)
+
+    #legge dal file di output
+    #create = [sys.executable, '-m', 'Utils.Visualization.visualize', '-slow_factor', str(args.slow_factor)]
+    #subprocess.call(create)
