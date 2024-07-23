@@ -38,6 +38,7 @@ class TokenPassing(object):
         self.sumOfCosts = 0
         self.maxAstar = 0
         self.goal_endpoints = goal_endpoints
+        #self.current_goals = set()
         self.global_view = {}
         self.init_global_view()
         self.init_tokens(partitions)
@@ -57,6 +58,7 @@ class TokenPassing(object):
 
     def get_heatmap(self):
         return self.heatmap
+
     def get_parallel_rounds(self):
         return self.parallel_rounds
 
@@ -85,6 +87,7 @@ class TokenPassing(object):
         self.global_view['abstract_to_loc1'] = {}
         self.global_view['abstract_to_loc2'] = {}
         self.global_view['discarded_tasks_for_agents'] = {}
+        self.global_view['current_goals'] = set()
 
         for t in self.simulation.get_new_tasks():
             self.global_view['tasks'][t['task_name']] = [t['pickup'], t['delivery']]
@@ -429,11 +432,6 @@ class TokenPassing(object):
         #elif tuple(agent_pos) in self.tokens[part_index]['occupied_non_task_endpoints']:
         #    self.tokens[part_index]['occupied_non_task_endpoints'].remove(tuple(agent_pos))
 
-    # def get_agents_to_tasks_goals(self):
-    #     goals = set()
-    #     for el in self.global_view['pre_assignment_agents_tasks'].values():
-    #         goals.add(tuple(el['goal']))
-    #     return goals
 
     #potrei aver frainteso, non dovevo mettere tutti i taks, ma sono gli agents_to_tasks
     def not_in_assigned_goals(self, pos0, pos1):
@@ -442,10 +440,8 @@ class TokenPassing(object):
                 return False
         return True
 
-    def not_in_assigned_goals2(self, pos0, pos1, assigned_goals):
-        return tuple(pos0) not in assigned_goals and tuple(pos1) not in assigned_goals
-
-
+    def not_in_assigned_goals3(self, pos0, pos1):
+        return tuple(pos1) not in self.global_view['current_goals'] and tuple(pos0) not in self.global_view['current_goals']
 
     def get_agents_to_tasks_starts_goals(self):
         starts_goals = set()
@@ -516,7 +512,8 @@ class TokenPassing(object):
                 self.global_view['completed_tasks_times'][
                     self.global_view['pre_assignment_agents_tasks'][agent_name][
                         'task_name']] = self.simulation.get_time()
-                self.global_view['pre_assignment_agents_tasks'].pop(agent_name)
+                task_to_remove = self.global_view['pre_assignment_agents_tasks'].pop(agent_name)
+                self.global_view['current_goals'].remove(tuple(task_to_remove['goal']))
                 self.global_view['discarded_tasks_for_agents'][agent_name] = set()
 
             if agent_name in self.global_view['pre_assignment_agents_tasks'] and (pos['x'], pos['y']) == tuple(
@@ -524,7 +521,8 @@ class TokenPassing(object):
                     and len(self.tokens[partition]['agents'][agent_name]) == 1 and \
                     self.global_view['pre_assignment_agents_tasks'][agent_name][
                         'task_name'] == 'safe_idle':
-                self.global_view['pre_assignment_agents_tasks'].pop(agent_name)
+                task_to_remove = self.global_view['pre_assignment_agents_tasks'].pop(agent_name)
+                self.global_view['current_goals'].remove(tuple(task_to_remove['goal']))
                 self.global_view['discarded_tasks_for_agents'][agent_name] = set()
 
 
@@ -566,13 +564,13 @@ class TokenPassing(object):
     def find_available_tasks(self, agent_pos, agent_name):
         #part_index = self.find_partition(agent_pos)
         #all_path_ends = self.create_all_path_ends()
-        assigned_goals = self.create_assigned_goals()
+        #assigned_goals = self.create_assigned_goals()
 
         available_tasks = {}
         for task_name, task in self.global_view['tasks'].items():
             # se inizio e fine task non in path ends degli agenti (meno me) AND nemmeno in goals
             #meglio cercare prima in assigned goals
-            if self.not_in_assigned_goals2(task[0], task[1], assigned_goals) and self.check_path_ends2(agent_pos, task):
+            if self.not_in_assigned_goals2(task[0], task[1]) and self.check_path_ends2(agent_pos, task):
                 #     and tuple(task[0]) not in self.get_agents_to_tasks_goals() and tuple(
                 # task[1]) not in self.get_agents_to_tasks_goals():
 
@@ -592,6 +590,7 @@ class TokenPassing(object):
         delivery = closest_task[1]
         self.global_view['pre_assignment_agents_tasks'][agent_name] = {'task_name': closest_task_name, 'start': pickup,
                                                                        'goal': delivery}
+        self.global_view['current_goals'].add(tuple(delivery))
 
         # return self.compute_real_path(agent_name, agent_pos, closest_task, closest_task_name, all_idle_agents,
         #                               available_tasks)
@@ -601,6 +600,7 @@ class TokenPassing(object):
         if closest_non_task_endpoint != -1:
             self.global_view['pre_assignment_agents_tasks'][agent_name] = {'task_name': "safe_idle", 'start': agent_pos,
                                                                            'goal': closest_non_task_endpoint}
+            self.global_view['current_goals'].add(tuple(closest_non_task_endpoint))
             self.global_view['occupied_non_task_endpoints'].add(tuple(closest_non_task_endpoint))
 
 
@@ -715,16 +715,6 @@ class TokenPassing(object):
             all_idle_agents.pop(agent_name)
             agent_pos = idle_agents.pop(agent_name)[0]
             available_tasks = self.find_available_tasks(agent_pos, agent_name)
-            #se ho abs1, ma non ho un percorso nel token vuol dire che non sono riuscito a trovarlo
-            #per qualche ragione, quindi reinserisco il vecchio tasks e lo rimuovo da pre_assignment
-            #PENSO CHE AVENDO MODIFICATO GET IDLE AGENTS QUI NON CI ARRIVI MAI
-            # if len(self.global_view['abstract_to_loc1'][agent_name]) > 0:
-            #     self.global_view['tasks'][self.global_view['pre_assignment_agents_tasks'][agent_name]['task_name']] = \
-            #         [self.global_view['pre_assignment_agents_tasks'][agent_name]['start'],
-            #          self.global_view['pre_assignment_agents_tasks'][agent_name]['goal']]
-            #     self.global_view['pre_assignment_agents_tasks'].pop(agent_name)
-            #     self.global_view['abstract_to_loc1'][agent_name] = []
-            #     self.global_view['abstract_to_loc2'][agent_name] = []
 
             if len(available_tasks) > 0:
                 self.choose_task(agent_name, agent_pos, available_tasks)
@@ -771,6 +761,7 @@ class TokenPassing(object):
                 (len(self.global_view['abstract_to_loc1'][agent_name]) > 0 or agent_pos ==
                  self.global_view['pre_assignment_agents_tasks'][agent_name]['start']):
             self.remove_task_from_agents(agent_name, [actual_part])
+
 
     def find_next_goal(self, agent_name, agent_pos, next_part, num_abs):
         abstract = "abstract_to_loc" + str(num_abs)
@@ -947,7 +938,9 @@ class TokenPassing(object):
             self.global_view['occupied_non_task_endpoints'].remove(
                 tuple(self.global_view['pre_assignment_agents_tasks'][agent_name]['goal']))
 
-        self.global_view['pre_assignment_agents_tasks'].pop(agent_name)
+        task_to_remove = self.global_view['pre_assignment_agents_tasks'].pop(agent_name)
+        self.global_view['current_goals'].remove(tuple(task_to_remove['goal']))
+
         self.global_view['abstract_to_loc1'][agent_name] = []
         self.global_view['abstract_to_loc2'][agent_name] = []
 
