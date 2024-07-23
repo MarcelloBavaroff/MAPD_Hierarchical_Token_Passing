@@ -34,7 +34,7 @@ if __name__ == '__main__':
     #random.seed(92332)
     parser = argparse.ArgumentParser()
     parser.add_argument('-a_star_max_iter', help='Maximum number of states explored by the low-level algorithm',
-                        default=500, type=int)
+                        default=2000, type=int)
     parser.add_argument('-slow_factor', help='Slow factor of visualization', default=1, type=int) #default=1
     parser.add_argument('-not_rand', help='Use if input has fixed tasks and delays', action='store_true', default=False)
 
