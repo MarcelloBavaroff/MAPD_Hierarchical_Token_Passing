@@ -30,6 +30,18 @@ def read_tasks():
 
     return data_list
 
+def fill_matrix_cell_partitions(partitions, dimensions):
+    matrix = [[0 for _ in range(dimensions[0])] for _ in range(dimensions[1])]
+    for i in range(dimensions[0]):
+        for j in range(dimensions[1]):
+            for num, partition in enumerate(partitions):
+                if partition[0] <= i < partition[2] and partition[1] <= j < partition[3]:
+                    matrix[j][i] = num
+
+    return matrix
+
+
+
 if __name__ == '__main__':
     #random.seed(92332)
     parser = argparse.ArgumentParser()
@@ -61,6 +73,9 @@ if __name__ == '__main__':
     goal_endpoints = param['map']['delivery_locations']
     goal_endpoints = [tuple(x) for x in goal_endpoints]
     frontiers = param['map']['frontiers']
+    matrix_cells_partitions = fill_matrix_cell_partitions(partitions, dimensions)
+
+
 
     if args.not_rand:
         tasks = read_tasks()
