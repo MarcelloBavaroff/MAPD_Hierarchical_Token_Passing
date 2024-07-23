@@ -12,6 +12,7 @@ from Simulation.p_simulation import Simulation
 import ast
 from Utils.Print_Matrix import PrintMatrix
 
+
 def read_tasks():
     data_list = []
     with open('LastRun/test', 'r') as file:
@@ -30,16 +31,16 @@ def read_tasks():
 
     return data_list
 
+
 def fill_matrix_cell_partitions(partitions, dimensions):
-    matrix = [[0 for _ in range(dimensions[0])] for _ in range(dimensions[1])]
+    matrix = [[0 for _ in range(dimensions[1])] for _ in range(dimensions[0])]
     for i in range(dimensions[0]):
         for j in range(dimensions[1]):
             for num, partition in enumerate(partitions):
                 if partition[0] <= i < partition[2] and partition[1] <= j < partition[3]:
-                    matrix[j][i] = num
+                    matrix[i][j] = num
 
     return matrix
-
 
 
 if __name__ == '__main__':
@@ -47,7 +48,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-a_star_max_iter', help='Maximum number of states explored by the low-level algorithm',
                         default=2000, type=int)
-    parser.add_argument('-slow_factor', help='Slow factor of visualization', default=1, type=int) #default=1
+    parser.add_argument('-slow_factor', help='Slow factor of visualization', default=1, type=int)  #default=1
     parser.add_argument('-not_rand', help='Use if input has fixed tasks and delays', action='store_true', default=False)
 
     args = parser.parse_args()
@@ -75,14 +76,12 @@ if __name__ == '__main__':
     frontiers = param['map']['frontiers']
     matrix_cells_partitions = fill_matrix_cell_partitions(partitions, dimensions)
 
-
-
     if args.not_rand:
         tasks = read_tasks()
     else:
         # Genera i task
         tasks = gen_tasks(param['map']['pickup_locations'], param['map']['delivery_locations'],
-                                             1000, 5, 92332)
+                          1000, 5, 92332)
     param['tasks'] = tasks
 
     with open(args.param + config['visual_postfix'], 'w') as param_file:
@@ -91,7 +90,7 @@ if __name__ == '__main__':
     # Simulate
     simulation = Simulation(tasks, agents)
     tp = TokenPassing(agents, dimensions, obstacles, non_task_endpoints, number_of_areas, partitions, simulation,
-                      goal_endpoints, frontiers, a_star_max_iter=args.a_star_max_iter)
+                      goal_endpoints, frontiers, matrix_cells_partitions, a_star_max_iter=args.a_star_max_iter)
     while len(tp.get_completed_tasks()) != len(tasks) and simulation.time < 30000:
         simulation.time_forward(tp)
 
@@ -104,12 +103,6 @@ if __name__ == '__main__':
     print("Parallel rounds:", tp.get_parallel_rounds())
     print("A* max:", tp.get_max_Astar())
 
-    # parallel_exp = 0
-    # #calcolo alternativo del costo
-    # for i in range(simulation.time):
-    #     parallel_exp = parallel_exp + max(vec[0][i], vec[1][i], vec[2][i], vec[3][i])
-    #
-    # print("Espansioni totali parallele:", parallel_exp)
 
     cost = 0
     for path in simulation.actual_paths.values():

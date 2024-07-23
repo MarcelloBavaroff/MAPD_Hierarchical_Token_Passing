@@ -16,7 +16,7 @@ class frontier:
 # noinspection PyTypeChecker
 class TokenPassing(object):
     def __init__(self, agents, dimensions, obstacles, non_task_endpoints, number_of_areas, partitions, simulation,
-                 goal_endpoints, frontiers, a_star_max_iter=500):
+                 goal_endpoints, frontiers, matrix_cells_partitions, a_star_max_iter=500):
         random.seed(1234)
         self.agents = agents
         self.dimensions = dimensions
@@ -25,6 +25,7 @@ class TokenPassing(object):
         self.number_of_areas = number_of_areas
         self.frontiers = self.convert_frontiers(frontiers)
         self.partitions = partitions
+        self.matrix_cells_partitions = matrix_cells_partitions
         # if len(agents) > len(non_task_endpoints):
         #     print('There are more agents than non task endpoints, instance is not well-formed.')
         #     exit(1)
@@ -145,13 +146,16 @@ class TokenPassing(object):
         #print(self.graph)
 
     #restituisce l'indice della partizione in cui si trova la posizione pos (thanks co-pilot)
-    def find_partition(self, pos):
+    def find_partition_old(self, pos):
 
         for i in range(self.number_of_areas):
             if self.partitions[i][0] <= pos[0] <= self.partitions[i][2] and self.partitions[i][1] <= pos[1] <= \
                     self.partitions[i][3]:
                 return i
         return -1
+
+    def find_partition(self, pos):
+        return self.matrix_cells_partitions[pos[0]][pos[1]]
 
     #in teoria agenti in idle hanno il path verso la loro posizione attuale
     # def get_idle_agents(self):
