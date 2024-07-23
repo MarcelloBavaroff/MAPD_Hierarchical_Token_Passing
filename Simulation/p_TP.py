@@ -546,6 +546,23 @@ class TokenPassing(object):
 
         return True
 
+    def check_path_ends3(self, agent_pos, task):
+
+        #se agent pos == task[0] passo al controllo dopo
+        if tuple(task[0]) != tuple(agent_pos):
+            part = self.find_partition(task[0])
+            #altrimenti devo verificare che non sia in path ends di altri agenti
+            if tuple(task[0]) in self.tokens[part]['path_ends']:
+                return False
+
+        if tuple(task[1]) != tuple(agent_pos):
+            part = self.find_partition(task[1])
+            # altrimenti devo verificare che non sia in path ends di altri agenti
+            if tuple(task[1]) in self.tokens[part]['path_ends']:
+                return False
+
+        return True
+
 
     def create_all_path_ends(self):
         all_path_ends = set()
@@ -570,7 +587,7 @@ class TokenPassing(object):
         for task_name, task in self.global_view['tasks'].items():
             # se inizio e fine task non in path ends degli agenti (meno me) AND nemmeno in goals
             #meglio cercare prima in assigned goals
-            if self.not_in_assigned_goals2(task[0], task[1]) and self.check_path_ends2(agent_pos, task):
+            if self.not_in_assigned_goals3(task[0], task[1]) and self.check_path_ends2(agent_pos, task):
                 #     and tuple(task[0]) not in self.get_agents_to_tasks_goals() and tuple(
                 # task[1]) not in self.get_agents_to_tasks_goals():
 
