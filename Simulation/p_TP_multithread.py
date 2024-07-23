@@ -1079,10 +1079,6 @@ class TokenPassing(object):
                 self.finish_event.wait()
                 self.finish_event.clear()
 
-
-
-
-
     def time_forward(self):
         self.update_completed_tasks()
         self.collect_new_tasks()
