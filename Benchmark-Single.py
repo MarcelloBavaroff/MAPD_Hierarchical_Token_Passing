@@ -11,6 +11,16 @@ from Simulation.p_TP_multithread import TokenPassing
 from Simulation.p_simulation import Simulation
 from Utils.Print_Matrix import PrintMatrix
 
+def fill_matrix_cell_partitions(partitions, dimensions):
+    matrix = [[0 for _ in range(dimensions[1])] for _ in range(dimensions[0])]
+    for i in range(dimensions[0]):
+        for j in range(dimensions[1]):
+            for num, partition in enumerate(partitions):
+                if partition[0] <= i <= partition[2] and partition[1] <= j <= partition[3]:
+                    matrix[i][j] = num
+
+    return matrix
+
 
 def parameters(seed):
     random.seed(seed)
@@ -37,12 +47,14 @@ def parameters(seed):
     dimensions = param['map']['dimensions']
     obstacles = param['map']['obstacles']
     non_task_endpoints = param['map']['non_task_endpoints']
+    non_task_endpoints = set(non_task_endpoints)
     agents = param['agents']
     number_of_areas = param['map']['number_of_areas']
     partitions = param['map']['partitions']
     goal_endpoints = param['map']['delivery_locations']
-    goal_endpoints = [tuple(x) for x in goal_endpoints]
+    goal_endpoints = set([tuple(x) for x in goal_endpoints])
     frontiers = param['map']['frontiers']
+    matrix_cells_partitions = fill_matrix_cell_partitions(partitions, dimensions)
 
 
     tasks = gen_tasks(param['map']['pickup_locations'], param['map']['delivery_locations'],
@@ -52,7 +64,7 @@ def parameters(seed):
     # with open('Comparisons/seeds2.txt', 'a') as file:
     #     file.write(str(seed) + " ")
 
-    return tasks, agents, dimensions, obstacles, non_task_endpoints, number_of_areas, partitions, goal_endpoints, frontiers, args.a_star_max_iter
+    return tasks, agents, dimensions, obstacles, non_task_endpoints, number_of_areas, partitions, goal_endpoints, frontiers, matrix_cells_partitions, args.a_star_max_iter
 
 
 def print_comparison(version, n_agents, completed_tasks, n_tasks, makespan, average_service_time, std_dev_st, Astar_calls,
@@ -73,12 +85,12 @@ def print_comparison(version, n_agents, completed_tasks, n_tasks, makespan, aver
 
 
 def single_run(index_run, random_seed, file_name):
-    tasks, agents, dimensions, obstacles, non_task_endpoints, number_of_areas, partitions, goal_endpoints, frontiers, max_iter = parameters(random_seed)
+    tasks, agents, dimensions, obstacles, non_task_endpoints, number_of_areas, partitions, goal_endpoints, frontiers, matrix_cells_partitions, max_iter = parameters(random_seed)
 
     # Simulate
     simulation = Simulation(tasks, agents)
     tp = TokenPassing(agents, dimensions, obstacles, non_task_endpoints, number_of_areas, partitions, simulation,
-                      goal_endpoints, frontiers, max_iter)
+                      goal_endpoints, frontiers, matrix_cells_partitions, max_iter)
     while len(tp.get_completed_tasks()) != len(tasks) and simulation.get_time() < 10000:
         simulation.time_forward(tp)
 

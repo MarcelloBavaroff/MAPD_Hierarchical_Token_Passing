@@ -37,7 +37,7 @@ def fill_matrix_cell_partitions(partitions, dimensions):
     for i in range(dimensions[0]):
         for j in range(dimensions[1]):
             for num, partition in enumerate(partitions):
-                if partition[0] <= i < partition[2] and partition[1] <= j < partition[3]:
+                if partition[0] <= i <= partition[2] and partition[1] <= j <= partition[3]:
                     matrix[i][j] = num
 
     return matrix
@@ -68,11 +68,12 @@ if __name__ == '__main__':
     dimensions = param['map']['dimensions']
     obstacles = param['map']['obstacles']
     non_task_endpoints = param['map']['non_task_endpoints']
+    non_task_endpoints = set(non_task_endpoints)
     agents = param['agents']
     number_of_areas = param['map']['number_of_areas']
     partitions = param['map']['partitions']
     goal_endpoints = param['map']['delivery_locations']
-    goal_endpoints = [tuple(x) for x in goal_endpoints]
+    goal_endpoints = set([tuple(x) for x in goal_endpoints])
     frontiers = param['map']['frontiers']
     matrix_cells_partitions = fill_matrix_cell_partitions(partitions, dimensions)
 

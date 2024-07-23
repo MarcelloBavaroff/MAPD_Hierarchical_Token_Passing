@@ -259,14 +259,22 @@ class Environment(object):
             return False
         return EdgeConstraint(state_1.time, state_1.location, state_2.location) not in self.constraints.edge_constraints
 
+    # def NON_te_only_if_goal(self, state_new, agent_name):
+    #     tup_new = tuple((state_new.location.x, state_new.location.y))
+    #     for n in self.non_task_endpoints:
+    #         if tup_new == n:
+    #             if self.is_at_goal(state_new, agent_name):
+    #                 return True
+    #             else:
+    #                 return False
+    #     return True
+
     def NON_te_only_if_goal(self, state_new, agent_name):
         tup_new = tuple((state_new.location.x, state_new.location.y))
-        for n in self.non_task_endpoints:
-            if tup_new == n:
-                if self.is_at_goal(state_new, agent_name):
-                    return True
-                else:
-                    return False
+
+        if tup_new in self.non_task_endpoints:
+            return self.is_at_goal(state_new, agent_name)
+
         return True
     def is_solution(self, agent_name):
         pass

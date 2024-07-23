@@ -125,7 +125,7 @@ class TokenPassing(object):
         for a in self.agents:
             if self.find_partition(a['start']) == index:
                 self.tokens[index]['agents'][a['name']] = [a['start']]
-                if not tuple(a['start']) in self.non_task_endpoints:
+                if tuple(a['start']) not in self.non_task_endpoints:
                     self.tokens[index]['path_ends'].add(tuple(a['start']))
 
     #initialize all tokens
@@ -591,7 +591,7 @@ class TokenPassing(object):
         for task_name, task in self.global_view['tasks'].items():
             # se inizio e fine task non in path ends degli agenti (meno me) AND nemmeno in goals
             #meglio cercare prima in assigned goals
-            if self.not_in_assigned_goals3(task[0], task[1]) and self.check_path_ends2(agent_pos, task):
+            if self.not_in_assigned_goals3(task[0], task[1]) and self.check_path_ends3(agent_pos, task):
                 #     and tuple(task[0]) not in self.get_agents_to_tasks_goals() and tuple(
                 # task[1]) not in self.get_agents_to_tasks_goals():
 
@@ -937,14 +937,6 @@ class TokenPassing(object):
                 return f.destination_partition
 
         return -1
-
-    #probailmente si può gestire diversamente
-    # def update_non_task_endpoints(self):
-    #     self.global_view['occupied_non_task_endpoints'] = set()
-    #     for part in range(self.number_of_areas):
-    #         for agent_pos in self.tokens[part]['agents'].values():
-    #             if tuple(agent_pos[0]) in self.non_task_endpoints:
-    #                 self.global_view['occupied_non_task_endpoints'].add(tuple(agent_pos[0]))
 
     def remove_task_from_agents(self, agent_name, part_to_remove):
         print('Rimozione del task dall\'', agent_name)
