@@ -39,6 +39,7 @@ class TokenPassing(object):
         self.sommaEspansioniAmaxTimestep = 0
         self.sumOfCosts = 0
         self.maxAstar = 0
+        self.update_A_lock = threading.Lock()
         self.goal_endpoints = goal_endpoints
         self.global_view = {}
         self.init_global_view()
@@ -487,11 +488,12 @@ class TokenPassing(object):
     def search(self, cbs, part_index):
 
         path, espansioniA = cbs.search()
-        self.chiamateAstar += 1
-        self.sommaEspansioniAtot += espansioniA
-        self.espansioniAstarXpart[part_index] += espansioniA
-        if espansioniA == self.a_star_max_iter:
-            self.maxAstar += 1
+        with self.update_A_lock:
+            self.chiamateAstar += 1
+            self.sommaEspansioniAtot += espansioniA
+            self.espansioniAstarXpart[part_index] += espansioniA
+            if espansioniA == self.a_star_max_iter:
+                self.maxAstar += 1
 
         return path
 

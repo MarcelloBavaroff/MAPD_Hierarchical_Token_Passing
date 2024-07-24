@@ -82,7 +82,7 @@ if __name__ == '__main__':
     else:
         # Genera i task
         tasks = gen_tasks(param['map']['pickup_locations'], param['map']['delivery_locations'],
-                          1000, 5, 92332)
+                          1000, 0.2, 92332)
     param['tasks'] = tasks
 
     with open(args.param + config['visual_postfix'], 'w') as param_file:

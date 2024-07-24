@@ -91,7 +91,7 @@ def single_run(index_run, random_seed, file_name):
     simulation = Simulation(tasks, agents)
     tp = TokenPassing(agents, dimensions, obstacles, non_task_endpoints, number_of_areas, partitions, simulation,
                       goal_endpoints, frontiers, matrix_cells_partitions, max_iter)
-    while len(tp.get_completed_tasks()) != len(tasks) and simulation.get_time() < 10000:
+    while len(tp.get_completed_tasks()) != len(tasks) and simulation.get_time() < 15000:
         simulation.time_forward(tp)
 
     completed_tasks = len(tp.get_completed_tasks())
@@ -154,7 +154,7 @@ if __name__ == '__main__':
     array_actual_paths = []
 
 
-    file_name = 'Comparisons/Stern/29p3a2000.txt'
+    file_name = 'Comparisons/Stern/28p7a2000.txt'
 
     with open('Comparisons/seeds1.txt', 'r') as file:
         # inserisci ogni riga in una lista
