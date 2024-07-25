@@ -154,7 +154,7 @@ if __name__ == '__main__':
     array_actual_paths = []
 
 
-    file_name = 'Comparisons/Stern/28p11a2000.txt'
+    file_name = 'Comparisons/Stern/Giorgio/28p7a2000.txt'
 
     with open('Comparisons/seeds1.txt', 'r') as file:
         # inserisci ogni riga in una lista
@@ -242,8 +242,8 @@ if __name__ == '__main__':
         file.write("\n\n" + "Excel: ")
         file.write(excel_string)
 
-        matrix = PrintMatrix(all_paths, dimensions, obstacles, agents, goal_endpoints)
-        matrix.plot_heatmap(20)
+        # matrix = PrintMatrix(all_paths, dimensions, obstacles, agents, goal_endpoints)
+        # matrix.plot_heatmap(20)
 
 
 
