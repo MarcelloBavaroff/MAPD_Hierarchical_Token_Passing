@@ -1,6 +1,6 @@
 {
     "input_path": "Environments/Stern/170x84",
-    "input_name": "warehouse-170x84-horizontal-19p.yaml",
+    "input_name": "warehouse-170x84-horizontal-13p.yaml",
     "visual_postfix": "_tmp",
     "experiments_path": "Experiments",
     "experiments_name": "generico"
