@@ -79,7 +79,7 @@ if __name__ == '__main__':
     else:
         # Genera i task
         tasks = gen_tasks(param['map']['pickup_locations'], param['map']['delivery_locations'],
-                                             1000, 0.2, 92332)
+                                             10000, 5, 92332)
     param['tasks'] = tasks
 
     with open(args.param + config['visual_postfix'], 'w') as param_file:
@@ -100,6 +100,8 @@ if __name__ == '__main__':
     print("Espansioni totali per timestep:", tp.get_exp_sum_max_per_timestep())
     print("Parallel rounds:", tp.get_parallel_rounds())
     print("A* max:", tp.get_max_Astar())
+    print("Numero medio di parallelismo quando effettivamente si va in parallelo:", tp.get_count_num_of_parallel_theory()/tp.get_parallel_rounds())
+    print("Numero medio di parallelismo REALE:", tp.get_count_num_of_parallel_real()/tp.get_parallel_rounds())
 
     # parallel_exp = 0
     # #calcolo alternativo del costo

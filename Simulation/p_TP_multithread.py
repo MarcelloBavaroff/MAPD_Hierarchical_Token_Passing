@@ -53,6 +53,9 @@ class TokenPassing(object):
             self.vec_areas[i] = []
 
         self.espansioniAstarXpart = [0] * self.number_of_areas
+        self.count_num_of_parallel_theory = 0
+        self.max_threads_x_timestep = 0
+        self.count_num_of_parallel_real = 0
         self.heatmap = np.zeros((dimensions[0], dimensions[1]))
         #serve per vedere quanti thread hanno finito nel mentre che vengono eseguite altre operazioni
         # self.just_finished_threads = 0
@@ -62,6 +65,14 @@ class TokenPassing(object):
         self.print_lock = threading.Lock()
         #vedi sotto
 
+
+    def update_max_threads(self, executive_threads):
+        self.max_threads_x_timestep = max(self.max_threads_x_timestep, len(executive_threads))
+
+    def get_count_num_of_parallel_real(self):
+        return self.count_num_of_parallel_real
+    def get_count_num_of_parallel_theory(self):
+        return self.count_num_of_parallel_theory
 
     def get_heatmap(self):
         return self.heatmap
@@ -979,6 +990,12 @@ class TokenPassing(object):
 
         if sum(self.espansioniAstarXpart) != max(self.espansioniAstarXpart):
             self.parallel_rounds += 1
+            for e in self.espansioniAstarXpart:
+                if e > 0:
+                    self.count_num_of_parallel_theory += 1
+            self.count_num_of_parallel_real += self.max_threads_x_timestep
+            self.max_threads_x_timestep = 0
+
 
         for i in range(self.number_of_areas):
             self.vec_areas[i].append(self.espansioniAstarXpart[i])
@@ -1100,7 +1117,7 @@ class TokenPassing(object):
                         del waiting_agents[part]
 
                     self.path_selection(agent_name, self.tokens[self.global_view['agents_to_areas'][agent_name][0]]['agents'][agent_name][0], waiting_agents, executive_threads)
-
+            self.update_max_threads(executive_threads)
             with self.finish_event_lock:
                 self.finish_event.wait()
                 self.finish_event.clear()
@@ -1134,6 +1151,7 @@ class TokenPassing(object):
                 agent_pos = agents_to_plan.pop(agent_name)[0]
 
             self.path_selection(agent_name, agent_pos, waiting_agents, executive_threads)
+            self.update_max_threads(executive_threads)
             #ricordati che serve un buffer per le wait sulle frontiere
 
         # qui metterei una nuova funzione che si occupa di gestire gli agenti in attesa
