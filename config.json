@@ -1,6 +1,6 @@
 {
-    "input_path": "Environments/Stern/170x84",
-    "input_name": "160aV2-warehouse-170x84-3p.yaml",
+    "input_path": "Environments/Stern/161x63",
+    "input_name": "warehouse-161x63-horizontal-p3.yaml",
     "visual_postfix": "_tmp",
     "experiments_path": "Experiments",
     "experiments_name": "experiments_new2_big_07_10_2021_00_42_53.json"
