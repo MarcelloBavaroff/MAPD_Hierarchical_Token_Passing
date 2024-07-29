@@ -26,12 +26,17 @@ def create_delivery():
     #     delivery.append([1, i])
     #     delivery.append([168, i])
 
-    rows = [1, 82]
-    for j in rows:
-        for i in range(4, 23):
-            delivery.append([i, j])
-        for i in range(147, 166):
-            delivery.append([i, j])
+    # rows = [1, 82]
+    # for j in rows:
+    #     for i in range(4, 23):
+    #         delivery.append([i, j])
+    #     for i in range(147, 166):
+    #         delivery.append([i, j])
+    for x in range(26, 135, 12):
+        for y in range(13, 78, 8):
+            for i in range(x, x + 10):
+                delivery.append([i, y])
+                delivery.append([i, y + 1])
 
     for d in delivery:
         print("-    ", d)
@@ -93,7 +98,7 @@ def create_pickup():
     pickups = []
 
     for x in range(26, 135, 12):
-        for y in range(69, 78, 4):
+        for y in range(9, 74, 8):
             for i in range(x, x + 10):
                 pickups.append([i, y])
                 pickups.append([i, y + 1])
@@ -116,6 +121,35 @@ def create_frontiers_vertical():
         for i in range(41, 82, 4):
             frontiers.append([j, i, k, j+1, i, k + 1])
             frontiers.append([j + 1, i+1, k + 1, j, i + 1, k])
+        k += 1
+
+    # k = 12
+    # for j in columns_external:
+    #     for i in range(1, 82, 2):
+    #         frontiers.append([j, i, k, j+1, i, k + 1])
+    #         frontiers.append([j + 1, i+1, k + 1, j, i + 1, k])
+    #     k += 1
+
+    # Stampa gli ostacoli generati
+    for f in frontiers:
+        print("-    ", f)
+        
+def create_frontiers_vertical_corridor1():
+    # Inizializza la lista degli ostacoli
+    frontiers = []
+
+    #Itera attraverso le righe e le colonne specificate
+    columns_internal = [30, 41, 63, 74]
+    columns_internal_right = [85, 96, 118, 129]
+
+
+    k = 4
+    for x in columns_internal_right:
+        for y in range(1, 62, 6):
+            frontiers.append([x, y, k, x+1, y, k+1])
+            frontiers.append([x+1, y+3, k+1, x, y+3, k])
+            # frontiers.append([x+1, y, k+1, x, y, k])
+            # frontiers.append([x, y+3, k, x+1, y+3, k+1])
         k += 1
 
     # k = 12
@@ -190,5 +224,5 @@ def create_obstacles():
         print("- !!python/tuple", obs)
 
 
-create_frontiers_horizontal()
+create_frontiers_vertical_corridor1()
 

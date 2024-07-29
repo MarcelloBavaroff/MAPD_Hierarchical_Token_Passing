@@ -79,7 +79,7 @@ if __name__ == '__main__':
     else:
         # Genera i task
         tasks = gen_tasks(param['map']['pickup_locations'], param['map']['delivery_locations'],
-                                             10000, 5, 92332)
+                                             1000, 5, 92332)
     param['tasks'] = tasks
 
     with open(args.param + config['visual_postfix'], 'w') as param_file:
@@ -89,7 +89,7 @@ if __name__ == '__main__':
     simulation = Simulation(tasks, agents)
     tp = TokenPassing(agents, dimensions, obstacles, non_task_endpoints, number_of_areas, partitions, simulation,
                       goal_endpoints, frontiers, matrix_cells_partitions, a_star_max_iter=args.a_star_max_iter)
-    while len(tp.get_completed_tasks()) != len(tasks) and simulation.time < 30000:
+    while len(tp.get_completed_tasks()) != len(tasks) and simulation.time < 15000:
         simulation.time_forward(tp)
 
     vec = tp.get_vec_areas()
