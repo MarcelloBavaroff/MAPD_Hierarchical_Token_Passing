@@ -862,9 +862,9 @@ class TokenPassing(object):
         # se sto migrando, devo ancora fare il pickup e questo è nella partizione successiva
         if pic_in_part:
             #valid_path = self.pickup_in_partition(agent_name, closest_frontier.destination_pos, self.global_view['pre_assignment_agents_tasks'][agent_name]['start'], all_idle_agents, next_part, time_start=1)
-            valid_path = self.pickup_in_partition(agent_name, agent_pos,
-                                                  self.global_view['pre_assignment_agents_tasks'][agent_name]['start'],
+            valid_path = self.pickup_in_partition(agent_name, agent_pos, self.global_view['pre_assignment_agents_tasks'][agent_name]['start'],
                                                   all_idle_agents, next_part, time_start=0, inside_migration=True)
+
         # altrimenti o devo andare da una frontiera all'altra o al delivery
         else:
             next_goal = self.find_next_goal(agent_name, closest_frontier.destination_pos, next_part, num_abs)
@@ -872,8 +872,7 @@ class TokenPassing(object):
             if next_goal == -1:
                 valid_path = False
             else:
-                valid_path = self.compute_real_path_single(agent_name, agent_pos, next_goal, all_idle_agents, next_part,
-                                                           time_start=0)
+                valid_path = self.compute_real_path_single(agent_name, agent_pos, next_goal, all_idle_agents, next_part,time_start=0)
 
         if valid_path:
             with self.print_lock:
@@ -928,8 +927,6 @@ class TokenPassing(object):
                 return f.destination_partition
 
         return -1
-
-
 
     def remove_task_from_agents(self, agent_name, part_to_remove):
         print('Rimozione del task dall\'', agent_name)
@@ -1065,7 +1062,6 @@ class TokenPassing(object):
                     executive_threads[agent_partition] = th
                     th.start()
 
-
         # il pickup è nell'area in cui mi trovo
         # o all'inizio o appena mi viene assegnato un nuovo task
         elif len(self.global_view['abstract_to_loc1'][agent_name]) == 1:
@@ -1092,7 +1088,6 @@ class TokenPassing(object):
                                                                           self.global_view['abstract_to_loc2'][agent_name][1]))
                     executive_threads[agent_partition] = th
                     th.start()
-
 
         elif len(self.global_view['abstract_to_loc2'][agent_name]) == 1:
             if self.check_available_token(agent_name, agent_partition, waiting_agents, executive_threads):
