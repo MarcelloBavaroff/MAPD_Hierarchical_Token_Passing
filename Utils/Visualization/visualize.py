@@ -63,8 +63,11 @@ class Animation:
                 color = self.assign_colors(x, y, map["map"]["partitions"])
                 edge_color = 'black'
                 line_width = 1
-                if self.is_frontier(x, y, map["map"]["frontiers"]):
+                if self.is_entry_cell(x, y, map["map"]["frontiers"]):
                     edge_color = 'red'
+                    line_width = 3
+                elif self.is_exit_cell(x, y, map["map"]["frontiers"]):
+                    edge_color = 'blue'
                     line_width = 3
                 self.patches.append(Rectangle((x - 0.5, y - 0.5), 1, 1, facecolor=color, edgecolor=edge_color, alpha=0.3, linewidth=line_width))
         for o in map["map"]["obstacles"]:
@@ -118,9 +121,15 @@ class Animation:
                                             interval=10,
                                             blit=True,
                                             repeat=False)
-    def is_frontier(self, x, y, frontiers):
+    def is_entry_cell(self, x, y, frontiers):
         for f in frontiers:
             if f[0] == x and f[1] == y:
+                return True
+        return False
+
+    def is_exit_cell(self, x, y, frontiers):
+        for f in frontiers:
+            if f[3] == x and f[4] == y:
                 return True
         return False
 

@@ -82,7 +82,7 @@ if __name__ == '__main__':
     else:
         # Genera i task
         tasks = gen_tasks(param['map']['pickup_locations'], param['map']['delivery_locations'],
-                          1000, 0.2, 92332)
+                          10, 0.2, 92332)
     param['tasks'] = tasks
 
     with open(args.param + config['visual_postfix'], 'w') as param_file:
@@ -111,12 +111,12 @@ if __name__ == '__main__':
 
     # matrix = PrintMatrix(simulation.actual_paths, dimensions, obstacles, agents, goal_endpoints)
     # matrix.plot_heatmap()
-    #
-    # output = {'schedule': simulation.actual_paths, 'cost': cost,
-    #            'completed_tasks_times': tp.get_completed_tasks_times()}
-    # with open(args.output, 'w') as output_yaml:
-    #     yaml.safe_dump(output, output_yaml)
-    #
-    # #legge dal file di output
-    # create = [sys.executable, '-m', 'Utils.Visualization.visualize', '-slow_factor', str(args.slow_factor)]
-    # subprocess.call(create)
+    
+    output = {'schedule': simulation.actual_paths, 'cost': cost,
+               'completed_tasks_times': tp.get_completed_tasks_times()}
+    with open(args.output, 'w') as output_yaml:
+        yaml.safe_dump(output, output_yaml)
+
+    #legge dal file di output
+    create = [sys.executable, '-m', 'Utils.Visualization.visualize', '-slow_factor', str(args.slow_factor)]
+    subprocess.call(create)
