@@ -154,9 +154,9 @@ if __name__ == '__main__':
     array_actual_paths = []
 
 
-    file_name = 'Comparisons/Stern/15hp3a2000.txt'
+    file_name = 'Comparisons/Stern/bug29v5.txt'
 
-    with open('Comparisons/seeds1.txt', 'r') as file:
+    with open('Comparisons/seeds1.1(errato).txt', 'r') as file:
         # inserisci ogni riga in una lista
         seeds = file.read()
     seeds = seeds.split(" ")

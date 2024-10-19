@@ -661,7 +661,7 @@ class TokenPassing(object):
         moving_obstacles_agents, negative_moving_obstacles = self.get_moving_obstacles_agents(self.tokens[part_index]['agents'], time_start)
         idle_obstacles_agents = self.get_idle_obstacles_agents(all_idle_agents, time_start, agent_name)
         idle_obstacles_agents |= (set(self.non_task_endpoints) - {tuple(loc1)})
-        #idle_obstacles_agents |= (set(self.goal_endpoints) - {tuple(loc1)})
+        idle_obstacles_agents |= (set(self.goal_endpoints) - {tuple(loc1)})
         idle_obstacles_agents = idle_obstacles_agents - {tuple(agent_pos)}
 
         agent = {'name': agent_name, 'start': agent_pos, 'goal': loc1}
@@ -681,7 +681,7 @@ class TokenPassing(object):
                                                                        time_start + cost1 - 1)
             idle_obstacles_agents = self.get_idle_obstacles_agents(all_idle_agents, time_start + cost1 - 1, agent_name)
             idle_obstacles_agents |= (set(self.non_task_endpoints) - {tuple(loc1), tuple(loc2)})
-            #idle_obstacles_agents |= (set(self.goal_endpoints) - {tuple(loc1), tuple(loc2)})
+            idle_obstacles_agents |= (set(self.goal_endpoints) - {tuple(loc1), tuple(loc2)})
             idle_obstacles_agents = idle_obstacles_agents - {tuple(agent_pos)}
 
             agent = {'name': agent_name, 'start': loc1, 'goal': loc2}
@@ -710,7 +710,7 @@ class TokenPassing(object):
         moving_obstacles_agents, negative_moving_obstacles = self.get_moving_obstacles_agents(self.tokens[part_index]['agents'], time_start)
         idle_obstacles_agents = self.get_idle_obstacles_agents(all_idle_agents, time_start, agent_name)
         idle_obstacles_agents |= (set(self.non_task_endpoints) - {tuple(goal_position)})
-        #idle_obstacles_agents |= (set(self.goal_endpoints) - {tuple(goal_position)})
+        idle_obstacles_agents |= (set(self.goal_endpoints) - {tuple(goal_position)})
         idle_obstacles_agents = idle_obstacles_agents - {tuple(agent_pos)}
 
         agent = {'name': agent_name, 'start': agent_pos, 'goal': goal_position}
