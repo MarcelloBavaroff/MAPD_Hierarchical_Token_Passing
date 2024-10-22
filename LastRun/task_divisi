@@ -1,6 +1,0 @@
-{'start_time': 1, 'pickup': [3, 6], 'delivery': [0, 7], 'task_name': 'task0'}
-{'start_time': 1, 'pickup': [4, 2], 'delivery': [0, 2], 'task_name': 'task1'}
-{'start_time': 1, 'pickup': [10, 2], 'delivery': [13, 3], 'task_name': 'task2'}
-{'start_time': 1, 'pickup': [9, 6], 'delivery': [13, 7], 'task_name': 'task3'}
-{'start_time': 1, 'pickup': [3, 4], 'delivery': [0, 3], 'task_name': 'task4'}
-{'start_time': 1, 'pickup': [9, 2], 'delivery': [13, 2], 'task_name': 'task5'}

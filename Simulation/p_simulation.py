@@ -28,21 +28,21 @@ class Simulation(object):
             if new_pos == tuple(gb['pre_assignment_agents_tasks'][agent_name]['start']):
                 gb['abstract_to_loc1'][agent_name] = []
             else:
-                old_part = algorithm.find_partition(old_pos)
-                new_part = algorithm.find_partition(new_pos)
+                old_part = algorithm.find_segment(old_pos)
+                new_part = algorithm.find_segment(new_pos)
                 if old_part != new_part:
                     gb['abstract_to_loc1'][agent_name] = gb['abstract_to_loc1'][agent_name][1:]
         else:
             if new_pos == tuple(gb['pre_assignment_agents_tasks'][agent_name]['goal']):
                 gb['abstract_to_loc2'][agent_name] = []
             else:
-                old_part = algorithm.find_partition(old_pos)
-                new_part = algorithm.find_partition(new_pos)
+                old_part = algorithm.find_segment(old_pos)
+                new_part = algorithm.find_segment(new_pos)
                 if old_part != new_part:
                     gb['abstract_to_loc2'][agent_name] = gb['abstract_to_loc2'][agent_name][1:]
     def check_partition_change(self, agent_name, agent_pos, algorithm, actual_part):
         changed = False
-        for i in range(algorithm.get_number_of_areas()):
+        for i in range(algorithm.get_number_of_segments()):
             if agent_name in algorithm.get_token(i)['agents'] and i != actual_part:
                 changed = True
                 break
@@ -92,7 +92,7 @@ class Simulation(object):
                 #tolgo dal vecchio token
                 algorithm.get_token(partition)['agents'].pop(agent['name'])
                 #cambio l'area di appartenenza dell'agente
-                algorithm.get_global_view()['agents_to_areas'][agent['name']] = algorithm.get_global_view()['agents_to_areas'][agent['name']][1:]
+                algorithm.get_global_token()['agents_to_areas'][agent['name']] = algorithm.get_global_token()['agents_to_areas'][agent['name']][1:]
                 #libero la frontiera
                 algorithm.get_token(partition)['occupied_frontiers'].pop(agent['name'])
 
@@ -128,7 +128,7 @@ class Simulation(object):
         agents_to_move = self.agents
         random.shuffle(agents_to_move)
 
-        gb = algorithm.get_global_view()
+        gb = algorithm.get_global_token()
         self.handle_agents_lenPath1(agents_to_move, algorithm, gb)
 
         # Check moving agents doesn't collide with others
@@ -156,13 +156,13 @@ class Simulation(object):
 
         #ho un dizionario di agenti bloccati divisi per partizione
         blocked_agents_per_partition = {}
-        for i in range(algorithm.get_number_of_areas()):
+        for i in range(algorithm.get_number_of_segments()):
             blocked_agents_per_partition[i] = []
             for agent in agents_to_move:
                 if agent['name'] in algorithm.get_token(i)['agents']:
                     blocked_agents_per_partition[i].append(agent)
 
-        for i in range(algorithm.get_number_of_areas()):
+        for i in range(algorithm.get_number_of_segments()):
             if len(blocked_agents_per_partition[i]) > 3:
                 if self.handle_loops(blocked_agents_per_partition[i], algorithm, i):
                     for agent in agents_to_move:

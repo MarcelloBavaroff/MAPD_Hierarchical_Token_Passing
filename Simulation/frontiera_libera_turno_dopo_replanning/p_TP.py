@@ -284,10 +284,10 @@ class TokenPassing(object):
         for f in frontiers_to_next_part:
             if f not in discarded_frontiers:
                 if dist == -1:
-                    dist = self.admissible_heuristic(f.start_pos, agent_pos)
+                    dist = self.admissible_heuristic(f.entry_cell, agent_pos)
                     res = f
                 else:
-                    tmp = self.admissible_heuristic(f.start_pos, agent_pos)
+                    tmp = self.admissible_heuristic(f.entry_cell, agent_pos)
                     if tmp < dist:
                         dist = tmp
                         res = f
@@ -714,7 +714,7 @@ class TokenPassing(object):
         frontiers = self.tokens[actual_part]['own_frontiers']
         for part, front in frontiers.items():
             for f in front:
-                if tuple(agent_pos) == f.start_pos:
+                if tuple(agent_pos) == f.entry_cell:
                     return part
 
         return -1

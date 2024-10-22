@@ -250,7 +250,7 @@ class TokenPassing(object):
         own_partition = self.find_partition(pos)
         for f in self.tokens[own_partition]['own_frontiers']:
             for front in self.tokens[own_partition]['own_frontiers'][f]:
-                if front.start_pos == tuple(pos):
+                if front.entry_cell == tuple(pos):
                     return True
 
         # for f in self.frontiers:
@@ -277,7 +277,7 @@ class TokenPassing(object):
             # frontiere verso la singola partizione
             for front in self.tokens[part_index]['own_frontiers'][f]:
                 # corrisponde ad una frontiera e len areas == 1 abort planning, finirò in un A* limit
-                if front.start_pos == tuple(pos_to_go):
+                if front.entry_cell == tuple(pos_to_go):
                     if front in occupied_frontiers:
                         return True
                     else:
@@ -349,7 +349,7 @@ class TokenPassing(object):
         own_partition = self.find_partition(agent_pos)
         for f in self.tokens[own_partition]['own_frontiers']:
             for front in self.tokens[own_partition]['own_frontiers'][f]:
-                if front.start_pos == tuple(agent_pos):
+                if front.entry_cell == tuple(agent_pos):
                     return False
 
         # for f in self.frontiers:
@@ -415,12 +415,12 @@ class TokenPassing(object):
         dist = -1
         res = -1
         for f in frontiers_to_next_part:
-            if f not in occupied_frontiers and self.no_agent_passing_in_frontier(f.start_pos, actual_part):
+            if f not in occupied_frontiers and self.no_agent_passing_in_frontier(f.entry_cell, actual_part):
                 if dist == -1:
-                    dist = self.admissible_heuristic(f.start_pos, agent_pos)
+                    dist = self.admissible_heuristic(f.entry_cell, agent_pos)
                     res = f
                 else:
-                    tmp = self.admissible_heuristic(f.start_pos, agent_pos)
+                    tmp = self.admissible_heuristic(f.entry_cell, agent_pos)
                     if tmp < dist:
                         dist = tmp
                         res = f
@@ -818,7 +818,7 @@ class TokenPassing(object):
                                                   all_idle_agents, next_part, time_start=0)
         # altrimenti o devo andare da una frontiera all'altra o al delivery
         else:
-            next_goal = self.find_next_goal(agent_name, closest_frontier.destination_pos, next_part, num_abs)
+            next_goal = self.find_next_goal(agent_name, closest_frontier.exit_cell, next_part, num_abs)
             #valid_path = self.compute_real_path_single(agent_name, closest_frontier.destination_pos, next_goal, all_idle_agents, next_part, time_start=0) #perché time_start = 0?
             if next_goal == -1:
                 valid_path = False
@@ -924,7 +924,7 @@ class TokenPassing(object):
         frontiers = self.tokens[actual_part]['own_frontiers']
         for part, front in frontiers.items():
             for f in front:
-                if tuple(agent_pos) == f.start_pos:
+                if tuple(agent_pos) == f.entry_cell:
                     return part
 
         return -1
@@ -933,8 +933,8 @@ class TokenPassing(object):
 
         if agent_name in self.tokens[actual_part]['occupied_frontiers']:
             f = self.tokens[actual_part]['occupied_frontiers'][agent_name]
-            if tuple(agent_pos) == f.start_pos:
-                return f.destination_partition
+            if tuple(agent_pos) == f.entry_cell:
+                return f.destination_segment
 
         return -1
 
@@ -1074,7 +1074,7 @@ class TokenPassing(object):
                 if on_frontier != -1:
                     self.migrazione(agent_name, agent_pos, agent_partition,
                                     self.tokens[agent_partition]['occupied_frontiers'][
-                                        agent_name].destination_partition, 2, agents_to_plan)
+                                        agent_name].destination_segment, 2, agents_to_plan)
                 else:
                     self.go_to_frontier(agent_name, agent_pos, local_idle_agents, agent_partition,
                                         self.global_view['abstract_to_loc2'][agent_name][1])
